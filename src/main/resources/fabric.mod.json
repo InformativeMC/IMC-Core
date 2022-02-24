@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "informative_mc_api_core",
+  "id": "informative_mc_core",
   "version": "${version}",
-  "name": "InformativeMC API-Core",
-  "description": "API core for monitoring & modifying MC server",
+  "name": "InformativeMC Core",
+  "description": "core for monitoring & modifying MC server",
   "authors": [
     "LinHeLurking"
   ],
@@ -19,12 +19,12 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "online.ruin_of_future.informative_mc_api_core.ModEntryPoint"
+        "value": "online.ruin_of_future.informative_mc_core.ModEntryPoint"
       }
     ]
   },
   "mixins": [
-    "informative_mc_api_core.mixins.json"
+    "informative_mc_core.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.12.12",

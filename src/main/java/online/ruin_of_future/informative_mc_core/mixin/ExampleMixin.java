@@ -1,4 +1,4 @@
-package online.ruin_of_future.informative_mc_api_core.mixin;
+package online.ruin_of_future.informative_mc_core.mixin;
 
 import net.minecraft.client.gui.screen.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;
