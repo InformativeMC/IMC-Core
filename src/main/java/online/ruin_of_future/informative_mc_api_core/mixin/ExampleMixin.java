@@ -1,4 +1,4 @@
-package com.mod_author.mod_id.mixin;
+package online.ruin_of_future.informative_mc_api_core.mixin;
 
 import net.minecraft.client.gui.screen.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,6 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ExampleMixin {
     @Inject(at = @At("HEAD"), method = "init()V")
     private void init(CallbackInfo info) {
-        System.out.println("This line is printed by an example mod mixin!");
+//        System.out.println("This line is printed by an example mod mixin!");
     }
 }

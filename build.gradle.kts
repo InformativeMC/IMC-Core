@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("fabric-loom")
     kotlin("jvm").version(System.getProperty("kotlinVersion"))
+    kotlin("plugin.serialization") version System.getProperty("kotlinVersion")
 }
 
 base {
@@ -22,6 +23,8 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${project.property("loaderVersion")}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabricVersion")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${project.property("fabricKotlinVersion")}")
+
+    implementation("com.sparkjava:spark-core:2.9.3")
 }
 
 tasks {
@@ -37,7 +40,10 @@ tasks {
     }
 
     withType<KotlinCompile> {
-        kotlinOptions { jvmTarget = javaVersion.toString() }
+        kotlinOptions {
+            jvmTarget = javaVersion.toString()
+            freeCompilerArgs = freeCompilerArgs + listOf("-Xopt-in=kotlin.RequiresOptIn")
+        }
         sourceCompatibility = javaVersion.toString()
         targetCompatibility = javaVersion.toString()
     }

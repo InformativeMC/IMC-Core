@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "mod_id",
+  "id": "informative_mc_api_core",
   "version": "${version}",
-  "name": "Mod Name",
-  "description": "Mod Description",
+  "name": "InformativeMC API-Core",
+  "description": "API core for monitoring & modifying MC server",
   "authors": [
-    "Author"
+    "LinHeLurking"
   ],
   "contact": {
     "homepage": "https://example.com/",
@@ -19,12 +19,12 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "com.mod_author.mod_id.ModName"
+        "value": "online.ruin_of_future.informative_mc_api_core.ModEntryPoint"
       }
     ]
   },
   "mixins": [
-    "mod_id.mixins.json"
+    "informative_mc_api_core.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.12.12",
