@@ -24,7 +24,7 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabricVersion")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${project.property("fabricKotlinVersion")}")
 
-    implementation("com.sparkjava:spark-core:2.9.3")
+    implementation("io.javalin:javalin:4.3.0")
 }
 
 tasks {

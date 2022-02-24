@@ -1,17 +1,22 @@
 package online.ruin_of_future.informative_mc_api_core
 
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import net.fabricmc.api.ModInitializer
+import online.ruin_of_future.informative_mc_api_core.web_api.ApiCenter
+import online.ruin_of_future.informative_mc_api_core.web_api.Server
 import org.apache.logging.log4j.LogManager
 import java.io.File
 import java.io.IOException
 import java.util.Timer
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.schedule
+import kotlin.coroutines.suspendCoroutine
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -19,11 +24,11 @@ import kotlin.concurrent.schedule
 object ModEntryPoint : ModInitializer {
     private val LOGGER = LogManager.getLogger("InformativeMC")
     private const val MOD_ID = "informative_mc_api_core"
-    const val MOD_CONFIG_DIR = "InformativeMC"
-    val CONFIG_NAME = "API-Core.json"
-    val modTimer = Timer("InformativeMC Timer")
+    private const val MOD_CONFIG_DIR = "InformativeMC"
+    private const val CONFIG_NAME = "API-Core.json"
+    private val modTimer = Timer("InformativeMC Timer")
 
-    val CONFIG_ROOT = run {
+    private val CONFIG_ROOT = run {
         val path = "$FILE_ROOT${File.separatorChar}config${File.separatorChar}$MOD_CONFIG_DIR"
         val file = File(path)
         if (!file.exists()) {
@@ -63,12 +68,12 @@ object ModEntryPoint : ModInitializer {
     init {
         // Start a coroutine to save config periodically
         modTimer.schedule(TimeUnit.SECONDS.toMillis(1), TimeUnit.MINUTES.toMillis(5)) {
-            LOGGER.info("Saving config file...")
             saveToFile(Json.encodeToString(config), getOrCreateConfigFile())
         }
     }
 
     override fun onInitialize() {
-
+        ApiCenter.setup()
+        Server.setup()
     }
 }
