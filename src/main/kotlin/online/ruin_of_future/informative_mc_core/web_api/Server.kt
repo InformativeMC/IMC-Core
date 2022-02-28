@@ -8,12 +8,15 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import online.ruin_of_future.informative_mc_core.ModEntryPoint
+import org.apache.logging.log4j.LogManager
 
 /**
  * Server which expose web api and potential web pages.
  * */
 @OptIn(ExperimentalSerializationApi::class)
 object Server {
+    private val LOGGER = LogManager.getLogger("IMC-Core")
+
     private val serverPort: Int
         get() = ModEntryPoint.config.port
 
@@ -33,10 +36,17 @@ object Server {
     fun setup() {
         app = Javalin.create().routes {
             path("api") {
-                get("heartbeat") { ctx ->
-                    ctx.jsonResult(ApiCenter.hearBeat())
+                get(HeartbeatApiId.toURIString()) { ctx ->
+                    ctx.jsonResult(Heartbeat.handle())
+                }
+                get(JvmInfoApiID.toURIString()) { ctx ->
+                    ctx.jsonResult(JvmInfo.handle())
+                }
+                get(OSInfoApiId.toURIString()) { ctx ->
+                    ctx.jsonResult(OSInfo.handle())
                 }
             }
         }.start(serverPort)
+        LOGGER.info("IMC-Core is starting at port $serverPort")
     }
 }

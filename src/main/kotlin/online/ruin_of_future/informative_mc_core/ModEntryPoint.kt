@@ -6,7 +6,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import net.fabricmc.api.ModInitializer
-import online.ruin_of_future.informative_mc_core.web_api.ApiCenter
 import online.ruin_of_future.informative_mc_core.web_api.Server
 import org.apache.logging.log4j.LogManager
 import java.io.File
@@ -19,7 +18,7 @@ import kotlin.concurrent.schedule
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
 object ModEntryPoint : ModInitializer {
-    private val LOGGER = LogManager.getLogger("InformativeMC")
+    private val LOGGER = LogManager.getLogger("IMC-Core")
     private const val MOD_ID = "informative_mc_api_core"
     private const val MOD_CONFIG_DIR = "InformativeMC"
     private const val CONFIG_NAME = "API-Core.json"
@@ -70,7 +69,6 @@ object ModEntryPoint : ModInitializer {
     }
 
     override fun onInitialize() {
-        ApiCenter.setup()
         Server.setup()
     }
 }
