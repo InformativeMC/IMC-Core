@@ -34,7 +34,9 @@ object Server {
      * Late init function, called when mod loaded
      * */
     fun setup() {
-        app = Javalin.create().routes {
+        app = Javalin.create { config ->
+            config.enableCorsForAllOrigins()
+        }.routes {
             path("api") {
                 get(HeartbeatApiId.toURIString()) { ctx ->
                     ctx.jsonResult(Heartbeat.handle())
