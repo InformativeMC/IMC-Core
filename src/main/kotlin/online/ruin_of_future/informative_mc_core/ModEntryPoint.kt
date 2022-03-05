@@ -2,14 +2,15 @@ package online.ruin_of_future.informative_mc_core
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.encodeToStream
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.server.MinecraftServer
 import online.ruin_of_future.informative_mc_core.web_api.ApiServer
 import org.apache.logging.log4j.LogManager
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.util.Timer
@@ -23,8 +24,8 @@ object ModEntryPoint : ModInitializer {
     private val LOGGER = LogManager.getLogger("IMC-Core")
     private const val MOD_ID = "informative_mc_api_core"
     private const val MOD_CONFIG_DIR = "InformativeMC"
-    private const val CONFIG_NAME = "API-Core.json"
-    private val modTimer = Timer("InformativeMC Timer")
+    private const val CONFIG_NAME = "IMC-Core.json"
+    private val modTimer = Timer("IMC Timer")
 
     lateinit var server: MinecraftServer
 
@@ -68,7 +69,8 @@ object ModEntryPoint : ModInitializer {
     init {
         // Start a coroutine to save config periodically
         modTimer.schedule(TimeUnit.SECONDS.toMillis(1), TimeUnit.MINUTES.toMillis(5)) {
-            saveToFile(Json.encodeToString(config), getOrCreateConfigFile())
+//            saveToFile(Json.encodeToString(config), getOrCreateConfigFile())
+            saveToFileLocked(config, getOrCreateConfigFile())
         }
     }
 

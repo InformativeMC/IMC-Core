@@ -1,7 +1,13 @@
 package online.ruin_of_future.informative_mc_core
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
+import java.io.RandomAccessFile
+import java.nio.ByteBuffer
 
 @Suppress("UnUsed")
 val FILE_ROOT = run {
@@ -20,8 +26,19 @@ fun getFile(root: String, path: String): File {
     return File("$root${File.separatorChar}$path")
 }
 
-fun saveToFile(content: String, file: File) {
-    file.writeBytes(content.toByteArray())
+//fun saveToFile(content: String, file: File) {
+//    file.writeBytes(content.toByteArray())
+//}
+
+@OptIn(ExperimentalSerializationApi::class)
+inline fun <reified T> saveToFileLocked(content: T, file: File) {
+    val raFile = RandomAccessFile(file, "rw")
+    val lock = raFile.channel.lock()
+    val outputStream = ByteArrayOutputStream()
+    Json.encodeToStream(content, outputStream)
+    raFile.channel.write(ByteBuffer.wrap(outputStream.toByteArray()))
+    lock.release()
+    raFile.channel.close()
 }
 
 fun Long.humanReadableSize(): String {
