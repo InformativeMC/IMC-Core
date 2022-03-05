@@ -9,6 +9,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import online.ruin_of_future.informative_mc_core.ModEntryPoint
 import org.apache.logging.log4j.LogManager
+import java.io.ByteArrayOutputStream
 
 /**
  * Server which expose web api and potential web pages.
@@ -22,12 +23,21 @@ object Server {
 
     private lateinit var app: Javalin
 
-
     /**
      * Context.json requires extra library. Use kotlinx.serialization instead.
      * */
     private inline fun <reified T> Context.jsonResult(serializable: T): Context {
         return contentType(ContentType.APPLICATION_JSON).result(Json.encodeToString(serializable))
+    }
+
+    val paraFreeApiHandlers = mutableMapOf<ApiID, ParaFreeApiHandler>()
+
+    fun registerApiHandler(apiHandler: ParaFreeApiHandler) {
+        paraFreeApiHandlers.putIfAbsent(apiHandler.id, apiHandler)
+    }
+
+    init {
+        registerApiHandler(Heartbeat())
     }
 
     /**
@@ -38,14 +48,21 @@ object Server {
             config.enableCorsForAllOrigins()
         }.routes {
             path("api") {
-                get(HeartbeatApiId.toURIString()) { ctx ->
-                    ctx.jsonResult(Heartbeat.handle())
-                }
-                get(JvmInfoApiID.toURIString()) { ctx ->
-                    ctx.jsonResult(JvmInfo.handle())
-                }
-                get(OSInfoApiId.toURIString()) { ctx ->
-                    ctx.jsonResult(OSInfo.handle())
+//                get(HeartbeatApiId.toURIString()) { ctx ->
+//                    ctx.jsonResult(Heartbeat.handle())
+//                }
+//                get(JvmInfoApiID.toURIString()) { ctx ->
+//                    ctx.jsonResult(JvmInfo.handle())
+//                }
+//                get(OSInfoApiId.toURIString()) { ctx ->
+//                    ctx.jsonResult(OSInfo.handle())
+//                }
+                paraFreeApiHandlers.forEach { (id, handler) ->
+                    get(id.toURIString()) { ctx ->
+                        val outputStream = ByteArrayOutputStream()
+                        handler.handle(outputStream)
+                        ctx.result(outputStream.toByteArray())
+                    }
                 }
             }
         }.start(serverPort)
