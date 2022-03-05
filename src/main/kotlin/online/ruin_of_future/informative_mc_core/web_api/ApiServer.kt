@@ -2,12 +2,9 @@ package online.ruin_of_future.informative_mc_core.web_api
 
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
-import io.javalin.http.ContentType
-import io.javalin.http.Context
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import online.ruin_of_future.informative_mc_core.ModEntryPoint
+import online.ruin_of_future.informative_mc_core.web_api.handler.*
 import org.apache.logging.log4j.LogManager
 import java.io.ByteArrayOutputStream
 
@@ -15,7 +12,7 @@ import java.io.ByteArrayOutputStream
  * Server which expose web api and potential web pages.
  * */
 @OptIn(ExperimentalSerializationApi::class)
-object Server {
+object ApiServer {
     private val LOGGER = LogManager.getLogger("IMC-Core")
 
     private val serverPort: Int
@@ -23,44 +20,38 @@ object Server {
 
     private lateinit var app: Javalin
 
-    /**
-     * Context.json requires extra library. Use kotlinx.serialization instead.
-     * */
-    private inline fun <reified T> Context.jsonResult(serializable: T): Context {
-        return contentType(ContentType.APPLICATION_JSON).result(Json.encodeToString(serializable))
-    }
-
-    val paraFreeApiHandlers = mutableMapOf<ApiID, ParaFreeApiHandler>()
+    private val paraFreeApiHandlers = mutableMapOf<ApiID, ParaFreeApiHandler>()
 
     fun registerApiHandler(apiHandler: ParaFreeApiHandler) {
         paraFreeApiHandlers.putIfAbsent(apiHandler.id, apiHandler)
     }
 
-    init {
+    private fun setupAllApi() {
         registerApiHandler(Heartbeat())
+        registerApiHandler(JvmInfo())
+        registerApiHandler(OSInfo())
+        registerApiHandler(PlayerInfo())
+
+        // Late init
+        paraFreeApiHandlers.forEach { (_, handler) ->
+            handler.setup()
+        }
     }
 
     /**
      * Late init function, called when mod loaded
      * */
     fun setup() {
+        setupAllApi()
+
         app = Javalin.create { config ->
             config.enableCorsForAllOrigins()
         }.routes {
             path("api") {
-//                get(HeartbeatApiId.toURIString()) { ctx ->
-//                    ctx.jsonResult(Heartbeat.handle())
-//                }
-//                get(JvmInfoApiID.toURIString()) { ctx ->
-//                    ctx.jsonResult(JvmInfo.handle())
-//                }
-//                get(OSInfoApiId.toURIString()) { ctx ->
-//                    ctx.jsonResult(OSInfo.handle())
-//                }
                 paraFreeApiHandlers.forEach { (id, handler) ->
                     get(id.toURIString()) { ctx ->
                         val outputStream = ByteArrayOutputStream()
-                        handler.handle(outputStream)
+                        handler.handleRequest(outputStream)
                         ctx.result(outputStream.toByteArray())
                     }
                 }

@@ -6,7 +6,9 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import net.fabricmc.api.ModInitializer
-import online.ruin_of_future.informative_mc_core.web_api.Server
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
+import net.minecraft.server.MinecraftServer
+import online.ruin_of_future.informative_mc_core.web_api.ApiServer
 import org.apache.logging.log4j.LogManager
 import java.io.File
 import java.io.IOException
@@ -23,6 +25,8 @@ object ModEntryPoint : ModInitializer {
     private const val MOD_CONFIG_DIR = "InformativeMC"
     private const val CONFIG_NAME = "API-Core.json"
     private val modTimer = Timer("InformativeMC Timer")
+
+    lateinit var server: MinecraftServer
 
     private val CONFIG_ROOT = run {
         val path = "$FILE_ROOT${File.separatorChar}config${File.separatorChar}$MOD_CONFIG_DIR"
@@ -69,6 +73,13 @@ object ModEntryPoint : ModInitializer {
     }
 
     override fun onInitialize() {
-        Server.setup()
+        ServerLifecycleEvents.SERVER_STARTED.register { server ->
+            if (server == null) {
+                throw NullPointerException("Cannot access current server!")
+            } else {
+                this.server = server
+            }
+        }
+        ApiServer.setup()
     }
 }
