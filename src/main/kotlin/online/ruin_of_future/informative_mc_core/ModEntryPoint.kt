@@ -1,75 +1,80 @@
 package online.ruin_of_future.informative_mc_core
 
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import kotlinx.serialization.json.encodeToStream
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.server.MinecraftServer
 import online.ruin_of_future.informative_mc_core.web_api.ApiServer
 import org.apache.logging.log4j.LogManager
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
-import java.util.Timer
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.schedule
 
+
+val modConfigFilePath = run {
+    val cwd = System.getProperty("user.dir")
+    if (cwd == null || cwd.isEmpty()) {
+        throw IOException("Cannot access current working directory")
+    } else {
+        if (cwd.endsWith(File.separatorChar)) {
+            cwd.trimEnd(File.separatorChar)
+        }
+    }
+
+    val modConfigDir = "$cwd${File.separatorChar}config${File.separatorChar}InformativeMC"
+    val modConfigDirFile = File(modConfigDir)
+    if (!modConfigDirFile.exists()) {
+        if (!modConfigDirFile.mkdirs()) {
+            throw IOException("Config directory does not exist and cannot be created.")
+        }
+    }
+
+    "$modConfigDir${File.separatorChar}IMC-Core.json"
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
 object ModEntryPoint : ModInitializer {
     private val LOGGER = LogManager.getLogger("IMC-Core")
     private const val MOD_ID = "informative_mc_api_core"
-    private const val MOD_CONFIG_DIR = "InformativeMC"
-    private const val CONFIG_NAME = "IMC-Core.json"
     private val modTimer = Timer("IMC Timer")
-
     lateinit var server: MinecraftServer
-
-    private val CONFIG_ROOT = run {
-        val path = "$FILE_ROOT${File.separatorChar}config${File.separatorChar}$MOD_CONFIG_DIR"
-        val file = File(path)
-        if (!file.exists()) {
-            if (file.mkdirs()) {
-                return@run path
-            } else {
-                throw IOException("Config directory does not exist and cannot be created.")
-            }
-        } else {
-            return@run path
-        }
-    }
+    var config: ModConfig
 
     private fun getOrCreateConfigFile(): File {
-        val file = getFile(CONFIG_ROOT, CONFIG_NAME)
+        val file = getFile(modConfigFilePath)
         if (!file.exists()) {
             file.createNewFile()
         }
         return file
     }
 
-    val config: ModConfig = run {
-        val configFile = getOrCreateConfigFile()
-        try {
-            return@run Json.decodeFromStream<ModConfig>(configFile.inputStream())
-        } catch (ioE: IOException) {
-            LOGGER.error("Cannot read config file")
-            throw ioE
-        } catch (serializationE: SerializationException) {
-            LOGGER.warn("Decoding config file failed, using a default config")
-            LOGGER.info("Copying old file")
-            configFile.renameTo(getFile(CONFIG_ROOT, "OLD-$CONFIG_NAME"))
-            return@run ModConfig.DEFAULT
-        }
-    }
-
     init {
+        // Check config
+        val configFile = getFile(modConfigFilePath)
+        config = if (configFile.exists()) {
+            try {
+                Json.decodeFromStream(configFile.inputStream())
+            } catch (e: Exception) {
+                val cpyFile = File("${configFile.absoluteFile.parent}${File.separatorChar}OLD-${configFile.name}")
+                cpyFile.writeBytes(configFile.readBytes())
+                LOGGER.warn("Error occurs when reading config file. Creating a default config instead.")
+                LOGGER.warn("Old config file would be renamed:")
+                LOGGER.warn("\t${configFile.absolutePath}")
+                LOGGER.warn("\t\t||")
+                LOGGER.warn("\t\t\\/")
+                LOGGER.warn("\t${cpyFile.absolutePath}")
+                ModConfig.DEFAULT
+            }
+        } else {
+            ModConfig.DEFAULT
+        }
         // Start a coroutine to save config periodically
         modTimer.schedule(TimeUnit.SECONDS.toMillis(1), TimeUnit.MINUTES.toMillis(5)) {
-//            saveToFile(Json.encodeToString(config), getOrCreateConfigFile())
             saveToFileLocked(config, getOrCreateConfigFile())
         }
     }

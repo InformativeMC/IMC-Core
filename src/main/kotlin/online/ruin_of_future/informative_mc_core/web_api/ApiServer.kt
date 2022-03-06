@@ -1,12 +1,14 @@
 package online.ruin_of_future.informative_mc_core.web_api
 
 import io.javalin.Javalin
-import io.javalin.apibuilder.ApiBuilder.*
+import io.javalin.apibuilder.ApiBuilder.get
+import io.javalin.apibuilder.ApiBuilder.path
 import kotlinx.serialization.ExperimentalSerializationApi
 import online.ruin_of_future.informative_mc_core.ModEntryPoint
 import online.ruin_of_future.informative_mc_core.web_api.handler.*
 import org.apache.logging.log4j.LogManager
 import java.io.ByteArrayOutputStream
+
 
 /**
  * Server which expose web api and potential web pages.
