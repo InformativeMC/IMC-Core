@@ -51,27 +51,41 @@ class SinglePlayerInfo private constructor(
     )
 }
 
+// For now, we don't implement authentication functionalities.
+// So it's a GET handler.
 @Suppress("UnUsed")
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 class PlayerInfo private constructor(
     val players: List<SinglePlayerInfo>,
     override val id: ApiID = PlayerInfoApiId
-) : ParamFreeHandler() {
+) : ParamGetHandler() {
 
     private val server: MinecraftServer
         get() = ModEntryPoint.server
 
     constructor() : this(emptyList())
 
-    override fun handleRequest(outputStream: OutputStream) {
-        val serverPlayers = server.playerManager.playerList.mapNotNull { playerEntity: ServerPlayerEntity? ->
-            when (playerEntity) {
-                null -> null
-                else -> SinglePlayerInfo(playerEntity)
+    override fun handleRequest(
+        queryParamMap: Map<String, List<String>>,
+        outputStream: OutputStream
+    ) {
+        val filteredPlayers = server.playerManager.playerList
+            .filter { playerEntity: ServerPlayerEntity? ->
+                if (queryParamMap.containsKey("name")) {
+                    playerEntity?.name?.asString() == queryParamMap["name"]!![0]
+                } else if (queryParamMap.containsKey("uuid")) {
+                    playerEntity?.uuid?.toString() == queryParamMap["uuid"]!![0]
+                } else {
+                    true
+                }
+            }.mapNotNull { playerEntity: ServerPlayerEntity? ->
+                when (playerEntity) {
+                    null -> null
+                    else -> SinglePlayerInfo(playerEntity)
+                }
             }
-        }
-        val info = PlayerInfo(serverPlayers)
+        val info = PlayerInfo(filteredPlayers)
         Json.encodeToStream(info, outputStream)
     }
 }

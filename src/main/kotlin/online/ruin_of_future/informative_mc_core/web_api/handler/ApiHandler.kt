@@ -21,3 +21,10 @@ abstract class ApiHandler {
 abstract class ParamFreeHandler : ApiHandler() {
     abstract fun handleRequest(outputStream: OutputStream)
 }
+
+abstract class ParamGetHandler : ApiHandler() {
+    abstract fun handleRequest(
+        queryParamMap: Map<String, List<String>>,
+        outputStream: OutputStream
+    )
+}

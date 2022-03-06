@@ -20,10 +20,15 @@ object ApiServer {
 
     private lateinit var app: Javalin
 
-    private val paraFreeApiHandlers = mutableMapOf<ApiID, ParamFreeHandler>()
+    private val paramFreeHandlers = mutableMapOf<ApiID, ParamFreeHandler>()
+    private val paramGetHandlers = mutableMapOf<ApiID, ParamGetHandler>()
 
     fun registerApiHandler(apiHandler: ParamFreeHandler) {
-        paraFreeApiHandlers.putIfAbsent(apiHandler.id, apiHandler)
+        paramFreeHandlers.putIfAbsent(apiHandler.id, apiHandler)
+    }
+
+    fun registerApiHandler(apiHandler: ParamGetHandler) {
+        paramGetHandlers.putIfAbsent(apiHandler.id, apiHandler)
     }
 
     private fun setupAllApi() {
@@ -33,7 +38,10 @@ object ApiServer {
         registerApiHandler(PlayerInfo())
 
         // Late init
-        paraFreeApiHandlers.forEach { (_, handler) ->
+        paramFreeHandlers.forEach { (_, handler) ->
+            handler.setup()
+        }
+        paramGetHandlers.forEach { (_, handler) ->
             handler.setup()
         }
     }
@@ -48,15 +56,19 @@ object ApiServer {
             config.enableCorsForAllOrigins()
         }.routes {
             path("api") {
-                paraFreeApiHandlers.forEach { (id, handler) ->
+                paramFreeHandlers.forEach { (id, handler) ->
                     get(id.toURIString()) { ctx ->
                         val outputStream = ByteArrayOutputStream()
                         handler.handleRequest(outputStream)
                         ctx.result(outputStream.toByteArray())
                     }
                 }
-                get("/123") { ctx ->
-
+                paramGetHandlers.forEach { (id, handler) ->
+                    get(id.toURIString()) { ctx ->
+                        val outputStream = ByteArrayOutputStream()
+                        handler.handleRequest(ctx.queryParamMap(), outputStream)
+                        ctx.result(outputStream.toByteArray())
+                    }
                 }
             }
         }.start(serverPort)
