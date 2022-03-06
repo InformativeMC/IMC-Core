@@ -25,6 +25,11 @@ dependencies {
     modImplementation("net.fabricmc:fabric-language-kotlin:${project.property("fabricKotlinVersion")}")
 
     implementation("io.javalin:javalin:4.3.0")
+
+    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
+    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
+    // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
 }
 
 tasks {

@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.concurrent.schedule
 
 
-val modConfigFilePath = run {
+val modConfigDirPath = run {
     val cwd = System.getProperty("user.dir")
     if (cwd == null || cwd.isEmpty()) {
         throw IOException("Cannot access current working directory")
@@ -24,16 +24,19 @@ val modConfigFilePath = run {
             cwd.trimEnd(File.separatorChar)
         }
     }
+    "$cwd${File.separatorChar}config${File.separatorChar}InformativeMC"
+}
 
-    val modConfigDir = "$cwd${File.separatorChar}config${File.separatorChar}InformativeMC"
-    val modConfigDirFile = File(modConfigDir)
+val modConfigFilePath = run {
+
+    val modConfigDirFile = File(modConfigDirPath)
     if (!modConfigDirFile.exists()) {
         if (!modConfigDirFile.mkdirs()) {
             throw IOException("Config directory does not exist and cannot be created.")
         }
     }
 
-    "$modConfigDir${File.separatorChar}IMC-Core.json"
+    "$modConfigDirPath${File.separatorChar}IMC-Core.json"
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -43,7 +46,7 @@ object ModEntryPoint : ModInitializer {
     private const val MOD_ID = "informative_mc_api_core"
     private val modTimer = Timer("IMC Timer")
     lateinit var server: MinecraftServer
-    var config: ModConfig
+    private var config: ModConfig
 
     private fun getOrCreateConfigFile(): File {
         val file = getFile(modConfigFilePath)
@@ -73,6 +76,7 @@ object ModEntryPoint : ModInitializer {
         } else {
             ModConfig.DEFAULT
         }
+        ModConfig.CURRENT = config
         // Start a coroutine to save config periodically
         modTimer.schedule(TimeUnit.SECONDS.toMillis(1), TimeUnit.MINUTES.toMillis(5)) {
             saveToFileLocked(config, getOrCreateConfigFile())

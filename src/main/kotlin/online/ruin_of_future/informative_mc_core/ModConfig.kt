@@ -11,7 +11,9 @@ data class ModConfig(
     companion object {
         val DEFAULT = ModConfig(
             port = 3030,
-            keyStorePath = "$modConfigFilePath${File.separatorChar}IMC-key",
+            keyStorePath = "$modConfigDirPath${File.separatorChar}IMC-Core.jks",
         )
+
+        lateinit var CURRENT: ModConfig
     }
 }
