@@ -1,16 +1,16 @@
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import kotlinx.serialization.ExperimentalSerializationApi
-import online.ruin_of_future.informative_mc_core.humanReadableSize
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
+import online.ruin_of_future.informative_mc_core.humanReadableSize
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import java.io.OutputStream
 
 val OSInfoApiId = ApiID("system-info", "os-info")
 
-@OptIn(ExperimentalSerializationApi::class)
+@Suppress("UnUsed")
 @Serializable
 class OSInfo private constructor(
     // OS Info
@@ -19,17 +19,16 @@ class OSInfo private constructor(
     val allocatedMemory: String,
     val freeMemory: String,
     override val id: ApiID = OSInfoApiId,
-) : ParaFreeApiHandler() {
+) : ParamFreeHandler() {
 
     constructor() : this("???", "???", "???", "???")
 
     override fun handleRequest(outputStream: OutputStream) {
-        val info = OSInfo(
+        OSInfo(
             System.getProperty("os.name") ?: "unknown",
             Runtime.getRuntime().maxMemory().humanReadableSize(),
             Runtime.getRuntime().totalMemory().humanReadableSize(),
             Runtime.getRuntime().freeMemory().humanReadableSize(),
-        )
-        Json.encodeToStream(info, outputStream)
+        ).writeToStream(outputStream)
     }
 }

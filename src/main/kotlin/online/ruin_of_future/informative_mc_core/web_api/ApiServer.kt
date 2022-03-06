@@ -20,9 +20,9 @@ object ApiServer {
 
     private lateinit var app: Javalin
 
-    private val paraFreeApiHandlers = mutableMapOf<ApiID, ParaFreeApiHandler>()
+    private val paraFreeApiHandlers = mutableMapOf<ApiID, ParamFreeHandler>()
 
-    fun registerApiHandler(apiHandler: ParaFreeApiHandler) {
+    fun registerApiHandler(apiHandler: ParamFreeHandler) {
         paraFreeApiHandlers.putIfAbsent(apiHandler.id, apiHandler)
     }
 
@@ -54,6 +54,9 @@ object ApiServer {
                         handler.handleRequest(outputStream)
                         ctx.result(outputStream.toByteArray())
                     }
+                }
+                get("/123") { ctx ->
+
                 }
             }
         }.start(serverPort)

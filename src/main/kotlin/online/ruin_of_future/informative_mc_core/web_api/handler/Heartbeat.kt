@@ -9,17 +9,16 @@ import java.io.OutputStream
 
 val HeartbeatApiId = ApiID("system-info", "heartbeat")
 
+@Suppress("UnUsed")
 @Serializable
-@OptIn(ExperimentalSerializationApi::class)
 class Heartbeat private constructor(
     val status: String,
     override val id: ApiID = HeartbeatApiId,
-) : ParaFreeApiHandler() {
+) : ParamFreeHandler() {
 
     constructor() : this("???")
 
     override fun handleRequest(outputStream: OutputStream) {
-        val info = Heartbeat("healthy")
-        Json.encodeToStream(info, outputStream)
+        Heartbeat("healthy").writeToStream(outputStream)
     }
 }

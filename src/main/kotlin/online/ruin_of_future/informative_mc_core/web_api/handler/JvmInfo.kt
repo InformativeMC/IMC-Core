@@ -10,7 +10,6 @@ import java.io.OutputStream
 val JvmInfoApiID = ApiID("system-info", "jvm-info")
 
 @Suppress("UnUsed")
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 class JvmInfo private constructor(
     // Jvm Info
@@ -23,18 +22,17 @@ class JvmInfo private constructor(
     val javaVersion: String,
     val kotlinVersion: String,
     override val id: ApiID = JvmInfoApiID,
-) : ParaFreeApiHandler() {
+) : ParamFreeHandler() {
     constructor() : this("???", "???", "???", "???", "???", "???")
 
     override fun handleRequest(outputStream: OutputStream) {
-        val info = JvmInfo(
-            System.getProperty("java.vm.name") ?: "unknown",
-            System.getProperty("java.vm.vendor") ?: "unknown",
-            System.getProperty("java.vm.version") ?: "unknown",
-            System.getProperty("Java.vm.info") ?: "unknown",
-            System.getProperty("java.version") ?: "unknown",
-            KotlinVersion.CURRENT.toString(),
-        )
-        Json.encodeToStream(info, outputStream)
+        JvmInfo(
+            jvmName = System.getProperty("java.vm.name") ?: "unknown",
+            jvmVendor = System.getProperty("java.vm.vendor") ?: "unknown",
+            jvmVersion = System.getProperty("java.vm.version") ?: "unknown",
+            jvmInfo = System.getProperty("Java.vm.info") ?: "unknown",
+            javaVersion = System.getProperty("java.version") ?: "unknown",
+            kotlinVersion = KotlinVersion.CURRENT.toString(),
+        ).writeToStream(outputStream)
     }
 }
