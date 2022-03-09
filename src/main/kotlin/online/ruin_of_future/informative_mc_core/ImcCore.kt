@@ -21,6 +21,8 @@ import kotlinx.serialization.json.decodeFromStream
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.server.MinecraftServer
+import online.ruin_of_future.informative_mc_core.command.ImcCommand
+import online.ruin_of_future.informative_mc_core.token_system.TokenManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiServer
 import org.apache.logging.log4j.LogManager
 import java.io.File
@@ -50,13 +52,14 @@ val tmpDirPath = "$cwd${File.separatorChar}tmp${File.separatorChar}InformativeMC
 
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
-object ModEntryPoint : ModInitializer {
+object ImcCore : ModInitializer {
     private val LOGGER = LogManager.getLogger("IMC-Core")
     private const val MOD_ID = "informative_mc_api_core"
     private val modTimer = Timer("IMC Timer")
     lateinit var server: MinecraftServer
     private lateinit var config: ModConfig
     lateinit var data: ModData
+    lateinit var tokenManager: TokenManager
 
     private fun createDirsIfNeeded() {
         arrayOf(modConfigDirPath, modDataDirPath).forEach {
@@ -123,10 +126,16 @@ object ModEntryPoint : ModInitializer {
         }
     }
 
+    private fun setupTokenManager() {
+        tokenManager = TokenManager()
+    }
+
     override fun onInitialize() {
         createDirsIfNeeded()
         loadConfig()
         loadData()
+        setupTokenManager()
+        ImcCommand.setup(tokenManager)
         registerServerCallback()
         ApiServer.setup()
     }

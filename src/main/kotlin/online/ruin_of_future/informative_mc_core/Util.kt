@@ -17,6 +17,11 @@
 package online.ruin_of_future.informative_mc_core
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers
@@ -160,4 +165,16 @@ fun generateCertificate(
     return JcaX509CertificateConverter()
         .setProvider(BouncyCastleProvider())
         .getCertificate(certBuilder.build(contentSigner))
+}
+
+object UUIDSerializer : KSerializer<UUID> {
+    override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: UUID) {
+        encoder.encodeString(value.toString())
+    }
+
+    override fun deserialize(decoder: Decoder): UUID {
+        return UUID.fromString(decoder.decodeString())
+    }
 }

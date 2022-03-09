@@ -19,7 +19,7 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "online.ruin_of_future.informative_mc_core.ModEntryPoint"
+        "value": "online.ruin_of_future.informative_mc_core.ImcCore"
       }
     ]
   },

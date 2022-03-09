@@ -15,32 +15,16 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import online.ruin_of_future.informative_mc_core.ModEntryPoint
+import online.ruin_of_future.informative_mc_core.ImcCore
+import online.ruin_of_future.informative_mc_core.UUIDSerializer
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import java.io.OutputStream
 import java.util.*
 
 val PlayerInfoApiId = ApiID("mc-info", "player-info")
-
-object UUIDSerializer : KSerializer<UUID> {
-    override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
-
-    override fun serialize(encoder: Encoder, value: UUID) {
-        encoder.encodeString(value.toString())
-    }
-
-    override fun deserialize(decoder: Decoder): UUID {
-        return UUID.fromString(decoder.decodeString())
-    }
-}
 
 @Suppress("UnUsed")
 @Serializable
@@ -73,7 +57,7 @@ class PlayerInfo private constructor(
 ) : ParamGetHandler() {
 
     private val server: MinecraftServer
-        get() = ModEntryPoint.server
+        get() = ImcCore.server
 
     constructor() : this(emptyList())
 
