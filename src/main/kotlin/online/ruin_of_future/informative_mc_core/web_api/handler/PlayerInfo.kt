@@ -15,15 +15,12 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToStream
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import online.ruin_of_future.informative_mc_core.ModEntryPoint
@@ -69,7 +66,6 @@ class SinglePlayerInfo private constructor(
 // For now, we don't implement authentication functionalities.
 // So it's a GET handler.
 @Suppress("UnUsed")
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 class PlayerInfo private constructor(
     val players: List<SinglePlayerInfo>,
@@ -101,6 +97,6 @@ class PlayerInfo private constructor(
                 }
             }
         val info = PlayerInfo(filteredPlayers)
-        Json.encodeToStream(info, outputStream)
+        info.writeToStream(outputStream)
     }
 }

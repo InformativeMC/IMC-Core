@@ -13,7 +13,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import kotlinx.serialization.ExperimentalSerializationApi

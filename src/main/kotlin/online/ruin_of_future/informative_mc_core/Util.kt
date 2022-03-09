@@ -21,30 +21,25 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers
 import org.bouncycastle.asn1.x500.X500Name
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier
-import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier
-import org.bouncycastle.asn1.x509.BasicConstraints
-import org.bouncycastle.asn1.x509.Extension
-import org.bouncycastle.asn1.x509.SubjectKeyIdentifier
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
+import org.bouncycastle.asn1.x509.*
 import org.bouncycastle.cert.X509ExtensionUtils
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.operator.bc.BcDigestCalculatorProvider
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.RandomAccessFile
+import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.security.KeyPair
 import java.security.KeyPairGenerator
+import java.security.PublicKey
+import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import java.util.*
 import java.util.concurrent.TimeUnit
-import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
-import java.math.BigInteger
-import java.security.PublicKey
-import java.security.SecureRandom
 
 
 fun getFile(root: String, path: String): File {
