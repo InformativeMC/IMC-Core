@@ -11,11 +11,9 @@ import org.apache.logging.log4j.LogManager
 import java.io.File
 import java.io.IOException
 import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.concurrent.schedule
 
-
-val modConfigDirPath = run {
+val cwd = run {
+    // TODO: Replace with a more general way to detect correct directory.
     val cwd = System.getProperty("user.dir")
     if (cwd == null || cwd.isEmpty()) {
         throw IOException("Cannot access current working directory")
@@ -24,20 +22,17 @@ val modConfigDirPath = run {
             cwd.trimEnd(File.separatorChar)
         }
     }
-    "$cwd${File.separatorChar}config${File.separatorChar}InformativeMC"
+    cwd
 }
 
-val modConfigFilePath = run {
+val modConfigDirPath = "$cwd${File.separatorChar}config${File.separatorChar}InformativeMC"
+val modConfigFilePath = "$modConfigDirPath${File.separatorChar}IMC-Core.json"
 
-    val modConfigDirFile = File(modConfigDirPath)
-    if (!modConfigDirFile.exists()) {
-        if (!modConfigDirFile.mkdirs()) {
-            throw IOException("Config directory does not exist and cannot be created.")
-        }
-    }
+val modDataDirPath = "$cwd${File.separatorChar}mods${File.separatorChar}InformativeMC"
+val modDataFilePath =
+    "$cwd${File.separatorChar}data${File.separatorChar}InformativeMC${File.separatorChar}IMC-Core.data"
 
-    "$modConfigDirPath${File.separatorChar}IMC-Core.json"
-}
+val tmpDirPath = "$cwd${File.separatorChar}tmp${File.separatorChar}InformativeMC"
 
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
@@ -46,44 +41,65 @@ object ModEntryPoint : ModInitializer {
     private const val MOD_ID = "informative_mc_api_core"
     private val modTimer = Timer("IMC Timer")
     lateinit var server: MinecraftServer
-    private var config: ModConfig
+    private lateinit var config: ModConfig
+    lateinit var data: ModData
 
-    private fun getOrCreateConfigFile(): File {
-        val file = getFile(modConfigFilePath)
-        if (!file.exists()) {
-            file.createNewFile()
+    private fun createDirsIfNeeded() {
+        arrayOf(modConfigDirPath, modDataDirPath).forEach {
+            val file = File(it)
+            if (!file.exists()) {
+                if (!file.mkdirs()) {
+                    LOGGER.error("Failed when creating directory $it")
+                }
+            }
         }
-        return file
     }
 
-    init {
-        // Check config
-        val configFile = getFile(modConfigFilePath)
-        config = if (configFile.exists()) {
+    private inline fun <reified T> safeLoadFile(
+        path: String,
+        default: T,
+        createAndWriteIfAbsent: Boolean = true
+    ): T {
+        val file = getFile(path)
+        val obj = if (file.exists()) {
             try {
-                Json.decodeFromStream(configFile.inputStream())
+                Json.decodeFromStream<T>(file.inputStream())
             } catch (e: Exception) {
-                val cpyFile = File("${configFile.absoluteFile.parent}${File.separatorChar}OLD-${configFile.name}")
-                cpyFile.writeBytes(configFile.readBytes())
-                LOGGER.warn("Error occurs when reading config file. Creating a default config instead.")
+                val cpyFile = File("${file.absoluteFile.parent}${File.separatorChar}OLD-${file.name}")
+                cpyFile.writeBytes(file.readBytes())
+                LOGGER.warn("Error occurs when reading file. Creating a default config instead.")
                 LOGGER.warn("Old config file would be renamed:")
-                LOGGER.warn("\t${configFile.absolutePath}")
+                LOGGER.warn("\t${file.absolutePath}")
                 LOGGER.warn("\t\t||")
                 LOGGER.warn("\t\t\\/")
                 LOGGER.warn("\t${cpyFile.absolutePath}")
-                ModConfig.DEFAULT
+                default
             }
         } else {
-            ModConfig.DEFAULT
+            if (createAndWriteIfAbsent) {
+                LOGGER.info("Load file failed. Creating a default one...")
+                if (file.createNewFile()) {
+                    saveToFileLocked(default, file)
+                } else {
+                    LOGGER.error("Creating default file failed.")
+                }
+            }
+            default
         }
-        ModConfig.CURRENT = config
-        // Start a coroutine to save config periodically
-        modTimer.schedule(TimeUnit.SECONDS.toMillis(1), TimeUnit.MINUTES.toMillis(5)) {
-            saveToFileLocked(config, getOrCreateConfigFile())
-        }
+        return obj
     }
 
-    override fun onInitialize() {
+    private fun loadConfig() {
+        config = safeLoadFile(modConfigFilePath, ModConfig.DEFAULT)
+        ModConfig.CURRENT = config
+    }
+
+    private fun loadData() {
+        data = safeLoadFile(modDataFilePath, ModData.DEFAULT)
+        ModData.CURRENT = data
+    }
+
+    private fun registerServerCallback() {
         ServerLifecycleEvents.SERVER_STARTED.register { server ->
             if (server == null) {
                 throw NullPointerException("Cannot access current server!")
@@ -91,6 +107,13 @@ object ModEntryPoint : ModInitializer {
                 this.server = server
             }
         }
+    }
+
+    override fun onInitialize() {
+        createDirsIfNeeded()
+        loadConfig()
+        loadData()
+        registerServerCallback()
         ApiServer.setup()
     }
 }

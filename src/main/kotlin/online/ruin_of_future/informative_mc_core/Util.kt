@@ -79,6 +79,17 @@ fun Int.humanReadableSize(): String {
     return this.toLong().humanReadableSize()
 }
 
+fun generateRandomString(
+    length: Int,
+    candidateChars: String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()_+=-0987654321`"
+): String {
+    val sb = StringBuilder()
+    for (i in 0 until length) {
+        sb.append(candidateChars.random())
+    }
+    return sb.toString()
+}
+
 fun generateKeyPair(keySize: Int): KeyPair {
     val generator = KeyPairGenerator.getInstance("RSA")
     generator.initialize(keySize)
