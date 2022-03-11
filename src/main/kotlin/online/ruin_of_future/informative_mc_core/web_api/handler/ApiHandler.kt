@@ -42,14 +42,14 @@ abstract class ParamFreeHandler : ApiHandler() {
 
 abstract class ParamGetHandler : ApiHandler() {
     abstract fun handleRequest(
-        queryParamMap: Map<String, List<String>>,
+        queryParams: Map<String, List<String>>,
         outputStream: OutputStream
     )
 }
 
 abstract class ParamPostHandler : ApiHandler() {
     abstract fun handleRequest(
-        formParamMap: Map<String, List<String>>,
+        formParams: Map<String, List<String>>,
         outputStream: OutputStream
     )
 }

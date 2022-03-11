@@ -20,10 +20,10 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToStream
 import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.asn1.x509.*
@@ -33,11 +33,8 @@ import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.operator.bc.BcDigestCalculatorProvider
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.RandomAccessFile
 import java.math.BigInteger
-import java.nio.ByteBuffer
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.PublicKey
@@ -56,18 +53,12 @@ fun getFile(absolutePath: String): File {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-inline fun <reified T> saveToFileLocked(content: T, file: File) {
-    val raFile = RandomAccessFile(file, "rw")
-    val lock = raFile.channel.lock()
-    val outputStream = ByteArrayOutputStream()
-    Json.encodeToStream(content, outputStream)
-    raFile.channel.write(ByteBuffer.wrap(outputStream.toByteArray()))
-    lock.release()
-    raFile.channel.close()
+inline fun <reified T> saveToFile(content: T, file: File) {
+    file.writeText(Json.encodeToString(content))
 }
 
-inline fun <reified T> saveToFileLocked(content: T, filePath: String) {
-    saveToFileLocked(content, File(filePath))
+inline fun <reified T> saveToFile(content: T, filePath: String) {
+    saveToFile(content, File(filePath))
 }
 
 fun Long.humanReadableSize(): String {
@@ -99,7 +90,7 @@ fun Int.humanReadableSize(): String {
 
 fun generateRandomString(
     length: Int,
-    candidateChars: String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()_+=-0987654321`"
+    candidateChars: String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()_+=-0987654321"
 ): String {
     val sb = StringBuilder()
     for (i in 0 until length) {

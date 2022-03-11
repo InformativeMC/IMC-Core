@@ -77,6 +77,7 @@ class ApiServer(
         registerApiHandler(OSInfo())
         registerApiHandler(PlayerInfo())
         registerApiHandler(UserRegisterHandler(tokenManager, modData))
+        registerApiHandler(UserTestHandler(tokenManager, modData))
 
         // Late init
         paramFreeHandlers.forEach { (_, handler) ->

@@ -33,12 +33,36 @@ data class UserRegisterResponse(
     val userName: String,
     @Serializable(with = UUIDSerializer::class)
     val key: UUID,
-)
+) {
+    companion object {
+        fun success(userName: String, key: UUID): UserRegisterResponse {
+            return UserRegisterResponse(
+                status = "success",
+                info = "",
+                userName = userName,
+                key = key,
+            )
+        }
 
-data class UserRegisterRequest(
-    val userName: String,
-    val token: UUID,
-)
+        fun usedUsername(userName: String, key: UUID): UserRegisterResponse {
+            return UserRegisterResponse(
+                status = "error",
+                info = "already occupied username",
+                userName = userName,
+                key = key,
+            )
+        }
+
+        fun invalidToken(userName: String, key: UUID): UserRegisterResponse {
+            return UserRegisterResponse(
+                status = "error",
+                info = "not a valid token",
+                userName = userName,
+                key = key,
+            )
+        }
+    }
+}
 
 class UserRegisterHandler(
     private val tokenManager: TokenManager,
@@ -46,51 +70,28 @@ class UserRegisterHandler(
 ) : ParamPostHandler() {
     override val id: ApiID = UserRegisterApiId
 
-    private fun parseParams(
-        formParamMap: Map<String, List<String>>
-    ): UserRegisterRequest {
-        val u = formParamMap["token"]?.get(0)
-            ?: throw MissingParameterException("Need token for register")
-        val uuid = try {
-            UUID.fromString(u)
-        } catch (e: IllegalArgumentException) {
-            UUID.randomUUID() // useless
-        }
-        return UserRegisterRequest(
-            userName = formParamMap["userName"]?.get(0)
-                ?: throw MissingParameterException("Need user name for register"),
-            token = uuid,
-        )
-    }
-
-    override fun handleRequest(formParamMap: Map<String, List<String>>, outputStream: OutputStream) {
+    override fun handleRequest(formParams: Map<String, List<String>>, outputStream: OutputStream) {
         try {
-            val req = parseParams(formParamMap)
-            if (tokenManager.validate(req.token)) {
-                if (!modData.hasUser(req.userName)) {
+            val req = parseUserRequest(formParams)
+            if (tokenManager.verify(req.token)) {
+                if (!modData.hasUserName(req.userName)) {
                     val user = ImcUser(
                         req.userName,
-                        tokenManager.getToken(req.token)!!
+                        req.token
                     )
                     modData.addUser(user)
-                    UserRegisterResponse(
-                        status = "success",
-                        info = "",
+                    UserRegisterResponse.success(
                         userName = req.userName,
                         key = tokenManager.addForeverToken().uuid,
                     ).writeToStream(outputStream)
                 } else {
-                    UserRegisterResponse(
-                        status = "error",
-                        info = "already occupied username",
+                    UserRegisterResponse.usedUsername(
                         userName = req.userName,
                         key = UUID.randomUUID(), // useless
                     ).writeToStream(outputStream)
                 }
             } else {
-                UserRegisterResponse(
-                    status = "error",
-                    info = "not a valid token",
+                UserRegisterResponse.invalidToken(
                     userName = req.userName,
                     key = UUID.randomUUID(), // useless
                 ).writeToStream(outputStream)

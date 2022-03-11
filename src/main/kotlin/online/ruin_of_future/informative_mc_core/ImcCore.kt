@@ -28,8 +28,6 @@ import org.apache.logging.log4j.LogManager
 import java.io.File
 import java.io.IOException
 import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.concurrent.schedule
 
 val cwd = run {
     // TODO: Replace with a more general way to detect correct directory.
@@ -100,7 +98,7 @@ object ImcCore : ModInitializer {
             if (createAndWriteIfAbsent) {
                 LOGGER.info("Load file failed. Creating a default one...")
                 if (file.createNewFile()) {
-                    saveToFileLocked(default, file)
+                    saveToFile(default, file)
                 } else {
                     LOGGER.error("Creating default file failed.")
                 }
@@ -113,24 +111,24 @@ object ImcCore : ModInitializer {
     private fun loadConfig() {
         config = safeLoadFile(modConfigFilePath, ModConfig.DEFAULT)
         // TODO: Write on demand
-        modTimer.schedule(
-            delay = TimeUnit.SECONDS.toMillis(1),
-            period = TimeUnit.MINUTES.toMillis(5),
-        ) {
-            saveToFileLocked(data, modConfigFilePath)
-        }
+//        modTimer.schedule(
+//            delay = TimeUnit.SECONDS.toMillis(1),
+//            period = TimeUnit.MINUTES.toMillis(5),
+//        ) {
+//            saveToFileLocked(data, modConfigFilePath)
+//        }
     }
 
     private fun loadData() {
         data = safeLoadFile(modDataFilePath, ModData.DEFAULT)
         // TODO: Write on demand
         // TODO: Replace it with a Database
-        modTimer.schedule(
-            delay = TimeUnit.SECONDS.toMillis(1),
-            period = TimeUnit.MINUTES.toMillis(5),
-        ) {
-            saveToFileLocked(data, modDataFilePath)
-        }
+//        modTimer.schedule(
+//            delay = TimeUnit.SECONDS.toMillis(1),
+//            period = TimeUnit.MINUTES.toMillis(5),
+//        ) {
+//            saveToFileLocked(data, modDataFilePath)
+//        }
     }
 
     private fun setupApiServer() {

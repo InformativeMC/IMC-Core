@@ -16,49 +16,49 @@
 package online.ruin_of_future.informative_mc_core
 
 import kotlinx.serialization.Serializable
-import online.ruin_of_future.informative_mc_core.token_system.ForeverToken
-import online.ruin_of_future.informative_mc_core.token_system.Token
 import org.apache.logging.log4j.LogManager
 import java.util.*
 
 @Serializable
 class ImcUser(
     val userName: String,
-    val userToken: Token
+    @Serializable(with = UUIDSerializer::class)
+    val userTokenId: UUID
 )
 
 @Serializable
 class ModData(
-    private val user: HashMap<String, ImcUser>
+    // TODO: Concurrent
+    private val users: HashMap<String, ImcUser>
 ) {
-    private val LOGGER = LogManager.getLogger("IMC data")
+    private val LOGGER = LogManager.getLogger("IMC Data")
 
-    fun hasUser(userName: String): Boolean {
-        return user.containsKey(userName)
+    fun hasUserName(userName: String): Boolean {
+        return users.containsKey(userName)
+    }
+
+    fun hasUser(userName: String, imcUser: ImcUser): Boolean {
+        return users[userName]?.userName == imcUser.userName &&
+                users[userName]?.userTokenId == imcUser.userTokenId
     }
 
     fun addUser(newUser: ImcUser) {
         LOGGER.info("A new user added: ${newUser.userName}")
-        user[newUser.userName] = newUser
+        users[newUser.userName] = newUser
     }
 
     fun removeUser(userName: String): Boolean {
-        return if (user.containsKey(userName)) {
-            user.remove(userName, user[userName])
+        return if (users.containsKey(userName)) {
+            users.remove(userName, users[userName])
         } else {
             false
         }
     }
 
+
     companion object {
         val DEFAULT = ModData(
-            user = hashMapOf(
-                // A hard coded user for tests.
-                "TestUser" to ImcUser(
-                    userName = "TestUser",
-                    userToken = ForeverToken(UUID.fromString("a90d605d-939a-4ad3-b4b0-e5333e8ba967"))
-                )
-            )
+            users = hashMapOf()
         )
     }
 }

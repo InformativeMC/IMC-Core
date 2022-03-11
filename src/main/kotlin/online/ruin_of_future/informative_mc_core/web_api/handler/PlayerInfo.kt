@@ -65,15 +65,15 @@ class PlayerInfo private constructor(
     constructor() : this(emptyList())
 
     override fun handleRequest(
-        queryParamMap: Map<String, List<String>>,
+        queryParams: Map<String, List<String>>,
         outputStream: OutputStream
     ) {
         val filteredPlayers = server.playerManager.playerList
             .filter { playerEntity: ServerPlayerEntity? ->
-                if (queryParamMap.containsKey("name")) {
-                    playerEntity?.name?.asString() == queryParamMap["name"]!![0]
-                } else if (queryParamMap.containsKey("uuid")) {
-                    playerEntity?.uuid?.toString() == queryParamMap["uuid"]!![0]
+                if (queryParams.containsKey("name")) {
+                    playerEntity?.name?.asString() == queryParams["name"]!![0]
+                } else if (queryParams.containsKey("uuid")) {
+                    playerEntity?.uuid?.toString() == queryParams["uuid"]!![0]
                 } else {
                     true
                 }

@@ -16,14 +16,12 @@
 package online.ruin_of_future.informative_mc_core.token_system
 
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.schedule
 
 // TODO: persistent storage
-
 class TokenManager {
-    private val tokenBin = ConcurrentHashMap<UUID, Token>()
+    private val tokenBin = HashMap<UUID, Token>()
     private val timer = Timer("TokenSystem", true)
 
     fun addTimedToken(expiredAfterMillis: Long = TimeUnit.SECONDS.toMillis(60 * 5)): Token {
@@ -62,7 +60,11 @@ class TokenManager {
         return token
     }
 
-    fun validate(uuid: UUID): Boolean {
+    private fun addForeverToken(uuid: UUID) {
+        tokenBin[uuid] = ForeverToken(uuid)
+    }
+
+    fun verify(uuid: UUID): Boolean {
         return tokenBin[uuid]?.isValid() == true
     }
 
@@ -72,7 +74,7 @@ class TokenManager {
 
     private fun clearOutdatedToken() {
         tokenBin.forEach { (k, v) ->
-            if (v.isValid()) {
+            if (!v.isValid()) {
                 tokenBin.remove(k)
             }
         }
