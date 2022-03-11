@@ -16,8 +16,10 @@
 package online.ruin_of_future.informative_mc_core
 
 import kotlinx.serialization.Serializable
+import online.ruin_of_future.informative_mc_core.token_system.ForeverToken
 import online.ruin_of_future.informative_mc_core.token_system.Token
 import org.apache.logging.log4j.LogManager
+import java.util.*
 
 @Serializable
 class ImcUser(
@@ -50,7 +52,13 @@ class ModData(
 
     companion object {
         val DEFAULT = ModData(
-            user = hashMapOf()
+            user = hashMapOf(
+                // A hard coded user for tests.
+                "TestUser" to ImcUser(
+                    userName = "TestUser",
+                    userToken = ForeverToken(UUID.fromString("a90d605d-939a-4ad3-b4b0-e5333e8ba967"))
+                )
+            )
         )
     }
 }
