@@ -8,33 +8,35 @@ import java.io.OutputStream
 
 val UserTestApiId = ApiID("imc-manage", "test-user")
 
+// TODO: Lift `requestStatus` and `requestInfo` out.
+
 @Serializable
 data class UserTestResponse(
-    val status: String,
-    val info: String,
+    val requestStatus: String,
+    val requestInfo: String,
     val userName: String,
 ) {
     companion object {
         fun success(userName: String): UserTestResponse {
             return UserTestResponse(
-                status = "success",
-                info = "",
+                requestStatus = "success",
+                requestInfo = "",
                 userName = userName,
             )
         }
 
         fun unknownUserName(userName: String): UserTestResponse {
             return UserTestResponse(
-                status = "error",
-                info = "unknown username",
+                requestStatus = "error",
+                requestInfo = "unknown username",
                 userName = userName,
             )
         }
 
         fun invalidToken(userName: String): UserTestResponse {
             return UserTestResponse(
-                status = "error",
-                info = "invalid token",
+                requestStatus = "error",
+                requestInfo = "invalid token",
                 userName = userName,
             )
         }

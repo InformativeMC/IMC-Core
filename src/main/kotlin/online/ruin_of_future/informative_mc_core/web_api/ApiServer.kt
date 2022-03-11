@@ -73,9 +73,9 @@ class ApiServer(
 
     private fun setupAllApi() {
         registerApiHandler(Heartbeat())
-        registerApiHandler(JvmInfo())
-        registerApiHandler(OSInfo())
-        registerApiHandler(PlayerInfo())
+        registerApiHandler(JvmInfoHandler(tokenManager, modData))
+        registerApiHandler(OSInfoHandler(tokenManager, modData))
+        registerApiHandler(PlayerInfoHandler(tokenManager, modData))
         registerApiHandler(UserRegisterHandler(tokenManager, modData))
         registerApiHandler(UserTestHandler(tokenManager, modData))
 

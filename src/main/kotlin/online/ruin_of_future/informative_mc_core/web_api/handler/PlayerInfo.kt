@@ -19,15 +19,16 @@ import kotlinx.serialization.Serializable
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import online.ruin_of_future.informative_mc_core.ImcCore
+import online.ruin_of_future.informative_mc_core.ModData
 import online.ruin_of_future.informative_mc_core.UUIDSerializer
+import online.ruin_of_future.informative_mc_core.token_system.TokenManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import java.io.OutputStream
 import java.util.*
 
 val PlayerInfoApiId = ApiID("mc-info", "player-info")
 
-// TODO: Change it to POST handler with authentication
-// TODO: Separate handler and response.
+// TODO: Lift `requestStatus` and `requestInfo` out.
 
 @Suppress("UnUsed")
 @Serializable
@@ -50,40 +51,76 @@ class SinglePlayerInfo private constructor(
     )
 }
 
-// For now, we don't implement authentication functionalities.
-// So it's a GET handler.
 @Suppress("UnUsed")
 @Serializable
-class PlayerInfo private constructor(
+class PlayerInfoResponse(
+    val requestStatus: String,
+    val requestInfo: String,
     val players: List<SinglePlayerInfo>,
+) {
+    companion object {
+        fun unknownUser(userName: String): PlayerInfoResponse {
+            return PlayerInfoResponse(
+                requestStatus = "error",
+                requestInfo = "unknown user: $userName",
+                players = listOf(),
+            )
+        }
+
+        fun invalidToken(): PlayerInfoResponse {
+            return PlayerInfoResponse(
+                requestStatus = "error",
+                requestInfo = "invalid token",
+                players = listOf(),
+            )
+        }
+
+
+        fun success(players: List<SinglePlayerInfo>): PlayerInfoResponse {
+            return PlayerInfoResponse(
+                requestStatus = "success",
+                requestInfo = "",
+                players = players,
+            )
+        }
+    }
+}
+
+class PlayerInfoHandler(
+    private val tokenManager: TokenManager,
+    private val modData: ModData,
+) : ParamPostHandler() {
     override val id: ApiID = PlayerInfoApiId
-) : ParamGetHandler() {
 
     private val server: MinecraftServer
         get() = ImcCore.server
 
-    constructor() : this(emptyList())
-
     override fun handleRequest(
-        queryParams: Map<String, List<String>>,
+        formParams: Map<String, List<String>>,
         outputStream: OutputStream
     ) {
-        val filteredPlayers = server.playerManager.playerList
-            .filter { playerEntity: ServerPlayerEntity? ->
-                if (queryParams.containsKey("name")) {
-                    playerEntity?.name?.asString() == queryParams["name"]!![0]
-                } else if (queryParams.containsKey("uuid")) {
-                    playerEntity?.uuid?.toString() == queryParams["uuid"]!![0]
-                } else {
-                    true
+        val req = parseUserRequest(formParams)
+        if (!modData.hasUserName(req.userName)) {
+            PlayerInfoResponse.unknownUser(req.userName).writeToStream(outputStream)
+        } else if (!tokenManager.verify(req.token)) {
+            PlayerInfoResponse.invalidToken().writeToStream(outputStream)
+        } else {
+            val filteredPlayers = server.playerManager.playerList
+                .filter { playerEntity: ServerPlayerEntity? ->
+                    if (formParams.containsKey("name")) {
+                        playerEntity?.name?.asString() == formParams["name"]!![0]
+                    } else if (formParams.containsKey("uuid")) {
+                        playerEntity?.uuid?.toString() == formParams["uuid"]!![0]
+                    } else {
+                        true
+                    }
+                }.mapNotNull { playerEntity: ServerPlayerEntity? ->
+                    when (playerEntity) {
+                        null -> null
+                        else -> SinglePlayerInfo(playerEntity)
+                    }
                 }
-            }.mapNotNull { playerEntity: ServerPlayerEntity? ->
-                when (playerEntity) {
-                    null -> null
-                    else -> SinglePlayerInfo(playerEntity)
-                }
-            }
-        val info = PlayerInfo(filteredPlayers)
-        info.writeToStream(outputStream)
+            PlayerInfoResponse.success(filteredPlayers).writeToStream(outputStream)
+        }
     }
 }

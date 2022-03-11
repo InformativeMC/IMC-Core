@@ -26,10 +26,12 @@ import java.util.*
 
 val UserRegisterApiId = ApiID("imc-manage", "register")
 
+// TODO: Lift `requestStatus` and `requestInfo` out.
+
 @Serializable
 data class UserRegisterResponse(
-    val status: String,
-    val info: String,
+    val requestStatus: String,
+    val requestInfo: String,
     val userName: String,
     @Serializable(with = UUIDSerializer::class)
     val key: UUID,
@@ -37,8 +39,8 @@ data class UserRegisterResponse(
     companion object {
         fun success(userName: String, key: UUID): UserRegisterResponse {
             return UserRegisterResponse(
-                status = "success",
-                info = "",
+                requestStatus = "success",
+                requestInfo = "",
                 userName = userName,
                 key = key,
             )
@@ -46,8 +48,8 @@ data class UserRegisterResponse(
 
         fun usedUsername(userName: String, key: UUID): UserRegisterResponse {
             return UserRegisterResponse(
-                status = "error",
-                info = "already occupied username",
+                requestStatus = "error",
+                requestInfo = "already occupied username",
                 userName = userName,
                 key = key,
             )
@@ -55,8 +57,8 @@ data class UserRegisterResponse(
 
         fun invalidToken(userName: String, key: UUID): UserRegisterResponse {
             return UserRegisterResponse(
-                status = "error",
-                info = "not a valid token",
+                requestStatus = "error",
+                requestInfo = "not a valid token",
                 userName = userName,
                 key = key,
             )
@@ -98,8 +100,8 @@ class UserRegisterHandler(
             }
         } catch (e: MissingParameterException) {
             UserRegisterResponse(
-                status = "error",
-                info = e.message ?: "",
+                requestStatus = "error",
+                requestInfo = e.message ?: "",
                 userName = "(error)",
                 key = UUID.randomUUID(), // useless
             ).writeToStream(outputStream)
