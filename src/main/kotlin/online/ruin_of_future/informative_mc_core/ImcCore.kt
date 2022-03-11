@@ -28,6 +28,8 @@ import org.apache.logging.log4j.LogManager
 import java.io.File
 import java.io.IOException
 import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.concurrent.schedule
 
 val cwd = run {
     // TODO: Replace with a more general way to detect correct directory.
@@ -59,7 +61,9 @@ object ImcCore : ModInitializer {
     lateinit var server: MinecraftServer
     private lateinit var config: ModConfig
     lateinit var data: ModData
-    lateinit var tokenManager: TokenManager
+    private val tokenManager = TokenManager()
+    private lateinit var apiServer: ApiServer
+    private lateinit var imcCommand: ImcCommand
 
     private fun createDirsIfNeeded() {
         arrayOf(modConfigDirPath, modDataDirPath).forEach {
@@ -108,15 +112,37 @@ object ImcCore : ModInitializer {
 
     private fun loadConfig() {
         config = safeLoadFile(modConfigFilePath, ModConfig.DEFAULT)
-        ModConfig.CURRENT = config
+        // TODO: Write on demand
+        modTimer.schedule(
+            delay = TimeUnit.SECONDS.toMillis(1),
+            period = TimeUnit.MINUTES.toMillis(5),
+        ) {
+            saveToFileLocked(data, modConfigFilePath)
+        }
     }
 
     private fun loadData() {
         data = safeLoadFile(modDataFilePath, ModData.DEFAULT)
-        ModData.CURRENT = data
+        // TODO: Write on demand
+        // TODO: Replace it with a Database
+        modTimer.schedule(
+            delay = TimeUnit.SECONDS.toMillis(1),
+            period = TimeUnit.MINUTES.toMillis(5),
+        ) {
+            saveToFileLocked(data, modDataFilePath)
+        }
     }
 
-    private fun registerServerCallback() {
+    private fun setupApiServer() {
+        apiServer = ApiServer(config, data, tokenManager)
+    }
+
+    private fun setupImcCommand() {
+        imcCommand = ImcCommand(tokenManager)
+        imcCommand.setup()
+    }
+
+    private fun registerMcServerCallback() {
         ServerLifecycleEvents.SERVER_STARTED.register { server ->
             if (server == null) {
                 throw NullPointerException("Cannot access current server!")
@@ -126,17 +152,16 @@ object ImcCore : ModInitializer {
         }
     }
 
-    private fun setupTokenManager() {
-        tokenManager = TokenManager()
-    }
-
     override fun onInitialize() {
+        // Config and data
         createDirsIfNeeded()
         loadConfig()
         loadData()
-        setupTokenManager()
-        ImcCommand.setup(tokenManager)
-        registerServerCallback()
-        ApiServer.setup()
+        // MC command
+        setupImcCommand()
+        // Restful api server
+        setupApiServer()
+        // Miscellaneous
+        registerMcServerCallback()
     }
 }

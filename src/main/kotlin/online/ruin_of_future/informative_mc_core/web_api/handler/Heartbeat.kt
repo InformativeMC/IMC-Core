@@ -21,6 +21,9 @@ import java.io.OutputStream
 
 val HeartbeatApiId = ApiID("system-info", "heartbeat")
 
+// TODO: Change it to POST handler with authentication
+// TODO: Separate handler and response.
+
 @Suppress("UnUsed")
 @Serializable
 class Heartbeat private constructor(

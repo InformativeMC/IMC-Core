@@ -21,6 +21,9 @@ import java.io.OutputStream
 
 val JvmInfoApiID = ApiID("system-info", "jvm-info")
 
+// TODO: Change it to POST handler with authentication
+// TODO: Separate handler and response.
+
 @Suppress("UnUsed")
 @Serializable
 class JvmInfo private constructor(

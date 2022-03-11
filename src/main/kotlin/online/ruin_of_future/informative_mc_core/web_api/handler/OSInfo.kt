@@ -22,6 +22,9 @@ import java.io.OutputStream
 
 val OSInfoApiId = ApiID("system-info", "os-info")
 
+// TODO: Change it to POST handler with authentication
+// TODO: Separate handler and response.
+
 @Suppress("UnUsed")
 @Serializable
 class OSInfo private constructor(

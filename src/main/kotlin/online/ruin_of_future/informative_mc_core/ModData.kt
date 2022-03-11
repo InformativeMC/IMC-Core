@@ -16,12 +16,41 @@
 package online.ruin_of_future.informative_mc_core
 
 import kotlinx.serialization.Serializable
+import online.ruin_of_future.informative_mc_core.token_system.Token
+import org.apache.logging.log4j.LogManager
+
+@Serializable
+class ImcUser(
+    val userName: String,
+    val userToken: Token
+)
 
 @Serializable
 class ModData(
+    private val user: HashMap<String, ImcUser>
 ) {
+    private val LOGGER = LogManager.getLogger("IMC data")
+
+    fun hasUser(userName: String): Boolean {
+        return user.containsKey(userName)
+    }
+
+    fun addUser(newUser: ImcUser) {
+        LOGGER.info("A new user added: ${newUser.userName}")
+        user[newUser.userName] = newUser
+    }
+
+    fun removeUser(userName: String): Boolean {
+        return if (user.containsKey(userName)) {
+            user.remove(userName, user[userName])
+        } else {
+            false
+        }
+    }
+
     companion object {
-        lateinit var CURRENT: ModData
-        val DEFAULT = ModData()
+        val DEFAULT = ModData(
+            user = hashMapOf()
+        )
     }
 }

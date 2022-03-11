@@ -16,13 +16,10 @@
 package online.ruin_of_future.informative_mc_core.web_api
 
 import io.javalin.Javalin
-import io.javalin.apibuilder.ApiBuilder.get
-import io.javalin.apibuilder.ApiBuilder.path
+import io.javalin.apibuilder.ApiBuilder.*
 import kotlinx.serialization.ExperimentalSerializationApi
-import online.ruin_of_future.informative_mc_core.ModConfig
-import online.ruin_of_future.informative_mc_core.generateCertificate
-import online.ruin_of_future.informative_mc_core.generateKeyPair
-import online.ruin_of_future.informative_mc_core.tmpDirPath
+import online.ruin_of_future.informative_mc_core.*
+import online.ruin_of_future.informative_mc_core.token_system.TokenManager
 import online.ruin_of_future.informative_mc_core.web_api.handler.*
 import org.apache.logging.log4j.LogManager
 import org.eclipse.jetty.server.Server
@@ -40,11 +37,14 @@ import java.security.spec.X509EncodedKeySpec
  * Server which expose web api and potential web pages.
  * */
 @OptIn(ExperimentalSerializationApi::class)
-object ApiServer {
+class ApiServer(
+    private val modConfig: ModConfig,
+    private val modData: ModData,
+    private val tokenManager: TokenManager,
+) {
     private val LOGGER = LogManager.getLogger("IMC-Core")
 
-    private val serverPort: Int
-        get() = ModConfig.CURRENT.port
+    private val serverPort: Int = modConfig.port
 
     /**
      * If the cert and key files are provided in config, a temporary path will be used.
@@ -53,10 +53,11 @@ object ApiServer {
     private lateinit var keyStorePath: String
     private lateinit var keyPassword: String
 
-    private lateinit var app: Javalin
+    private var app: Javalin
 
     private val paramFreeHandlers = mutableMapOf<ApiID, ParamFreeHandler>()
     private val paramGetHandlers = mutableMapOf<ApiID, ParamGetHandler>()
+    private val paramPostHandlers = mutableMapOf<ApiID, ParamPostHandler>()
 
     fun registerApiHandler(apiHandler: ParamFreeHandler) {
         paramFreeHandlers.putIfAbsent(apiHandler.id, apiHandler)
@@ -66,11 +67,16 @@ object ApiServer {
         paramGetHandlers.putIfAbsent(apiHandler.id, apiHandler)
     }
 
+    fun registerApiHandler(apiHandler: ParamPostHandler) {
+        paramPostHandlers.putIfAbsent(apiHandler.id, apiHandler)
+    }
+
     private fun setupAllApi() {
         registerApiHandler(Heartbeat())
         registerApiHandler(JvmInfo())
         registerApiHandler(OSInfo())
         registerApiHandler(PlayerInfo())
+        registerApiHandler(UserRegisterHandler(tokenManager, modData))
 
         // Late init
         paramFreeHandlers.forEach { (_, handler) ->
@@ -93,16 +99,14 @@ object ApiServer {
         var flag = false
         var certFile: File? = null
         var keyFile: File? = null
-        if (ModConfig.CURRENT.certConfig?.certPath != null &&
-            ModConfig.CURRENT.certConfig?.keyPath != null
-        ) {
-            certFile = File(ModConfig.CURRENT.certConfig?.certPath!!)
-            keyFile = File(ModConfig.CURRENT.certConfig?.keyPath!!)
+        if (modConfig.certConfig != null) {
+            certFile = File(modConfig.certConfig.certPath)
+            keyFile = File(modConfig.certConfig.keyPath)
             flag = certFile.exists() && keyFile.exists()
         }
         if (flag) { // No cert and key files are provided in config
             keyStorePath = "$tmpDirPath${File.separatorChar}ICM-TMP.jks"
-            keyPassword = ModConfig.CURRENT.password
+            keyPassword = modConfig.password
             val keyStoreFile = File(keyStorePath)
             val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
 
@@ -124,8 +128,8 @@ object ApiServer {
             keyStore.store(os, keyPassword.toCharArray())
             os.close()
         } else {
-            keyStorePath = ModConfig.CURRENT.keyStoreConfig.keyStorePath
-            keyPassword = ModConfig.CURRENT.password
+            keyStorePath = modConfig.keyStoreConfig.keyStorePath
+            keyPassword = modConfig.password
             val keyStoreFile = File(keyStorePath)
             val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
             if (!keyStoreFile.exists()) {
@@ -146,10 +150,7 @@ object ApiServer {
         }
     }
 
-    /**
-     * Late init function, called when mod loaded
-     * */
-    fun setup() {
+    init {
         setupAllApi()
         ensureKeyStore()
 
@@ -168,15 +169,28 @@ object ApiServer {
                 paramFreeHandlers.forEach { (id, handler) ->
                     get(id.toURIString()) { ctx ->
                         val outputStream = ByteArrayOutputStream()
+                        ctx.contentType("application/json")
                         handler.handleRequest(outputStream)
                         ctx.result(outputStream.toByteArray())
+                        outputStream.close()
                     }
                 }
                 paramGetHandlers.forEach { (id, handler) ->
                     get(id.toURIString()) { ctx ->
                         val outputStream = ByteArrayOutputStream()
+                        ctx.contentType("application/json")
                         handler.handleRequest(ctx.queryParamMap(), outputStream)
                         ctx.result(outputStream.toByteArray())
+                        outputStream.close()
+                    }
+                }
+                paramPostHandlers.forEach { (id, handler) ->
+                    post(id.toURIString()) { ctx ->
+                        val outputStream = ByteArrayOutputStream()
+                        ctx.contentType("application/json")
+                        handler.handleRequest(ctx.formParamMap(), outputStream)
+                        ctx.result(outputStream.toByteArray())
+                        outputStream.close()
                     }
                 }
             }

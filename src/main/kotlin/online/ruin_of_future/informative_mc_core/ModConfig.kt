@@ -45,7 +45,5 @@ class ModConfig private constructor(
             ),
             certConfig = null,
         )
-
-        lateinit var CURRENT: ModConfig
     }
 }

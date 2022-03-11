@@ -26,6 +26,9 @@ import java.util.*
 
 val PlayerInfoApiId = ApiID("mc-info", "player-info")
 
+// TODO: Change it to POST handler with authentication
+// TODO: Separate handler and response.
+
 @Suppress("UnUsed")
 @Serializable
 class SinglePlayerInfo private constructor(

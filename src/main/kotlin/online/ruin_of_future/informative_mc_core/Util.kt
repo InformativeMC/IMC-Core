@@ -66,6 +66,10 @@ inline fun <reified T> saveToFileLocked(content: T, file: File) {
     raFile.channel.close()
 }
 
+inline fun <reified T> saveToFileLocked(content: T, filePath: String) {
+    saveToFileLocked(content, File(filePath))
+}
+
 fun Long.humanReadableSize(): String {
     val num = this
     val kb = 1L shl 10

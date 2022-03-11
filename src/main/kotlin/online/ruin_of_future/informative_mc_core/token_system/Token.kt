@@ -15,27 +15,61 @@
  */
 package online.ruin_of_future.informative_mc_core.token_system
 
+import kotlinx.serialization.Serializable
+import online.ruin_of_future.informative_mc_core.UUIDSerializer
 import java.util.*
 
+@Serializable
 sealed class Token(
+    @Serializable(with = UUIDSerializer::class)
     val uuid: UUID,
-    val created: Long,
 ) {
-    open fun isValid(): Boolean {
-        return false
-    }
+    abstract fun isValid(): Boolean
 
     abstract override fun toString(): String
 }
 
+interface Usable {
+    fun isUsed(): Boolean
+    fun setUsed()
+}
+
+interface WillExpire {
+    fun isExpired(): Boolean
+    fun expiredAt(): Date
+}
+
+class UsableImpl : Usable {
+    private var used = false
+
+    override fun isUsed(): Boolean {
+        return used
+    }
+
+    override fun setUsed() {
+        used = true
+    }
+}
+
+class WillExpireImpl(
+    public val createdAtMillis: Long,
+    public val expireAfterMillis: Long,
+) : WillExpire {
+    override fun isExpired(): Boolean {
+        return createdAtMillis + expireAfterMillis < Date().time
+    }
+
+    override fun expiredAt(): Date {
+        return Date(createdAtMillis + expireAfterMillis)
+    }
+}
+
 class OnceToken(
     uuid: UUID,
-    created: Long,
-) : Token(uuid, created) {
-    var used = false
+) : Token(uuid), Usable by UsableImpl() {
 
     override fun isValid(): Boolean {
-        return !used
+        return isUsed()
     }
 
     override fun toString(): String {
@@ -46,24 +80,41 @@ class OnceToken(
 
 class TimedToken(
     uuid: UUID,
-    created: Long,
-    val expiredAfterMillis: Long
-) : Token(uuid, created) {
+    createdAtMillis: Long,
+    expiredAfterMillis: Long
+) : Token(uuid), WillExpire by WillExpireImpl(createdAtMillis, expiredAfterMillis) {
     override fun isValid(): Boolean {
-        return created + expiredAfterMillis > Date().time
+        return !isExpired()
     }
 
     override fun toString(): String {
         // TODO: I18n
-        val expiredTime = Date(created + expiredAfterMillis).toString()
-        return "$uuid (expired at $expiredTime)"
+        return "$uuid (valid before ${expiredAt()})"
+    }
+}
+
+class TimedOnceToken(
+    uuid: UUID,
+    createdAtMillis: Long,
+    expiredAfterMillis: Long
+) :
+    Token(uuid),
+    WillExpire by WillExpireImpl(createdAtMillis, expiredAfterMillis),
+    Usable by UsableImpl() {
+
+    override fun toString(): String {
+        // TODO: I18n
+        return "$uuid (can be used once before ${expiredAt()})"
+    }
+
+    override fun isValid(): Boolean {
+        return !isUsed() && !isExpired()
     }
 }
 
 class ForeverToken(
     uuid: UUID,
-    created: Long,
-) : Token(uuid, created) {
+) : Token(uuid) {
     override fun isValid(): Boolean {
         return true
     }

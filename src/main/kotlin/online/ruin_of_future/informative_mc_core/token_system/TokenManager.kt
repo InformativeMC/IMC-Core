@@ -36,21 +36,38 @@ class TokenManager {
     }
 
     fun addOnceToken(): Token {
-        var token = OnceToken(UUID.randomUUID(), Date().time)
+        var token = OnceToken(UUID.randomUUID())
         while (tokenBin.containsKey(token.uuid)) {
-            token = OnceToken(UUID.randomUUID(), Date().time)
+            token = OnceToken(UUID.randomUUID())
+        }
+        tokenBin[token.uuid] = token
+        return token
+    }
+
+    fun addTimedOnceToken(expiredAfterMillis: Long = TimeUnit.SECONDS.toMillis(60 * 5)): Token {
+        var token = TimedOnceToken(UUID.randomUUID(), Date().time, expiredAfterMillis)
+        while (tokenBin.containsKey(token.uuid)) {
+            token = TimedOnceToken(UUID.randomUUID(), Date().time, expiredAfterMillis)
         }
         tokenBin[token.uuid] = token
         return token
     }
 
     fun addForeverToken(): Token {
-        var token = ForeverToken(UUID.randomUUID(), Date().time)
+        var token = ForeverToken(UUID.randomUUID())
         while (tokenBin.containsKey(token.uuid)) {
-            token = ForeverToken(UUID.randomUUID(), Date().time)
+            token = ForeverToken(UUID.randomUUID())
         }
         tokenBin[token.uuid] = token
         return token
+    }
+
+    fun validate(uuid: UUID): Boolean {
+        return tokenBin[uuid]?.isValid() == true
+    }
+
+    fun getToken(uuid: UUID): Token? {
+        return tokenBin[uuid]
     }
 
     private fun clearOutdatedToken() {
