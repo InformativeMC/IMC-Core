@@ -19,7 +19,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
-import online.ruin_of_future.informative_mc_core.token_system.TokenManager
+import online.ruin_of_future.informative_mc_core.auth.TokenManager
 
 // TODO: fancy display in ChatHUD
 

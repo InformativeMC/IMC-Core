@@ -2,7 +2,7 @@ package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import kotlinx.serialization.Serializable
 import online.ruin_of_future.informative_mc_core.data.ModData
-import online.ruin_of_future.informative_mc_core.token_system.TokenManager
+import online.ruin_of_future.informative_mc_core.auth.TokenManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import java.io.OutputStream
 
