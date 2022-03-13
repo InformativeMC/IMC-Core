@@ -20,34 +20,23 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.MinecraftServer
 import online.ruin_of_future.informative_mc_core.command.ImcCommand
 import online.ruin_of_future.informative_mc_core.config.ModConfig
 import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.token_system.TokenManager
+import online.ruin_of_future.informative_mc_core.util.configDir
+import online.ruin_of_future.informative_mc_core.util.gameDir
 import online.ruin_of_future.informative_mc_core.util.getFile
 import online.ruin_of_future.informative_mc_core.util.saveToFile
 import online.ruin_of_future.informative_mc_core.web_api.ApiServer
 import org.apache.logging.log4j.LogManager
 import java.io.File
-import java.io.IOException
 import java.util.*
 
-val cwd = run {
-    // TODO: Replace with a more general way to detect correct directory.
-    val cwd = System.getProperty("user.dir")
-    if (cwd == null || cwd.isEmpty()) {
-        throw IOException("Cannot access current working directory")
-    } else {
-        if (cwd.endsWith(File.separatorChar)) {
-            cwd.trimEnd(File.separatorChar)
-        }
-    }
-    cwd
-}
+val cwd = gameDir.toAbsolutePath().toString()
 
-val modConfigDirPath = "$cwd${File.separatorChar}config${File.separatorChar}InformativeMC"
+val modConfigDirPath = "${configDir.toAbsolutePath()}${File.separatorChar}InformativeMC"
 val modConfigFilePath = "$modConfigDirPath${File.separatorChar}IMC-Core.json"
 
 val modDataDirPath = "$cwd${File.separatorChar}mods${File.separatorChar}InformativeMC"
@@ -101,7 +90,7 @@ object ImcCore : ModInitializer {
             }
         } else {
             if (createAndWriteIfAbsent) {
-                LOGGER.info("Load file failed. Creating a default one...")
+                LOGGER.info("Load $path failed. Creating a default one...")
                 if (file.createNewFile()) {
                     saveToFile(default, file)
                 } else {
@@ -156,7 +145,6 @@ object ImcCore : ModInitializer {
     }
 
     override fun onInitialize() {
-        LOGGER.info(FabricLoader.getInstance().gameDir)
         // Config and data
         createDirsIfNeeded()
         loadConfig()

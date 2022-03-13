@@ -17,7 +17,6 @@ package online.ruin_of_future.informative_mc_core.data
 
 import kotlinx.serialization.Serializable
 import org.apache.logging.log4j.LogManager
-import java.util.*
 
 @Serializable
 class ModData(

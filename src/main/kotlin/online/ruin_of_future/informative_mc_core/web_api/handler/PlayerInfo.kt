@@ -20,8 +20,8 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import online.ruin_of_future.informative_mc_core.ImcCore
 import online.ruin_of_future.informative_mc_core.data.ModData
-import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
 import online.ruin_of_future.informative_mc_core.token_system.TokenManager
+import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import java.io.OutputStream
 import java.util.*
