@@ -32,17 +32,18 @@ import online.ruin_of_future.informative_mc_core.util.saveToFile
 import online.ruin_of_future.informative_mc_core.web_api.ApiServer
 import org.apache.logging.log4j.LogManager
 import java.io.File
+import java.nio.file.Path
 import java.util.*
 
-val cwd = gameDir.toAbsolutePath().toString()
+val cwd: Path = gameDir.toAbsolutePath()
 
-val modConfigDirPath = "${configDir.toAbsolutePath()}${File.separatorChar}InformativeMC"
-val modConfigFilePath = "$modConfigDirPath${File.separatorChar}IMC-Core.json"
+val modConfigDirPath: Path = configDir.resolve("InformativeMC").toAbsolutePath()
+val modConfigFilePath: Path = modConfigDirPath.resolve("IMC-Core.json").toAbsolutePath()
 
-val modDataDirPath = "$cwd${File.separatorChar}mods${File.separatorChar}InformativeMC"
-val modDataFilePath = "$modDataDirPath${File.separatorChar}IMC-Core.data"
+val modDataDirPath: Path = cwd.resolve("mods").resolve("InformativeMC").toAbsolutePath()
+val modDataFilePath: Path = modDataDirPath.resolve("IMC-Core.data").toAbsolutePath()
 
-val tmpDirPath = "$cwd${File.separatorChar}tmp${File.separatorChar}InformativeMC"
+val tmpDirPath: Path = cwd.resolve("tmp").resolve("InformativeMC").toAbsolutePath()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
@@ -59,7 +60,7 @@ object ImcCore : ModInitializer {
 
     private fun createDirsIfNeeded() {
         arrayOf(modConfigDirPath, modDataDirPath).forEach {
-            val file = File(it)
+            val file = File(it.toString())
             if (!file.exists()) {
                 if (!file.mkdirs()) {
                     LOGGER.error("Failed when creating directory $it")
@@ -100,6 +101,14 @@ object ImcCore : ModInitializer {
             default
         }
         return obj
+    }
+
+    private inline fun <reified T> safeLoadFile(
+        path: Path,
+        default: T,
+        createAndWriteIfAbsent: Boolean = true
+    ): T {
+        return safeLoadFile(path.toString(), default, createAndWriteIfAbsent)
     }
 
     private fun loadConfig() {
