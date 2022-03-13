@@ -13,18 +13,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core
+package online.ruin_of_future.informative_mc_core.data
 
 import kotlinx.serialization.Serializable
 import org.apache.logging.log4j.LogManager
 import java.util.*
-
-@Serializable
-class ImcUser(
-    val userName: String,
-    @Serializable(with = UUIDSerializer::class)
-    val userTokenId: UUID
-)
 
 @Serializable
 class ModData(

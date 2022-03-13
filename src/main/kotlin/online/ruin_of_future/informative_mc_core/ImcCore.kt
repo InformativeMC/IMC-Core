@@ -20,9 +20,14 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.MinecraftServer
 import online.ruin_of_future.informative_mc_core.command.ImcCommand
+import online.ruin_of_future.informative_mc_core.config.ModConfig
+import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.token_system.TokenManager
+import online.ruin_of_future.informative_mc_core.util.getFile
+import online.ruin_of_future.informative_mc_core.util.saveToFile
 import online.ruin_of_future.informative_mc_core.web_api.ApiServer
 import org.apache.logging.log4j.LogManager
 import java.io.File
@@ -82,7 +87,7 @@ object ImcCore : ModInitializer {
         val file = getFile(path)
         val obj = if (file.exists()) {
             try {
-                Json.decodeFromStream<T>(file.inputStream())
+                Json.decodeFromStream(file.inputStream())
             } catch (e: Exception) {
                 val cpyFile = File("${file.absoluteFile.parent}${File.separatorChar}OLD-${file.name}")
                 cpyFile.writeBytes(file.readBytes())
@@ -151,6 +156,7 @@ object ImcCore : ModInitializer {
     }
 
     override fun onInitialize() {
+        LOGGER.info(FabricLoader.getInstance().gameDir)
         // Config and data
         createDirsIfNeeded()
         loadConfig()

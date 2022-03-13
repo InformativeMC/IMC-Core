@@ -1,4 +1,3 @@
-@file:Suppress("Unused")
 /*
  * Copyright (c) 2022 InformativeMC
  * This program is free software: you can redistribute it and/or modify
@@ -14,15 +13,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core
+@file:Suppress("Unused")
+package online.ruin_of_future.informative_mc_core.util
 
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers
 import org.bouncycastle.asn1.x500.X500Name
@@ -42,7 +37,6 @@ import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import java.util.*
 import java.util.concurrent.TimeUnit
-
 
 fun getFile(root: String, path: String): File {
     return File("$root${File.separatorChar}$path")
@@ -160,16 +154,4 @@ fun generateCertificate(
     return JcaX509CertificateConverter()
         .setProvider(BouncyCastleProvider())
         .getCertificate(certBuilder.build(contentSigner))
-}
-
-object UUIDSerializer : KSerializer<UUID> {
-    override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
-
-    override fun serialize(encoder: Encoder, value: UUID) {
-        encoder.encodeString(value.toString())
-    }
-
-    override fun deserialize(decoder: Decoder): UUID {
-        return UUID.fromString(decoder.decodeString())
-    }
 }

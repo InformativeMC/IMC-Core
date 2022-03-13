@@ -16,7 +16,7 @@
 package online.ruin_of_future.informative_mc_core.token_system
 
 import kotlinx.serialization.Serializable
-import online.ruin_of_future.informative_mc_core.UUIDSerializer
+import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
 import java.util.*
 
 @Serializable

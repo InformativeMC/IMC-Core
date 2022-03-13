@@ -13,21 +13,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core
+package online.ruin_of_future.informative_mc_core.config
 
 import kotlinx.serialization.Serializable
+import online.ruin_of_future.informative_mc_core.util.generateRandomString
+import online.ruin_of_future.informative_mc_core.modConfigDirPath
 import java.io.File
-
-@Serializable
-data class KeyStoreConfig(
-    val keyStorePath: String,
-)
-
-@Serializable
-data class CertConfig(
-    val certPath: String,
-    val keyPath: String,
-)
 
 @Serializable
 class ModConfig private constructor(
