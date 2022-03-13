@@ -90,6 +90,9 @@ class ApiServer(
         paramGetHandlers.forEach { (_, handler) ->
             handler.setup()
         }
+        paramPostHandlers.forEach { (_, handler) ->
+            handler.setup()
+        }
     }
 
     private fun getSslContextFactory(): SslContextFactory.Server {
