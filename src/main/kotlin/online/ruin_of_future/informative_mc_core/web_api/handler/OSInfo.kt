@@ -16,8 +16,8 @@
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import kotlinx.serialization.Serializable
-import online.ruin_of_future.informative_mc_core.ModData
-import online.ruin_of_future.informative_mc_core.humanReadableSize
+import online.ruin_of_future.informative_mc_core.data.ModData
+import online.ruin_of_future.informative_mc_core.util.humanReadableSize
 import online.ruin_of_future.informative_mc_core.token_system.TokenManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import java.io.OutputStream
