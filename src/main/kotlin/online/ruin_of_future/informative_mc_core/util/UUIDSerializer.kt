@@ -13,27 +13,24 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.web_api.handler
+package online.ruin_of_future.informative_mc_core.util
 
-import kotlinx.serialization.Serializable
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
-import java.io.OutputStream
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import java.util.*
 
-val HeartbeatApiId = ApiID("system-info", "heartbeat")
+object UUIDSerializer : KSerializer<UUID> {
 
-// TODO: Change it to POST handler with authentication
-// TODO: Separate handler and response.
+    override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
 
-@Suppress("UnUsed")
-@Serializable
-class Heartbeat private constructor(
-    val status: String,
-    override val id: ApiID = HeartbeatApiId,
-) : ParamFreeHandler() {
+    override fun serialize(encoder: Encoder, value: UUID) {
+        encoder.encodeString(value.toString())
+    }
 
-    constructor() : this("???")
-
-    override fun handleRequest(outputStream: OutputStream) {
-        Heartbeat("healthy").writeToStream(outputStream)
+    override fun deserialize(decoder: Decoder): UUID {
+        return UUID.fromString(decoder.decodeString())
     }
 }

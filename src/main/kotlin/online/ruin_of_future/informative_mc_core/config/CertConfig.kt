@@ -13,27 +13,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.web_api.handler
+package online.ruin_of_future.informative_mc_core.config
 
 import kotlinx.serialization.Serializable
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
-import java.io.OutputStream
 
-val HeartbeatApiId = ApiID("system-info", "heartbeat")
-
-// TODO: Change it to POST handler with authentication
-// TODO: Separate handler and response.
-
-@Suppress("UnUsed")
 @Serializable
-class Heartbeat private constructor(
-    val status: String,
-    override val id: ApiID = HeartbeatApiId,
-) : ParamFreeHandler() {
-
-    constructor() : this("???")
-
-    override fun handleRequest(outputStream: OutputStream) {
-        Heartbeat("healthy").writeToStream(outputStream)
-    }
-}
+data class CertConfig(
+    val certPath: String,
+    val keyPath: String,
+)

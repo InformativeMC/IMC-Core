@@ -13,27 +13,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.web_api.handler
+package online.ruin_of_future.informative_mc_core.util
 
-import kotlinx.serialization.Serializable
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
-import java.io.OutputStream
+import net.fabricmc.loader.api.FabricLoader
+import java.nio.file.Path
 
-val HeartbeatApiId = ApiID("system-info", "heartbeat")
+val gameDir: Path by lazy {
+    FabricLoader.getInstance().gameDir
+}
 
-// TODO: Change it to POST handler with authentication
-// TODO: Separate handler and response.
-
-@Suppress("UnUsed")
-@Serializable
-class Heartbeat private constructor(
-    val status: String,
-    override val id: ApiID = HeartbeatApiId,
-) : ParamFreeHandler() {
-
-    constructor() : this("???")
-
-    override fun handleRequest(outputStream: OutputStream) {
-        Heartbeat("healthy").writeToStream(outputStream)
-    }
+val configDir: Path by lazy {
+    FabricLoader.getInstance().configDir
 }

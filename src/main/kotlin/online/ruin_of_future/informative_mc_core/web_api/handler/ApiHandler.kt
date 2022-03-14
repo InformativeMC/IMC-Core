@@ -21,6 +21,9 @@ import kotlinx.serialization.json.encodeToStream
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import java.io.OutputStream
 
+class MissingParameterException(msg: String) : Exception(msg)
+
+
 @OptIn(ExperimentalSerializationApi::class)
 abstract class ApiHandler {
     abstract val id: ApiID
@@ -28,7 +31,7 @@ abstract class ApiHandler {
     // If you need to init something after mod loaded, override setup().
     fun setup() {}
 
-    inline fun <reified T> T.writeToStream(outputStream: OutputStream) {
+    inline fun <reified T : Any> T.writeToStream(outputStream: OutputStream) {
         Json.encodeToStream(this, outputStream)
     }
 }
@@ -39,7 +42,14 @@ abstract class ParamFreeHandler : ApiHandler() {
 
 abstract class ParamGetHandler : ApiHandler() {
     abstract fun handleRequest(
-        queryParamMap: Map<String, List<String>>,
+        queryParams: Map<String, List<String>>,
+        outputStream: OutputStream
+    )
+}
+
+abstract class ParamPostHandler : ApiHandler() {
+    abstract fun handleRequest(
+        formParams: Map<String, List<String>>,
         outputStream: OutputStream
     )
 }

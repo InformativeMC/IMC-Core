@@ -15,32 +15,20 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import online.ruin_of_future.informative_mc_core.ModEntryPoint
+import online.ruin_of_future.informative_mc_core.ImcCore
+import online.ruin_of_future.informative_mc_core.data.ModData
+import online.ruin_of_future.informative_mc_core.auth.TokenManager
+import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import java.io.OutputStream
 import java.util.*
 
 val PlayerInfoApiId = ApiID("mc-info", "player-info")
 
-object UUIDSerializer : KSerializer<UUID> {
-    override val descriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
-
-    override fun serialize(encoder: Encoder, value: UUID) {
-        encoder.encodeString(value.toString())
-    }
-
-    override fun deserialize(decoder: Decoder): UUID {
-        return UUID.fromString(decoder.decodeString())
-    }
-}
+// TODO: Lift `requestStatus` and `requestInfo` out.
 
 @Suppress("UnUsed")
 @Serializable
@@ -63,40 +51,76 @@ class SinglePlayerInfo private constructor(
     )
 }
 
-// For now, we don't implement authentication functionalities.
-// So it's a GET handler.
 @Suppress("UnUsed")
 @Serializable
-class PlayerInfo private constructor(
+class PlayerInfoResponse(
+    val requestStatus: String,
+    val requestInfo: String,
     val players: List<SinglePlayerInfo>,
+) {
+    companion object {
+        fun unknownUser(userName: String): PlayerInfoResponse {
+            return PlayerInfoResponse(
+                requestStatus = "error",
+                requestInfo = "unknown user: $userName",
+                players = listOf(),
+            )
+        }
+
+        fun invalidToken(): PlayerInfoResponse {
+            return PlayerInfoResponse(
+                requestStatus = "error",
+                requestInfo = "invalid token",
+                players = listOf(),
+            )
+        }
+
+
+        fun success(players: List<SinglePlayerInfo>): PlayerInfoResponse {
+            return PlayerInfoResponse(
+                requestStatus = "success",
+                requestInfo = "",
+                players = players,
+            )
+        }
+    }
+}
+
+class PlayerInfoHandler(
+    private val tokenManager: TokenManager,
+    private val modData: ModData,
+) : ParamPostHandler() {
     override val id: ApiID = PlayerInfoApiId
-) : ParamGetHandler() {
 
     private val server: MinecraftServer
-        get() = ModEntryPoint.server
-
-    constructor() : this(emptyList())
+        get() = ImcCore.server
 
     override fun handleRequest(
-        queryParamMap: Map<String, List<String>>,
+        formParams: Map<String, List<String>>,
         outputStream: OutputStream
     ) {
-        val filteredPlayers = server.playerManager.playerList
-            .filter { playerEntity: ServerPlayerEntity? ->
-                if (queryParamMap.containsKey("name")) {
-                    playerEntity?.name?.asString() == queryParamMap["name"]!![0]
-                } else if (queryParamMap.containsKey("uuid")) {
-                    playerEntity?.uuid?.toString() == queryParamMap["uuid"]!![0]
-                } else {
-                    true
+        val req = parseUserRequest(formParams)
+        if (!modData.hasUserName(req.userName)) {
+            PlayerInfoResponse.unknownUser(req.userName).writeToStream(outputStream)
+        } else if (!tokenManager.verify(req.token)) {
+            PlayerInfoResponse.invalidToken().writeToStream(outputStream)
+        } else {
+            val filteredPlayers = server.playerManager.playerList
+                .filter { playerEntity: ServerPlayerEntity? ->
+                    if (formParams.containsKey("name")) {
+                        playerEntity?.name?.asString() == formParams["name"]!![0]
+                    } else if (formParams.containsKey("uuid")) {
+                        playerEntity?.uuid?.toString() == formParams["uuid"]!![0]
+                    } else {
+                        true
+                    }
+                }.mapNotNull { playerEntity: ServerPlayerEntity? ->
+                    when (playerEntity) {
+                        null -> null
+                        else -> SinglePlayerInfo(playerEntity)
+                    }
                 }
-            }.mapNotNull { playerEntity: ServerPlayerEntity? ->
-                when (playerEntity) {
-                    null -> null
-                    else -> SinglePlayerInfo(playerEntity)
-                }
-            }
-        val info = PlayerInfo(filteredPlayers)
-        info.writeToStream(outputStream)
+            PlayerInfoResponse.success(filteredPlayers).writeToStream(outputStream)
+        }
     }
 }

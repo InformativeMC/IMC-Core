@@ -16,31 +16,73 @@
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import kotlinx.serialization.Serializable
-import online.ruin_of_future.informative_mc_core.humanReadableSize
+import online.ruin_of_future.informative_mc_core.data.ModData
+import online.ruin_of_future.informative_mc_core.auth.TokenManager
+import online.ruin_of_future.informative_mc_core.util.humanReadableSize
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import java.io.OutputStream
 
 val OSInfoApiId = ApiID("system-info", "os-info")
 
+// TODO: Lift `requestStatus` and `requestInfo` out.
+
 @Suppress("UnUsed")
 @Serializable
-class OSInfo private constructor(
+class OSInfoResponse(
+    val requestStatus: String,
+    val requestInfo: String,
     // OS Info
     val osName: String,
     val maxMemory: String,
     val allocatedMemory: String,
     val freeMemory: String,
-    override val id: ApiID = OSInfoApiId,
-) : ParamFreeHandler() {
+) {
+    companion object {
+        fun getForNow(): OSInfoResponse {
+            return OSInfoResponse(
+                requestStatus = "success",
+                requestInfo = "",
+                osName = System.getProperty("os.name") ?: "unknown",
+                maxMemory = Runtime.getRuntime().maxMemory().humanReadableSize(),
+                allocatedMemory = Runtime.getRuntime().totalMemory().humanReadableSize(),
+                freeMemory = Runtime.getRuntime().freeMemory().humanReadableSize(),
+            )
+        }
 
-    constructor() : this("???", "???", "???", "???")
+        fun unknownUser(userName: String): OSInfoResponse {
+            return OSInfoResponse(
+                requestStatus = "error",
+                requestInfo = "unknown user: $userName",
+                osName = "", maxMemory = "", allocatedMemory = "", freeMemory = "",
+            )
+        }
 
-    override fun handleRequest(outputStream: OutputStream) {
-        OSInfo(
-            System.getProperty("os.name") ?: "unknown",
-            Runtime.getRuntime().maxMemory().humanReadableSize(),
-            Runtime.getRuntime().totalMemory().humanReadableSize(),
-            Runtime.getRuntime().freeMemory().humanReadableSize(),
-        ).writeToStream(outputStream)
+        fun invalidToken(): OSInfoResponse {
+            return OSInfoResponse(
+                requestStatus = "error",
+                requestInfo = "invalid token",
+                osName = "", maxMemory = "", allocatedMemory = "", freeMemory = "",
+            )
+        }
+    }
+}
+
+class OSInfoHandler(
+    private val tokenManager: TokenManager,
+    private val modData: ModData,
+) : ParamPostHandler() {
+    override val id: ApiID = OSInfoApiId
+    override fun handleRequest(
+        formParams: Map<String, List<String>>,
+        outputStream: OutputStream
+    ) {
+        val req = parseUserRequest(formParams)
+        if (!modData.hasUserName(req.userName)) {
+            OSInfoResponse.unknownUser(req.userName).writeToStream(outputStream)
+        } else if (!tokenManager.verify(req.token)) {
+            OSInfoResponse.invalidToken().writeToStream(outputStream)
+        } else {
+            OSInfoResponse.getForNow().writeToStream(outputStream)
+        }
     }
 }

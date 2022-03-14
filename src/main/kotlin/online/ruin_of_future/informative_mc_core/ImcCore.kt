@@ -21,46 +21,46 @@ import kotlinx.serialization.json.decodeFromStream
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.server.MinecraftServer
+import online.ruin_of_future.informative_mc_core.command.ImcCommand
+import online.ruin_of_future.informative_mc_core.config.ModConfig
+import online.ruin_of_future.informative_mc_core.data.ModData
+import online.ruin_of_future.informative_mc_core.auth.TokenManager
+import online.ruin_of_future.informative_mc_core.util.configDir
+import online.ruin_of_future.informative_mc_core.util.gameDir
+import online.ruin_of_future.informative_mc_core.util.getFile
+import online.ruin_of_future.informative_mc_core.util.saveToFile
 import online.ruin_of_future.informative_mc_core.web_api.ApiServer
 import org.apache.logging.log4j.LogManager
 import java.io.File
-import java.io.IOException
+import java.nio.file.Path
 import java.util.*
 
-val cwd = run {
-    // TODO: Replace with a more general way to detect correct directory.
-    val cwd = System.getProperty("user.dir")
-    if (cwd == null || cwd.isEmpty()) {
-        throw IOException("Cannot access current working directory")
-    } else {
-        if (cwd.endsWith(File.separatorChar)) {
-            cwd.trimEnd(File.separatorChar)
-        }
-    }
-    cwd
-}
+val cwd: Path = gameDir.toAbsolutePath()
 
-val modConfigDirPath = "$cwd${File.separatorChar}config${File.separatorChar}InformativeMC"
-val modConfigFilePath = "$modConfigDirPath${File.separatorChar}IMC-Core.json"
+val modConfigDirPath: Path = configDir.resolve("InformativeMC").toAbsolutePath()
+val modConfigFilePath: Path = modConfigDirPath.resolve("IMC-Core.json").toAbsolutePath()
 
-val modDataDirPath = "$cwd${File.separatorChar}mods${File.separatorChar}InformativeMC"
-val modDataFilePath = "$modDataDirPath${File.separatorChar}IMC-Core.data"
+val modDataDirPath: Path = cwd.resolve("mods").resolve("InformativeMC").toAbsolutePath()
+val modDataFilePath: Path = modDataDirPath.resolve("IMC-Core.data").toAbsolutePath()
 
-val tmpDirPath = "$cwd${File.separatorChar}tmp${File.separatorChar}InformativeMC"
+val tmpDirPath: Path = cwd.resolve("tmp").resolve("InformativeMC").toAbsolutePath()
 
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
-object ModEntryPoint : ModInitializer {
+object ImcCore : ModInitializer {
     private val LOGGER = LogManager.getLogger("IMC-Core")
     private const val MOD_ID = "informative_mc_api_core"
     private val modTimer = Timer("IMC Timer")
     lateinit var server: MinecraftServer
     private lateinit var config: ModConfig
     lateinit var data: ModData
+    private val tokenManager = TokenManager()
+    private lateinit var apiServer: ApiServer
+    private lateinit var imcCommand: ImcCommand
 
     private fun createDirsIfNeeded() {
         arrayOf(modConfigDirPath, modDataDirPath).forEach {
-            val file = File(it)
+            val file = File(it.toString())
             if (!file.exists()) {
                 if (!file.mkdirs()) {
                     LOGGER.error("Failed when creating directory $it")
@@ -77,7 +77,7 @@ object ModEntryPoint : ModInitializer {
         val file = getFile(path)
         val obj = if (file.exists()) {
             try {
-                Json.decodeFromStream<T>(file.inputStream())
+                Json.decodeFromStream(file.inputStream())
             } catch (e: Exception) {
                 val cpyFile = File("${file.absoluteFile.parent}${File.separatorChar}OLD-${file.name}")
                 cpyFile.writeBytes(file.readBytes())
@@ -91,9 +91,9 @@ object ModEntryPoint : ModInitializer {
             }
         } else {
             if (createAndWriteIfAbsent) {
-                LOGGER.info("Load file failed. Creating a default one...")
+                LOGGER.info("Load $path failed. Creating a default one...")
                 if (file.createNewFile()) {
-                    saveToFileLocked(default, file)
+                    saveToFile(default, file)
                 } else {
                     LOGGER.error("Creating default file failed.")
                 }
@@ -103,17 +103,47 @@ object ModEntryPoint : ModInitializer {
         return obj
     }
 
+    private inline fun <reified T> safeLoadFile(
+        path: Path,
+        default: T,
+        createAndWriteIfAbsent: Boolean = true
+    ): T {
+        return safeLoadFile(path.toString(), default, createAndWriteIfAbsent)
+    }
+
     private fun loadConfig() {
         config = safeLoadFile(modConfigFilePath, ModConfig.DEFAULT)
-        ModConfig.CURRENT = config
+        // TODO: Write on demand
+//        modTimer.schedule(
+//            delay = TimeUnit.SECONDS.toMillis(1),
+//            period = TimeUnit.MINUTES.toMillis(5),
+//        ) {
+//            saveToFileLocked(data, modConfigFilePath)
+//        }
     }
 
     private fun loadData() {
         data = safeLoadFile(modDataFilePath, ModData.DEFAULT)
-        ModData.CURRENT = data
+        // TODO: Write on demand
+        // TODO: Replace it with a Database
+//        modTimer.schedule(
+//            delay = TimeUnit.SECONDS.toMillis(1),
+//            period = TimeUnit.MINUTES.toMillis(5),
+//        ) {
+//            saveToFileLocked(data, modDataFilePath)
+//        }
     }
 
-    private fun registerServerCallback() {
+    private fun setupApiServer() {
+        apiServer = ApiServer(config, data, tokenManager)
+    }
+
+    private fun setupImcCommand() {
+        imcCommand = ImcCommand(tokenManager)
+        imcCommand.setup()
+    }
+
+    private fun registerMcServerCallback() {
         ServerLifecycleEvents.SERVER_STARTED.register { server ->
             if (server == null) {
                 throw NullPointerException("Cannot access current server!")
@@ -124,10 +154,15 @@ object ModEntryPoint : ModInitializer {
     }
 
     override fun onInitialize() {
+        // Config and data
         createDirsIfNeeded()
         loadConfig()
         loadData()
-        registerServerCallback()
-        ApiServer.setup()
+        // MC command
+        setupImcCommand()
+        // Restful api server
+        setupApiServer()
+        // Miscellaneous
+        registerMcServerCallback()
     }
 }

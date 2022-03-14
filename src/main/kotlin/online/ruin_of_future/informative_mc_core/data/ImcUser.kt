@@ -13,15 +13,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core
+package online.ruin_of_future.informative_mc_core.data
 
 import kotlinx.serialization.Serializable
+import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
+import java.util.*
 
 @Serializable
-class ModData(
-) {
-    companion object {
-        lateinit var CURRENT: ModData
-        val DEFAULT = ModData()
-    }
-}
+class ImcUser(
+    val userName: String,
+    @Serializable(with = UUIDSerializer::class)
+    val userTokenId: UUID
+)
