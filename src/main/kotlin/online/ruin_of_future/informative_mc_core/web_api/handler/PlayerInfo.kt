@@ -22,7 +22,6 @@ import online.ruin_of_future.informative_mc_core.auth.TokenManager
 import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import online.ruin_of_future.informative_mc_core.web_api.response.PlayerInfoResponse
-import online.ruin_of_future.informative_mc_core.web_api.response.SinglePlayerInfo
 import java.io.OutputStream
 
 val PlayerInfoApiId = ApiID("mc-info", "player-info")
@@ -58,7 +57,7 @@ class PlayerInfoHandler(
                 }.mapNotNull { playerEntity: ServerPlayerEntity? ->
                     when (playerEntity) {
                         null -> null
-                        else -> SinglePlayerInfo(playerEntity)
+                        else -> PlayerInfoResponse.SinglePlayerInfo(playerEntity)
                     }
                 }
             PlayerInfoResponse.success(filteredPlayers).writeToStream(outputStream)
