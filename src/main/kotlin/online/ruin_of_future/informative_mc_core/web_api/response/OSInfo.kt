@@ -20,32 +20,33 @@ import online.ruin_of_future.informative_mc_core.util.humanReadableSize
 
 @Suppress("UnUsed")
 @Serializable
-class OSInfoResponseBody(
-    // OS Info
-    val osName: String,
-    val maxMemory: String,
-    val allocatedMemory: String,
-    val freeMemory: String,
-) {
-    companion object {
-        fun getCurrent(): OSInfoResponseBody {
-            return OSInfoResponseBody(
-                osName = System.getProperty("os.name") ?: "unknown",
-                maxMemory = Runtime.getRuntime().maxMemory().humanReadableSize(),
-                allocatedMemory = Runtime.getRuntime().totalMemory().humanReadableSize(),
-                freeMemory = Runtime.getRuntime().freeMemory().humanReadableSize(),
-            )
-        }
-    }
-}
-
-@Suppress("UnUsed")
-@Serializable
 class OSInfoResponse(
     override val requestStatus: String,
     override val requestInfo: String,
     override val responseBody: OSInfoResponseBody?
-) : ApiResponse<OSInfoResponseBody?>() {
+) : ApiResponse<OSInfoResponse.OSInfoResponseBody?>() {
+
+    @Suppress("UnUsed")
+    @Serializable
+    class OSInfoResponseBody(
+        // OS Info
+        val osName: String,
+        val maxMemory: String,
+        val allocatedMemory: String,
+        val freeMemory: String,
+    ) {
+        companion object {
+            fun getCurrent(): OSInfoResponseBody {
+                return OSInfoResponseBody(
+                    osName = System.getProperty("os.name") ?: "unknown",
+                    maxMemory = Runtime.getRuntime().maxMemory().humanReadableSize(),
+                    allocatedMemory = Runtime.getRuntime().totalMemory().humanReadableSize(),
+                    freeMemory = Runtime.getRuntime().freeMemory().humanReadableSize(),
+                )
+            }
+        }
+    }
+
     companion object {
         fun getCurrent(): OSInfoResponse {
             return OSInfoResponse(

@@ -18,16 +18,17 @@ package online.ruin_of_future.informative_mc_core.web_api.response
 import kotlinx.serialization.Serializable
 
 @Serializable
-class UserTestResponseBody(
-    val userName: String,
-)
-
-@Serializable
 class UserTestResponse(
     override val requestStatus: String,
     override val requestInfo: String,
     override val responseBody: UserTestResponseBody?
-) : ApiResponse<UserTestResponseBody?>() {
+) : ApiResponse<UserTestResponse.UserTestResponseBody?>() {
+
+    @Serializable
+    class UserTestResponseBody(
+        val userName: String,
+    )
+
     companion object {
         fun success(userName: String): UserTestResponse {
             return UserTestResponse(

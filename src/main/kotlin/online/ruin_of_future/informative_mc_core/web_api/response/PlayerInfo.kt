@@ -22,37 +22,38 @@ import java.util.*
 
 @Suppress("UnUsed")
 @Serializable
-class SinglePlayerInfo private constructor(
-    val name: String,
-    val entityName: String,
-    @Serializable(with = UUIDSerializer::class)
-    val uuid: UUID,
-    val health: Float,
-    val foodLevel: Int,
-    val experienceLevel: Int,
-) {
-    constructor(playerEntity: ServerPlayerEntity) : this(
-        name = playerEntity.name.asString(),
-        entityName = playerEntity.entityName,
-        uuid = playerEntity.uuid,
-        health = playerEntity.health,
-        foodLevel = playerEntity.hungerManager.foodLevel,
-        experienceLevel = playerEntity.experienceLevel
-    )
-}
-
-@Serializable
-class PlayerInfoResponseBody(
-    val players: List<SinglePlayerInfo>,
-)
-
-@Suppress("UnUsed")
-@Serializable
 class PlayerInfoResponse(
     override val requestStatus: String,
     override val requestInfo: String,
     override val responseBody: PlayerInfoResponseBody?
-) : ApiResponse<PlayerInfoResponseBody?>() {
+) : ApiResponse<PlayerInfoResponse.PlayerInfoResponseBody?>() {
+
+    @Suppress("UnUsed")
+    @Serializable
+    class SinglePlayerInfo private constructor(
+        val name: String,
+        val entityName: String,
+        @Serializable(with = UUIDSerializer::class)
+        val uuid: UUID,
+        val health: Float,
+        val foodLevel: Int,
+        val experienceLevel: Int,
+    ) {
+        constructor(playerEntity: ServerPlayerEntity) : this(
+            name = playerEntity.name.asString(),
+            entityName = playerEntity.entityName,
+            uuid = playerEntity.uuid,
+            health = playerEntity.health,
+            foodLevel = playerEntity.hungerManager.foodLevel,
+            experienceLevel = playerEntity.experienceLevel
+        )
+    }
+
+    @Serializable
+    class PlayerInfoResponseBody(
+        val players: List<SinglePlayerInfo>,
+    )
+
     companion object {
         fun unknownUserError(userName: String): PlayerInfoResponse {
             return PlayerInfoResponse(

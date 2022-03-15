@@ -20,18 +20,19 @@ import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
 import java.util.*
 
 @Serializable
-class UserRegisterResponseBody(
-    val userName: String,
-    @Serializable(with = UUIDSerializer::class)
-    val key: UUID,
-)
-
-@Serializable
 class UserRegisterResponse(
     override val requestStatus: String,
     override val requestInfo: String,
     override val responseBody: UserRegisterResponseBody?
-) : ApiResponse<UserRegisterResponseBody?>() {
+) : ApiResponse<UserRegisterResponse.UserRegisterResponseBody?>() {
+
+    @Serializable
+    class UserRegisterResponseBody(
+        val userName: String,
+        @Serializable(with = UUIDSerializer::class)
+        val key: UUID,
+    )
+
     companion object {
         fun success(userName: String, key: UUID): UserRegisterResponse {
             return UserRegisterResponse(
