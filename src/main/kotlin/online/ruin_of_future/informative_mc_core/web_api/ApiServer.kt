@@ -40,6 +40,7 @@ import java.security.spec.X509EncodedKeySpec
 /**
  * Server which expose web api and potential web pages.
  * */
+@Suppress("UnUsed")
 @OptIn(ExperimentalSerializationApi::class)
 class ApiServer(
     private val modConfig: ModConfig,
@@ -63,15 +64,15 @@ class ApiServer(
     private val paramGetHandlers = mutableMapOf<ApiID, ParamGetHandler>()
     private val paramPostHandlers = mutableMapOf<ApiID, ParamPostHandler>()
 
-    fun registerApiHandler(apiHandler: ParamFreeHandler) {
+    private fun registerApiHandler(apiHandler: ParamFreeHandler) {
         paramFreeHandlers.putIfAbsent(apiHandler.id, apiHandler)
     }
 
-    fun registerApiHandler(apiHandler: ParamGetHandler) {
+    private fun registerApiHandler(apiHandler: ParamGetHandler) {
         paramGetHandlers.putIfAbsent(apiHandler.id, apiHandler)
     }
 
-    fun registerApiHandler(apiHandler: ParamPostHandler) {
+    private fun registerApiHandler(apiHandler: ParamPostHandler) {
         paramPostHandlers.putIfAbsent(apiHandler.id, apiHandler)
     }
 
@@ -102,7 +103,6 @@ class ApiServer(
         return factory
     }
 
-    // TODO: use a temporary KeyStore if cert and key files are provided in config.
     private fun ensureKeyStore() {
         var flag = false
         var certFile: File? = null

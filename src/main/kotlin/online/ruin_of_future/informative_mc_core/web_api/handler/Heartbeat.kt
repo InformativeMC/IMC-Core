@@ -22,13 +22,10 @@ import java.io.OutputStream
 val HeartbeatApiId = ApiID("system-info", "heartbeat")
 
 @Suppress("UnUsed")
-class HeartbeatHandler : ParamPostHandler() {
+class HeartbeatHandler : ParamFreeHandler() {
     override val id: ApiID = HeartbeatApiId
 
-    override fun handleRequest(
-        formParams: Map<String, List<String>>,
-        outputStream: OutputStream
-    ) {
+    override fun handleRequest(outputStream: OutputStream) {
         HeartbeatResponse.HEALTHY.writeToStream(outputStream)
     }
 }

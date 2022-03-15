@@ -21,10 +21,10 @@ import kotlinx.serialization.json.decodeFromStream
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.server.MinecraftServer
+import online.ruin_of_future.informative_mc_core.auth.TokenManager
 import online.ruin_of_future.informative_mc_core.command.ImcCommand
 import online.ruin_of_future.informative_mc_core.config.ModConfig
 import online.ruin_of_future.informative_mc_core.data.ModData
-import online.ruin_of_future.informative_mc_core.auth.TokenManager
 import online.ruin_of_future.informative_mc_core.util.configDir
 import online.ruin_of_future.informative_mc_core.util.gameDir
 import online.ruin_of_future.informative_mc_core.util.getFile
