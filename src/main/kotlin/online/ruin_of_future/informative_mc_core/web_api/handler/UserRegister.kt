@@ -15,56 +15,15 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import kotlinx.serialization.Serializable
 import online.ruin_of_future.informative_mc_core.auth.TokenManager
 import online.ruin_of_future.informative_mc_core.data.ImcUser
 import online.ruin_of_future.informative_mc_core.data.ModData
-import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponse
 import java.io.OutputStream
 import java.util.*
 
 val UserRegisterApiId = ApiID("imc-manage", "register")
-
-// TODO: Lift `requestStatus` and `requestInfo` out.
-
-@Serializable
-data class UserRegisterResponse(
-    val requestStatus: String,
-    val requestInfo: String,
-    val userName: String,
-    @Serializable(with = UUIDSerializer::class)
-    val key: UUID,
-) {
-    companion object {
-        fun success(userName: String, key: UUID): UserRegisterResponse {
-            return UserRegisterResponse(
-                requestStatus = "success",
-                requestInfo = "",
-                userName = userName,
-                key = key,
-            )
-        }
-
-        fun usedUsername(userName: String, key: UUID): UserRegisterResponse {
-            return UserRegisterResponse(
-                requestStatus = "error",
-                requestInfo = "already occupied username",
-                userName = userName,
-                key = key,
-            )
-        }
-
-        fun invalidToken(userName: String, key: UUID): UserRegisterResponse {
-            return UserRegisterResponse(
-                requestStatus = "error",
-                requestInfo = "not a valid token",
-                userName = userName,
-                key = key,
-            )
-        }
-    }
-}
 
 class UserRegisterHandler(
     private val tokenManager: TokenManager,
@@ -87,24 +46,19 @@ class UserRegisterHandler(
                         key = tokenManager.addForeverToken().uuid,
                     ).writeToStream(outputStream)
                 } else {
-                    UserRegisterResponse.usedUsername(
+                    UserRegisterResponse.usedUsernameError(
                         userName = req.userName,
                         key = UUID.randomUUID(), // useless
                     ).writeToStream(outputStream)
                 }
             } else {
-                UserRegisterResponse.invalidToken(
+                UserRegisterResponse.invalidTokenError(
                     userName = req.userName,
                     key = UUID.randomUUID(), // useless
                 ).writeToStream(outputStream)
             }
         } catch (e: MissingParameterException) {
-            UserRegisterResponse(
-                requestStatus = "error",
-                requestInfo = e.message ?: "",
-                userName = "(error)",
-                key = UUID.randomUUID(), // useless
-            ).writeToStream(outputStream)
+            UserRegisterResponse.unknownError().writeToStream(outputStream)
         }
     }
 }
