@@ -15,25 +15,20 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import kotlinx.serialization.Serializable
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.web_api.response.HeartbeatResponse
 import java.io.OutputStream
 
 val HeartbeatApiId = ApiID("system-info", "heartbeat")
 
-// TODO: Change it to POST handler with authentication
-// TODO: Separate handler and response.
-
 @Suppress("UnUsed")
-@Serializable
-class Heartbeat private constructor(
-    val status: String,
-    override val id: ApiID = HeartbeatApiId,
-) : ParamFreeHandler() {
+class HeartbeatHandler : ParamPostHandler() {
+    override val id: ApiID = HeartbeatApiId
 
-    constructor() : this("???")
-
-    override fun handleRequest(outputStream: OutputStream) {
-        Heartbeat("healthy").writeToStream(outputStream)
+    override fun handleRequest(
+        formParams: Map<String, List<String>>,
+        outputStream: OutputStream
+    ) {
+        HeartbeatResponse.HEALTHY.writeToStream(outputStream)
     }
 }
