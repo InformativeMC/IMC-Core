@@ -16,28 +16,24 @@
 package online.ruin_of_future.informative_mc_core.web_api.response
 
 import kotlinx.serialization.Serializable
+import online.ruin_of_future.informative_mc_core.util.humanReadableSize
 
 @Suppress("UnUsed")
 @Serializable
-class JvmInfoResponseBody(
-    // Jvm Info
-    val jvmName: String,
-    val jvmVendor: String,
-    val jvmVersion: String,
-    val jvmInfo: String,
-    // Java & Kotlin version
-    val javaVersion: String,
-    val kotlinVersion: String,
+class OSInfoResponseBody(
+    // OS Info
+    val osName: String,
+    val maxMemory: String,
+    val allocatedMemory: String,
+    val freeMemory: String,
 ) {
     companion object {
-        fun getCurrent(): JvmInfoResponseBody {
-            return JvmInfoResponseBody(
-                jvmName = System.getProperty("java.vm.name") ?: "unknown",
-                jvmVendor = System.getProperty("java.vm.vendor") ?: "unknown",
-                jvmVersion = System.getProperty("java.vm.version") ?: "unknown",
-                jvmInfo = System.getProperty("Java.vm.info") ?: "unknown",
-                javaVersion = System.getProperty("java.version") ?: "unknown",
-                kotlinVersion = KotlinVersion.CURRENT.toString(),
+        fun getCurrent(): OSInfoResponseBody {
+            return OSInfoResponseBody(
+                osName = System.getProperty("os.name") ?: "unknown",
+                maxMemory = Runtime.getRuntime().maxMemory().humanReadableSize(),
+                allocatedMemory = Runtime.getRuntime().totalMemory().humanReadableSize(),
+                freeMemory = Runtime.getRuntime().freeMemory().humanReadableSize(),
             )
         }
     }
@@ -45,30 +41,30 @@ class JvmInfoResponseBody(
 
 @Suppress("UnUsed")
 @Serializable
-class JvmInfoResponse(
+class OSInfoResponse(
     override val requestStatus: String,
     override val requestInfo: String,
-    override val responseBody: JvmInfoResponseBody?
-) : ApiResponse<JvmInfoResponseBody?>() {
+    override val responseBody: OSInfoResponseBody?
+) : ApiResponse<OSInfoResponseBody?>() {
     companion object {
-        fun getCurrent(): JvmInfoResponse {
-            return JvmInfoResponse(
+        fun getCurrent(): OSInfoResponse {
+            return OSInfoResponse(
                 requestStatus = "success",
                 requestInfo = "",
-                responseBody = JvmInfoResponseBody.getCurrent()
+                responseBody = OSInfoResponseBody.getCurrent()
             )
         }
 
-        fun unknownUserError(userName: String): JvmInfoResponse {
-            return JvmInfoResponse(
+        fun unknownUserError(userName: String): OSInfoResponse {
+            return OSInfoResponse(
                 requestStatus = "error",
                 requestInfo = "unknown user: $userName",
                 responseBody = null,
             )
         }
 
-        fun invalidTokenError(): JvmInfoResponse {
-            return JvmInfoResponse(
+        fun invalidTokenError(): OSInfoResponse {
+            return OSInfoResponse(
                 requestStatus = "error",
                 requestInfo = "invalid token",
                 responseBody = null,
