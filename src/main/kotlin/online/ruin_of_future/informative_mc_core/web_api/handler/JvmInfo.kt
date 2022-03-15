@@ -15,72 +15,13 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import kotlinx.serialization.Serializable
 import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.auth.TokenManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.web_api.response.JvmInfoResponse
 import java.io.OutputStream
 
 val JvmInfoApiID = ApiID("system-info", "jvm-info")
-
-// TODO: Lift `requestStatus` and `requestInfo` out.
-
-@Suppress("UnUsed")
-@Serializable
-class JvmInfoResponse(
-    val requestStatus: String,
-    val requestInfo: String,
-    // Jvm Info
-    val jvmName: String,
-    val jvmVendor: String,
-    val jvmVersion: String,
-    val jvmInfo: String,
-
-    // Java & Kotlin version
-    val javaVersion: String,
-    val kotlinVersion: String,
-) {
-    companion object {
-        fun getForNow(): JvmInfoResponse {
-            return JvmInfoResponse(
-                requestStatus = "success",
-                requestInfo = "",
-                jvmName = System.getProperty("java.vm.name") ?: "unknown",
-                jvmVendor = System.getProperty("java.vm.vendor") ?: "unknown",
-                jvmVersion = System.getProperty("java.vm.version") ?: "unknown",
-                jvmInfo = System.getProperty("Java.vm.info") ?: "unknown",
-                javaVersion = System.getProperty("java.version") ?: "unknown",
-                kotlinVersion = KotlinVersion.CURRENT.toString(),
-            )
-        }
-
-        fun unknownUser(userName: String): JvmInfoResponse {
-            return JvmInfoResponse(
-                requestStatus = "error",
-                requestInfo = "unknown user: $userName",
-                jvmName = "",
-                jvmVendor = "",
-                jvmVersion = "",
-                jvmInfo = "",
-                javaVersion = "",
-                kotlinVersion = "",
-            )
-        }
-
-        fun invalidToken(): JvmInfoResponse {
-            return JvmInfoResponse(
-                requestStatus = "error",
-                requestInfo = "invalid token",
-                jvmName = "",
-                jvmVendor = "",
-                jvmVersion = "",
-                jvmInfo = "",
-                javaVersion = "",
-                kotlinVersion = "",
-            )
-        }
-    }
-}
 
 class JvmInfoHandler(
     private val tokenManager: TokenManager,
@@ -94,11 +35,11 @@ class JvmInfoHandler(
     ) {
         val req = parseUserRequest(formParams)
         if (!modData.hasUserName(req.userName)) {
-            JvmInfoResponse.unknownUser(req.userName)
+            JvmInfoResponse.unknownUserError(req.userName)
         } else if (!tokenManager.verify(req.token)) {
-            JvmInfoResponse.invalidToken().writeToStream(outputStream)
+            JvmInfoResponse.invalidTokenError().writeToStream(outputStream)
         } else {
-            JvmInfoResponse.getForNow().writeToStream(outputStream)
+            JvmInfoResponse.getCurrent().writeToStream(outputStream)
         }
     }
 }
