@@ -15,76 +15,17 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import kotlinx.serialization.Serializable
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import online.ruin_of_future.informative_mc_core.ImcCore
 import online.ruin_of_future.informative_mc_core.auth.TokenManager
 import online.ruin_of_future.informative_mc_core.data.ModData
-import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.web_api.response.PlayerInfoResponse
+import online.ruin_of_future.informative_mc_core.web_api.response.SinglePlayerInfo
 import java.io.OutputStream
-import java.util.*
 
 val PlayerInfoApiId = ApiID("mc-info", "player-info")
-
-// TODO: Lift `requestStatus` and `requestInfo` out.
-
-@Suppress("UnUsed")
-@Serializable
-class SinglePlayerInfo private constructor(
-    val name: String,
-    val entityName: String,
-    @Serializable(with = UUIDSerializer::class)
-    val uuid: UUID,
-    val health: Float,
-    val foodLevel: Int,
-    val experienceLevel: Int,
-) {
-    constructor(playerEntity: ServerPlayerEntity) : this(
-        name = playerEntity.name.asString(),
-        entityName = playerEntity.entityName,
-        uuid = playerEntity.uuid,
-        health = playerEntity.health,
-        foodLevel = playerEntity.hungerManager.foodLevel,
-        experienceLevel = playerEntity.experienceLevel
-    )
-}
-
-@Suppress("UnUsed")
-@Serializable
-class PlayerInfoResponse(
-    val requestStatus: String,
-    val requestInfo: String,
-    val players: List<SinglePlayerInfo>,
-) {
-    companion object {
-        fun unknownUser(userName: String): PlayerInfoResponse {
-            return PlayerInfoResponse(
-                requestStatus = "error",
-                requestInfo = "unknown user: $userName",
-                players = listOf(),
-            )
-        }
-
-        fun invalidToken(): PlayerInfoResponse {
-            return PlayerInfoResponse(
-                requestStatus = "error",
-                requestInfo = "invalid token",
-                players = listOf(),
-            )
-        }
-
-
-        fun success(players: List<SinglePlayerInfo>): PlayerInfoResponse {
-            return PlayerInfoResponse(
-                requestStatus = "success",
-                requestInfo = "",
-                players = players,
-            )
-        }
-    }
-}
 
 class PlayerInfoHandler(
     private val tokenManager: TokenManager,
@@ -101,9 +42,9 @@ class PlayerInfoHandler(
     ) {
         val req = parseUserRequest(formParams)
         if (!modData.hasUserName(req.userName)) {
-            PlayerInfoResponse.unknownUser(req.userName).writeToStream(outputStream)
+            PlayerInfoResponse.unknownUserError(req.userName).writeToStream(outputStream)
         } else if (!tokenManager.verify(req.token)) {
-            PlayerInfoResponse.invalidToken().writeToStream(outputStream)
+            PlayerInfoResponse.invalidTokenError().writeToStream(outputStream)
         } else {
             val filteredPlayers = server.playerManager.playerList
                 .filter { playerEntity: ServerPlayerEntity? ->
