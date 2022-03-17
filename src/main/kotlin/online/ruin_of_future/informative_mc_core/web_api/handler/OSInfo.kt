@@ -32,12 +32,13 @@ class OSInfoHandler(
         outputStream: OutputStream
     ) {
         val req = parseUserRequest(formParams)
-        if (!modDataManager.userManager.hasUserName(req.userName)) {
-            OSInfoResponse.usernameError(req.userName).writeToStream(outputStream)
+        val res = if (!modDataManager.userManager.hasUserName(req.userName)) {
+            OSInfoResponse.usernameError(req.userName)
         } else if (!modDataManager.tmpAuthManager.verifyToken(req.token)) {
-            OSInfoResponse.invalidTokenError(req.token).writeToStream(outputStream)
+            OSInfoResponse.invalidTokenError(req.token)
         } else {
-            OSInfoResponse.success(OSInfoResponseBody.getCurrent()).writeToStream(outputStream)
+            OSInfoResponse.success(OSInfoResponseBody.getCurrent())
         }
+        res.writeToStream(outputStream)
     }
 }

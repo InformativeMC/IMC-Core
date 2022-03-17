@@ -40,10 +40,10 @@ class PlayerInfoHandler(
         outputStream: OutputStream
     ) {
         val req = parseUserRequest(formParams)
-        if (!modDataManager.userManager.hasUserName(req.userName)) {
-            PlayerInfoResponse.usernameError(req.userName).writeToStream(outputStream)
+        val res = if (!modDataManager.userManager.hasUserName(req.userName)) {
+            PlayerInfoResponse.usernameError(req.userName)
         } else if (!modDataManager.tmpAuthManager.verifyToken(req.token)) {
-            PlayerInfoResponse.invalidTokenError(req.token).writeToStream(outputStream)
+            PlayerInfoResponse.invalidTokenError(req.token)
         } else {
             val filteredPlayers = server.playerManager.playerList
                 .filter { playerEntity: ServerPlayerEntity? ->
@@ -60,7 +60,8 @@ class PlayerInfoHandler(
                         else -> SinglePlayerInfo(playerEntity)
                     }
                 }
-            PlayerInfoResponse.success(PlayerInfoResponseBody(filteredPlayers)).writeToStream(outputStream)
+            PlayerInfoResponse.success(PlayerInfoResponseBody(filteredPlayers))
         }
+        res.writeToStream(outputStream)
     }
 }

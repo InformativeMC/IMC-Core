@@ -15,12 +15,13 @@ class UserTestHandler(
 
     override fun handleRequest(formParams: Map<String, List<String>>, outputStream: OutputStream) {
         val req = parseUserRequest(formParams)
-        if (!modDataManager.userManager.hasUserName(req.userName)) {
-            UserTestResponse.usernameError(req.userName).writeToStream(outputStream)
+        val res = if (!modDataManager.userManager.hasUserName(req.userName)) {
+            UserTestResponse.usernameError(req.userName)
         } else if (!modDataManager.tmpAuthManager.verifyToken(req.token)) {
-            UserTestResponse.invalidTokenError(req.token).writeToStream(outputStream)
+            UserTestResponse.invalidTokenError(req.token)
         } else {
-            UserTestResponse.success(UserTestResponseBody(req.userName)).writeToStream(outputStream)
+            UserTestResponse.success(UserTestResponseBody(req.userName))
         }
+        res.writeToStream(outputStream)
     }
 }

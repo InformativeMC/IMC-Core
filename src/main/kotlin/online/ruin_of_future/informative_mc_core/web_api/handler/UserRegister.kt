@@ -31,22 +31,23 @@ class UserRegisterHandler(
     override fun handleRequest(formParams: Map<String, List<String>>, outputStream: OutputStream) {
         try {
             val req = parseUserRequest(formParams)
-            if (modDataManager.tmpAuthManager.verifyToken(req.token)) {
+            val res = if (modDataManager.tmpAuthManager.verifyToken(req.token)) {
                 if (!modDataManager.userManager.hasUserName(req.userName)) {
                     val user = modDataManager.userManager.addUser(req.userName)
                     UserRegisterResponse
                         .success(UserRegisterResponseBody(user.userName, user.userToken.uuid))
-                        .writeToStream(outputStream)
+
                 } else {
                     UserRegisterResponse.usernameError(
                         userName = req.userName,
-                    ).writeToStream(outputStream)
+                    )
                 }
             } else {
                 UserRegisterResponse.invalidTokenError(
                     uuid = req.token,
-                ).writeToStream(outputStream)
+                )
             }
+            res.writeToStream(outputStream)
         } catch (e: MissingParameterException) {
             UserRegisterResponse.unknownError().writeToStream(outputStream)
         }

@@ -33,12 +33,13 @@ class JvmInfoHandler(
         outputStream: OutputStream
     ) {
         val req = parseUserRequest(formParams)
-        if (!modDataManager.userManager.hasUserName(req.userName)) {
-            JvmInfoResponse.usernameError(req.userName).writeToStream(outputStream)
+        val res = if (!modDataManager.userManager.hasUserName(req.userName)) {
+            JvmInfoResponse.usernameError(req.userName)
         } else if (!modDataManager.tmpAuthManager.verifyToken(req.token)) {
-            JvmInfoResponse.invalidTokenError(req.token).writeToStream(outputStream)
+            JvmInfoResponse.invalidTokenError(req.token)
         } else {
-            JvmInfoResponse.success(JvmInfoResponseBody.getCurrent()).writeToStream(outputStream)
+            JvmInfoResponse.success(JvmInfoResponseBody.getCurrent())
         }
+        res.writeToStream(outputStream)
     }
 }
