@@ -16,10 +16,31 @@
 package online.ruin_of_future.informative_mc_core.web_api.response
 
 import kotlinx.serialization.Serializable
+import java.util.*
 
 @Serializable
-sealed class ApiResponse<T> {
+sealed class ApiResponse<T : Any> {
     abstract val requestStatus: String
     abstract val requestInfo: String
-    abstract val responseBody: T
+    abstract val responseBody: T?
+}
+
+sealed class ApiAuthCommonResponses<T : Any>(
+    private val responseBuilder: (String, String, T?) -> ApiResponse<T>
+) {
+    fun success(body: T): ApiResponse<T> {
+        return responseBuilder("success", "", body)
+    }
+
+    fun invalidTokenError(uuid: UUID): ApiResponse<T> {
+        return responseBuilder("error", "invalid token: $uuid", null)
+    }
+
+    fun usernameError(userName: String): ApiResponse<T> {
+        return responseBuilder("error", "wrong or unknown username: $userName", null)
+    }
+
+    fun unknownError(): ApiResponse<T> {
+        return responseBuilder("error", "unknown error", null)
+    }
 }

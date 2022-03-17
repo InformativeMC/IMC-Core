@@ -20,50 +20,20 @@ import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
 import java.util.*
 
 @Serializable
+class UserRegisterResponseBody(
+    val userName: String,
+    @Serializable(with = UUIDSerializer::class)
+    val uuid: UUID?,
+)
+
+@Serializable
 class UserRegisterResponse(
     override val requestStatus: String,
     override val requestInfo: String,
     override val responseBody: UserRegisterResponseBody?
-) : ApiResponse<UserRegisterResponse.UserRegisterResponseBody?>() {
+) : ApiResponse<UserRegisterResponseBody>() {
 
-    @Serializable
-    class UserRegisterResponseBody(
-        val userName: String,
-        @Serializable(with = UUIDSerializer::class)
-        val uuid: UUID?,
+    companion object CommonResponses : ApiAuthCommonResponses<UserRegisterResponseBody>(
+        responseBuilder = { status, info, body -> UserRegisterResponse(status, info, body) }
     )
-
-    companion object {
-        fun success(userName: String, uuid: UUID): UserRegisterResponse {
-            return UserRegisterResponse(
-                requestStatus = "success",
-                requestInfo = "",
-                responseBody = UserRegisterResponseBody(userName, uuid)
-            )
-        }
-
-        fun usedUsernameError(userName: String): UserRegisterResponse {
-            return UserRegisterResponse(
-                requestStatus = "error",
-                requestInfo = "already occupied username: $userName",
-                responseBody = null,
-            )
-        }
-
-        fun invalidTokenError(uuid: UUID): UserRegisterResponse {
-            return UserRegisterResponse(
-                requestStatus = "error",
-                requestInfo = "not a valid token: $uuid",
-                responseBody = null
-            )
-        }
-
-        fun unknownError(): UserRegisterResponse {
-            return UserRegisterResponse(
-                requestStatus = "error",
-                requestInfo = "unknown error",
-                responseBody = null
-            )
-        }
-    }
 }

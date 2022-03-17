@@ -16,43 +16,21 @@
 package online.ruin_of_future.informative_mc_core.web_api.response
 
 import kotlinx.serialization.Serializable
-import java.util.*
+
+@Serializable
+class UserTestResponseBody(
+    val userName: String,
+)
 
 @Serializable
 class UserTestResponse(
     override val requestStatus: String,
     override val requestInfo: String,
     override val responseBody: UserTestResponseBody?
-) : ApiResponse<UserTestResponse.UserTestResponseBody?>() {
+) : ApiResponse<UserTestResponseBody>() {
 
-    @Serializable
-    class UserTestResponseBody(
-        val userName: String,
+    companion object CommonResponses
+        : ApiAuthCommonResponses<UserTestResponseBody>(
+        responseBuilder = { status, info, body -> UserTestResponse(status, info, body) }
     )
-
-    companion object {
-        fun success(userName: String): UserTestResponse {
-            return UserTestResponse(
-                requestStatus = "success",
-                requestInfo = "",
-                responseBody = UserTestResponseBody(userName),
-            )
-        }
-
-        fun unknownUserNameError(userName: String): UserTestResponse {
-            return UserTestResponse(
-                requestStatus = "error",
-                requestInfo = "unknown username: $userName",
-                responseBody = null,
-            )
-        }
-
-        fun invalidTokenError(uuid: UUID): UserTestResponse {
-            return UserTestResponse(
-                requestStatus = "error",
-                requestInfo = "invalid token: $uuid",
-                responseBody = null,
-            )
-        }
-    }
 }

@@ -18,6 +18,7 @@ package online.ruin_of_future.informative_mc_core.web_api.handler
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponse
+import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponseBody
 import java.io.OutputStream
 
 val OSInfoApiId = ApiID("system-info", "os-info")
@@ -32,11 +33,11 @@ class OSInfoHandler(
     ) {
         val req = parseUserRequest(formParams)
         if (!modDataManager.userManager.hasUserName(req.userName)) {
-            OSInfoResponse.unknownUserError(req.userName).writeToStream(outputStream)
+            OSInfoResponse.usernameError(req.userName).writeToStream(outputStream)
         } else if (!modDataManager.tmpAuthManager.verifyToken(req.token)) {
-            OSInfoResponse.invalidTokenError().writeToStream(outputStream)
+            OSInfoResponse.invalidTokenError(req.token).writeToStream(outputStream)
         } else {
-            OSInfoResponse.getCurrent().writeToStream(outputStream)
+            OSInfoResponse.success(OSInfoResponseBody.getCurrent()).writeToStream(outputStream)
         }
     }
 }

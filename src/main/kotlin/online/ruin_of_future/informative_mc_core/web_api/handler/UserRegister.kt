@@ -18,6 +18,7 @@ package online.ruin_of_future.informative_mc_core.web_api.handler
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponse
+import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponseBody
 import java.io.OutputStream
 
 val UserRegisterApiId = ApiID("imc-manage", "register")
@@ -33,12 +34,11 @@ class UserRegisterHandler(
             if (modDataManager.tmpAuthManager.verifyToken(req.token)) {
                 if (!modDataManager.userManager.hasUserName(req.userName)) {
                     val user = modDataManager.userManager.addUser(req.userName)
-                    UserRegisterResponse.success(
-                        userName = req.userName,
-                        uuid = user.userToken.uuid,
-                    ).writeToStream(outputStream)
+                    UserRegisterResponse
+                        .success(UserRegisterResponseBody(user.userName, user.userToken.uuid))
+                        .writeToStream(outputStream)
                 } else {
-                    UserRegisterResponse.usedUsernameError(
+                    UserRegisterResponse.usernameError(
                         userName = req.userName,
                     ).writeToStream(outputStream)
                 }

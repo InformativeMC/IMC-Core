@@ -21,6 +21,8 @@ import online.ruin_of_future.informative_mc_core.ImcCore
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import online.ruin_of_future.informative_mc_core.web_api.response.PlayerInfoResponse
+import online.ruin_of_future.informative_mc_core.web_api.response.PlayerInfoResponseBody
+import online.ruin_of_future.informative_mc_core.web_api.response.SinglePlayerInfo
 import java.io.OutputStream
 
 val PlayerInfoApiId = ApiID("mc-info", "player-info")
@@ -39,9 +41,9 @@ class PlayerInfoHandler(
     ) {
         val req = parseUserRequest(formParams)
         if (!modDataManager.userManager.hasUserName(req.userName)) {
-            PlayerInfoResponse.unknownUserError(req.userName).writeToStream(outputStream)
+            PlayerInfoResponse.usernameError(req.userName).writeToStream(outputStream)
         } else if (!modDataManager.tmpAuthManager.verifyToken(req.token)) {
-            PlayerInfoResponse.invalidTokenError().writeToStream(outputStream)
+            PlayerInfoResponse.invalidTokenError(req.token).writeToStream(outputStream)
         } else {
             val filteredPlayers = server.playerManager.playerList
                 .filter { playerEntity: ServerPlayerEntity? ->
@@ -55,10 +57,10 @@ class PlayerInfoHandler(
                 }.mapNotNull { playerEntity: ServerPlayerEntity? ->
                     when (playerEntity) {
                         null -> null
-                        else -> PlayerInfoResponse.SinglePlayerInfo(playerEntity)
+                        else -> SinglePlayerInfo(playerEntity)
                     }
                 }
-            PlayerInfoResponse.success(filteredPlayers).writeToStream(outputStream)
+            PlayerInfoResponse.success(PlayerInfoResponseBody(filteredPlayers)).writeToStream(outputStream)
         }
     }
 }

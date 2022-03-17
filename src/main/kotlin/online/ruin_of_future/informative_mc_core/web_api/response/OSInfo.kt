@@ -20,56 +20,34 @@ import online.ruin_of_future.informative_mc_core.util.humanReadableSize
 
 @Suppress("UnUsed")
 @Serializable
+class OSInfoResponseBody(
+    // OS Info
+    val osName: String,
+    val maxMemory: String,
+    val allocatedMemory: String,
+    val freeMemory: String,
+) {
+    companion object {
+        fun getCurrent(): OSInfoResponseBody {
+            return OSInfoResponseBody(
+                osName = System.getProperty("os.name") ?: "unknown",
+                maxMemory = Runtime.getRuntime().maxMemory().humanReadableSize(),
+                allocatedMemory = Runtime.getRuntime().totalMemory().humanReadableSize(),
+                freeMemory = Runtime.getRuntime().freeMemory().humanReadableSize(),
+            )
+        }
+    }
+}
+
+@Suppress("UnUsed")
+@Serializable
 class OSInfoResponse(
     override val requestStatus: String,
     override val requestInfo: String,
     override val responseBody: OSInfoResponseBody?
-) : ApiResponse<OSInfoResponse.OSInfoResponseBody?>() {
+) : ApiResponse<OSInfoResponseBody>() {
 
-    @Suppress("UnUsed")
-    @Serializable
-    class OSInfoResponseBody(
-        // OS Info
-        val osName: String,
-        val maxMemory: String,
-        val allocatedMemory: String,
-        val freeMemory: String,
-    ) {
-        companion object {
-            fun getCurrent(): OSInfoResponseBody {
-                return OSInfoResponseBody(
-                    osName = System.getProperty("os.name") ?: "unknown",
-                    maxMemory = Runtime.getRuntime().maxMemory().humanReadableSize(),
-                    allocatedMemory = Runtime.getRuntime().totalMemory().humanReadableSize(),
-                    freeMemory = Runtime.getRuntime().freeMemory().humanReadableSize(),
-                )
-            }
-        }
-    }
-
-    companion object {
-        fun getCurrent(): OSInfoResponse {
-            return OSInfoResponse(
-                requestStatus = "success",
-                requestInfo = "",
-                responseBody = OSInfoResponseBody.getCurrent()
-            )
-        }
-
-        fun unknownUserError(userName: String): OSInfoResponse {
-            return OSInfoResponse(
-                requestStatus = "error",
-                requestInfo = "unknown user: $userName",
-                responseBody = null,
-            )
-        }
-
-        fun invalidTokenError(): OSInfoResponse {
-            return OSInfoResponse(
-                requestStatus = "error",
-                requestInfo = "invalid token",
-                responseBody = null,
-            )
-        }
-    }
+    companion object CommonResponses : ApiAuthCommonResponses<OSInfoResponseBody>(
+        responseBuilder = { status, info, body -> OSInfoResponse(status, info, body) }
+    )
 }

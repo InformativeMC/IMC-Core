@@ -22,61 +22,39 @@ import java.util.*
 
 @Suppress("UnUsed")
 @Serializable
+class SinglePlayerInfo private constructor(
+    val name: String,
+    val entityName: String,
+    @Serializable(with = UUIDSerializer::class)
+    val uuid: UUID,
+    val health: Float,
+    val foodLevel: Int,
+    val experienceLevel: Int,
+) {
+    constructor(playerEntity: ServerPlayerEntity) : this(
+        name = playerEntity.name.asString(),
+        entityName = playerEntity.entityName,
+        uuid = playerEntity.uuid,
+        health = playerEntity.health,
+        foodLevel = playerEntity.hungerManager.foodLevel,
+        experienceLevel = playerEntity.experienceLevel
+    )
+}
+
+@Serializable
+class PlayerInfoResponseBody(
+    val players: List<SinglePlayerInfo>,
+)
+
+@Suppress("UnUsed")
+@Serializable
 class PlayerInfoResponse(
     override val requestStatus: String,
     override val requestInfo: String,
     override val responseBody: PlayerInfoResponseBody?
-) : ApiResponse<PlayerInfoResponse.PlayerInfoResponseBody?>() {
+) : ApiResponse<PlayerInfoResponseBody>() {
 
-    @Suppress("UnUsed")
-    @Serializable
-    class SinglePlayerInfo private constructor(
-        val name: String,
-        val entityName: String,
-        @Serializable(with = UUIDSerializer::class)
-        val uuid: UUID,
-        val health: Float,
-        val foodLevel: Int,
-        val experienceLevel: Int,
-    ) {
-        constructor(playerEntity: ServerPlayerEntity) : this(
-            name = playerEntity.name.asString(),
-            entityName = playerEntity.entityName,
-            uuid = playerEntity.uuid,
-            health = playerEntity.health,
-            foodLevel = playerEntity.hungerManager.foodLevel,
-            experienceLevel = playerEntity.experienceLevel
-        )
-    }
-
-    @Serializable
-    class PlayerInfoResponseBody(
-        val players: List<SinglePlayerInfo>,
+    companion object CommonResponses : ApiAuthCommonResponses<PlayerInfoResponseBody>(
+        responseBuilder = { status, info, body -> PlayerInfoResponse(status, info, body) }
     )
-
-    companion object {
-        fun unknownUserError(userName: String): PlayerInfoResponse {
-            return PlayerInfoResponse(
-                requestStatus = "error",
-                requestInfo = "unknown user: $userName",
-                responseBody = null,
-            )
-        }
-
-        fun invalidTokenError(): PlayerInfoResponse {
-            return PlayerInfoResponse(
-                requestStatus = "error",
-                requestInfo = "invalid token",
-                responseBody = null,
-            )
-        }
-
-        fun success(players: List<SinglePlayerInfo>): PlayerInfoResponse {
-            return PlayerInfoResponse(
-                requestStatus = "success",
-                requestInfo = "",
-                responseBody = PlayerInfoResponseBody(players)
-            )
-        }
-    }
 }

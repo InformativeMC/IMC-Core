@@ -19,61 +19,39 @@ import kotlinx.serialization.Serializable
 
 @Suppress("UnUsed")
 @Serializable
+class JvmInfoResponseBody(
+    // Jvm Info
+    val jvmName: String,
+    val jvmVendor: String,
+    val jvmVersion: String,
+    val jvmInfo: String,
+    // Java & Kotlin version
+    val javaVersion: String,
+    val kotlinVersion: String,
+) {
+    companion object {
+        fun getCurrent(): JvmInfoResponseBody {
+            return JvmInfoResponseBody(
+                jvmName = System.getProperty("java.vm.name") ?: "unknown",
+                jvmVendor = System.getProperty("java.vm.vendor") ?: "unknown",
+                jvmVersion = System.getProperty("java.vm.version") ?: "unknown",
+                jvmInfo = System.getProperty("Java.vm.info") ?: "unknown",
+                javaVersion = System.getProperty("java.version") ?: "unknown",
+                kotlinVersion = KotlinVersion.CURRENT.toString(),
+            )
+        }
+    }
+}
+
+
+@Suppress("UnUsed")
+@Serializable
 class JvmInfoResponse(
     override val requestStatus: String,
     override val requestInfo: String,
     override val responseBody: JvmInfoResponseBody?
-) : ApiResponse<JvmInfoResponse.JvmInfoResponseBody?>() {
-
-    @Suppress("UnUsed")
-    @Serializable
-    class JvmInfoResponseBody(
-        // Jvm Info
-        val jvmName: String,
-        val jvmVendor: String,
-        val jvmVersion: String,
-        val jvmInfo: String,
-        // Java & Kotlin version
-        val javaVersion: String,
-        val kotlinVersion: String,
-    ) {
-        companion object {
-            fun getCurrent(): JvmInfoResponseBody {
-                return JvmInfoResponseBody(
-                    jvmName = System.getProperty("java.vm.name") ?: "unknown",
-                    jvmVendor = System.getProperty("java.vm.vendor") ?: "unknown",
-                    jvmVersion = System.getProperty("java.vm.version") ?: "unknown",
-                    jvmInfo = System.getProperty("Java.vm.info") ?: "unknown",
-                    javaVersion = System.getProperty("java.version") ?: "unknown",
-                    kotlinVersion = KotlinVersion.CURRENT.toString(),
-                )
-            }
-        }
-    }
-
-    companion object {
-        fun getCurrent(): JvmInfoResponse {
-            return JvmInfoResponse(
-                requestStatus = "success",
-                requestInfo = "",
-                responseBody = JvmInfoResponseBody.getCurrent()
-            )
-        }
-
-        fun unknownUserError(userName: String): JvmInfoResponse {
-            return JvmInfoResponse(
-                requestStatus = "error",
-                requestInfo = "unknown user: $userName",
-                responseBody = null,
-            )
-        }
-
-        fun invalidTokenError(): JvmInfoResponse {
-            return JvmInfoResponse(
-                requestStatus = "error",
-                requestInfo = "invalid token",
-                responseBody = null,
-            )
-        }
-    }
+) : ApiResponse<JvmInfoResponseBody>() {
+    companion object CommonResponses : ApiAuthCommonResponses<JvmInfoResponseBody>(
+        responseBuilder = { status, info, body -> JvmInfoResponse(status, info, body) }
+    )
 }
