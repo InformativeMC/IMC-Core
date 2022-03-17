@@ -30,31 +30,31 @@ class UserRegisterResponse(
     class UserRegisterResponseBody(
         val userName: String,
         @Serializable(with = UUIDSerializer::class)
-        val key: UUID,
+        val uuid: UUID?,
     )
 
     companion object {
-        fun success(userName: String, key: UUID): UserRegisterResponse {
+        fun success(userName: String, uuid: UUID): UserRegisterResponse {
             return UserRegisterResponse(
                 requestStatus = "success",
                 requestInfo = "",
-                responseBody = UserRegisterResponseBody(userName, key)
+                responseBody = UserRegisterResponseBody(userName, uuid)
             )
         }
 
-        fun usedUsernameError(userName: String, key: UUID): UserRegisterResponse {
+        fun usedUsernameError(userName: String): UserRegisterResponse {
             return UserRegisterResponse(
                 requestStatus = "error",
-                requestInfo = "already occupied username",
-                responseBody = UserRegisterResponseBody(userName, key)
+                requestInfo = "already occupied username: $userName",
+                responseBody = null,
             )
         }
 
-        fun invalidTokenError(userName: String, key: UUID): UserRegisterResponse {
+        fun invalidTokenError(uuid: UUID): UserRegisterResponse {
             return UserRegisterResponse(
                 requestStatus = "error",
-                requestInfo = "not a valid token",
-                responseBody = UserRegisterResponseBody(userName, key)
+                requestInfo = "not a valid token: $uuid",
+                responseBody = null
             )
         }
 

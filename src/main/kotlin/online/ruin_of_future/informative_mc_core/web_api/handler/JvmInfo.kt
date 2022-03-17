@@ -15,8 +15,7 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import online.ruin_of_future.informative_mc_core.auth.TokenManager
-import online.ruin_of_future.informative_mc_core.data.ModData
+import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import online.ruin_of_future.informative_mc_core.web_api.response.JvmInfoResponse
 import java.io.OutputStream
@@ -24,8 +23,7 @@ import java.io.OutputStream
 val JvmInfoApiID = ApiID("system-info", "jvm-info")
 
 class JvmInfoHandler(
-    private val tokenManager: TokenManager,
-    private val modData: ModData,
+    private val modDataManager: ModDataManager,
 ) : ParamPostHandler() {
     override val id: ApiID = JvmInfoApiID
 
@@ -34,9 +32,9 @@ class JvmInfoHandler(
         outputStream: OutputStream
     ) {
         val req = parseUserRequest(formParams)
-        if (!modData.hasUserName(req.userName)) {
+        if (!modDataManager.userManager.hasUserName(req.userName)) {
             JvmInfoResponse.unknownUserError(req.userName)
-        } else if (!tokenManager.verify(req.token)) {
+        } else if (!modDataManager.tmpAuthManager.verifyToken(req.token)) {
             JvmInfoResponse.invalidTokenError().writeToStream(outputStream)
         } else {
             JvmInfoResponse.getCurrent().writeToStream(outputStream)

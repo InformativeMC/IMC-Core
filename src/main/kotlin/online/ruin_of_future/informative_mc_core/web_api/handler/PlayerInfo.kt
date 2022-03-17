@@ -18,8 +18,7 @@ package online.ruin_of_future.informative_mc_core.web_api.handler
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import online.ruin_of_future.informative_mc_core.ImcCore
-import online.ruin_of_future.informative_mc_core.auth.TokenManager
-import online.ruin_of_future.informative_mc_core.data.ModData
+import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import online.ruin_of_future.informative_mc_core.web_api.response.PlayerInfoResponse
 import java.io.OutputStream
@@ -27,8 +26,7 @@ import java.io.OutputStream
 val PlayerInfoApiId = ApiID("mc-info", "player-info")
 
 class PlayerInfoHandler(
-    private val tokenManager: TokenManager,
-    private val modData: ModData,
+    private val modDataManager: ModDataManager,
 ) : ParamPostHandler() {
     override val id: ApiID = PlayerInfoApiId
 
@@ -40,9 +38,9 @@ class PlayerInfoHandler(
         outputStream: OutputStream
     ) {
         val req = parseUserRequest(formParams)
-        if (!modData.hasUserName(req.userName)) {
+        if (!modDataManager.userManager.hasUserName(req.userName)) {
             PlayerInfoResponse.unknownUserError(req.userName).writeToStream(outputStream)
-        } else if (!tokenManager.verify(req.token)) {
+        } else if (!modDataManager.tmpAuthManager.verifyToken(req.token)) {
             PlayerInfoResponse.invalidTokenError().writeToStream(outputStream)
         } else {
             val filteredPlayers = server.playerManager.playerList

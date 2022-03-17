@@ -21,10 +21,12 @@ import kotlin.concurrent.schedule
 
 // TODO: persistent storage
 class TokenManager {
+    class AddExistingTokenException(msg: String) : Exception(msg)
+
     private val tokenBin = HashMap<UUID, Token>()
     private val timer = Timer("TokenSystem", true)
 
-    fun addTimedToken(expiredAfterMillis: Long = TimeUnit.SECONDS.toMillis(60 * 5)): Token {
+    fun addTimedToken(expiredAfterMillis: Long = TimeUnit.SECONDS.toMillis(60 * 5)): TimedToken {
         var token = TimedToken(UUID.randomUUID(), Date().time, expiredAfterMillis)
         while (tokenBin.containsKey(token.uuid)) {
             token = TimedToken(UUID.randomUUID(), Date().time, expiredAfterMillis)
@@ -33,7 +35,18 @@ class TokenManager {
         return token
     }
 
-    fun addOnceToken(): Token {
+    fun addTimedToken(
+        uuid: UUID,
+        expiredAfterMillis: Long = TimeUnit.SECONDS.toMillis(60 * 5)
+    ): TimedToken {
+        if (tokenBin.containsKey(uuid)) {
+            throw AddExistingTokenException("$uuid is already in token bin!")
+        } else {
+            return TimedToken(uuid, Date().time, expiredAfterMillis)
+        }
+    }
+
+    fun addOnceToken(): OnceToken {
         var token = OnceToken(UUID.randomUUID())
         while (tokenBin.containsKey(token.uuid)) {
             token = OnceToken(UUID.randomUUID())
@@ -42,7 +55,15 @@ class TokenManager {
         return token
     }
 
-    fun addTimedOnceToken(expiredAfterMillis: Long = TimeUnit.SECONDS.toMillis(60 * 5)): Token {
+    fun addOnceToken(uuid: UUID): OnceToken {
+        if (tokenBin.containsKey(uuid)) {
+            throw AddExistingTokenException("$uuid is already in token bin!")
+        } else {
+            return OnceToken(uuid)
+        }
+    }
+
+    fun addTimedOnceToken(expiredAfterMillis: Long = TimeUnit.SECONDS.toMillis(60 * 5)): TimedOnceToken {
         var token = TimedOnceToken(UUID.randomUUID(), Date().time, expiredAfterMillis)
         while (tokenBin.containsKey(token.uuid)) {
             token = TimedOnceToken(UUID.randomUUID(), Date().time, expiredAfterMillis)
@@ -51,7 +72,18 @@ class TokenManager {
         return token
     }
 
-    fun addForeverToken(): Token {
+    fun addTimedOnceToken(
+        uuid: UUID,
+        expiredAfterMillis: Long = TimeUnit.SECONDS.toMillis(60 * 5)
+    ): TimedOnceToken {
+        if (tokenBin.containsKey(uuid)) {
+            throw AddExistingTokenException("$uuid is already in token bin!")
+        } else {
+            return TimedOnceToken(uuid, Date().time, expiredAfterMillis)
+        }
+    }
+
+    fun addForeverToken(): ForeverToken {
         var token = ForeverToken(UUID.randomUUID())
         while (tokenBin.containsKey(token.uuid)) {
             token = ForeverToken(UUID.randomUUID())
@@ -60,11 +92,19 @@ class TokenManager {
         return token
     }
 
-    private fun addForeverToken(uuid: UUID) {
-        tokenBin[uuid] = ForeverToken(uuid)
+    fun addForeverToken(uuid: UUID): ForeverToken {
+        if (tokenBin.containsKey(uuid)) {
+            throw AddExistingTokenException("$uuid is already in token bin!")
+        } else {
+            return ForeverToken(uuid)
+        }
     }
 
-    fun verify(uuid: UUID): Boolean {
+    fun hasToken(uuid: UUID): Boolean {
+        return tokenBin.containsKey(uuid)
+    }
+
+    fun verifyToken(uuid: UUID): Boolean {
         return tokenBin[uuid]?.isValid() == true
     }
 

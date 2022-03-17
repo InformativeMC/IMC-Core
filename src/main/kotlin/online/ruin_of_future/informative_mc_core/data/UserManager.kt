@@ -15,15 +15,17 @@
  */
 package online.ruin_of_future.informative_mc_core.data
 
-import kotlinx.serialization.Serializable
+import online.ruin_of_future.informative_mc_core.auth.Token
+import online.ruin_of_future.informative_mc_core.auth.TokenManager
 import org.apache.logging.log4j.LogManager
+import java.util.*
 
-@Serializable
-class ModData(
-    // TODO: Concurrent
-    private val users: HashMap<String, ImcUser>
-) {
-    private val LOGGER = LogManager.getLogger("IMC Data")
+class UserManager {
+    private val LOGGER = LogManager.getLogger("IMC User")
+
+    // TODO: persistent storage
+    private val users = mutableMapOf<String, ImcUser>()
+    private val userTokenManager = TokenManager()
 
     fun hasUserName(userName: String): Boolean {
         return users.containsKey(userName)
@@ -31,12 +33,18 @@ class ModData(
 
     fun hasUser(userName: String, imcUser: ImcUser): Boolean {
         return users[userName]?.userName == imcUser.userName &&
-                users[userName]?.userTokenId == imcUser.userTokenId
+                users[userName]?.userToken == imcUser.userToken
     }
 
-    fun addUser(newUser: ImcUser) {
+    fun hasUser(userName: String, userToken: Token): Boolean {
+        return users.containsKey(userName) && users[userName]?.userToken == userToken
+    }
+
+    fun addUser(userName: String):ImcUser {
+        val newUser = ImcUser(userName, userTokenManager.addForeverToken())
         LOGGER.info("A new user added: ${newUser.userName}")
         users[newUser.userName] = newUser
+        return newUser
     }
 
     fun removeUser(userName: String): Boolean {
@@ -45,12 +53,5 @@ class ModData(
         } else {
             false
         }
-    }
-
-
-    companion object {
-        val DEFAULT = ModData(
-            users = hashMapOf()
-        )
     }
 }

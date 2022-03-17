@@ -15,13 +15,9 @@
  */
 package online.ruin_of_future.informative_mc_core.data
 
-import kotlinx.serialization.Serializable
-import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
-import java.util.*
+import online.ruin_of_future.informative_mc_core.auth.ForeverToken
 
-@Serializable
 class ImcUser(
     val userName: String,
-    @Serializable(with = UUIDSerializer::class)
-    val userTokenId: UUID
+    val userToken: ForeverToken,
 )

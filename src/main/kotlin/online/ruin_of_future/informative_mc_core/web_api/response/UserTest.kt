@@ -16,6 +16,7 @@
 package online.ruin_of_future.informative_mc_core.web_api.response
 
 import kotlinx.serialization.Serializable
+import java.util.*
 
 @Serializable
 class UserTestResponse(
@@ -41,16 +42,16 @@ class UserTestResponse(
         fun unknownUserNameError(userName: String): UserTestResponse {
             return UserTestResponse(
                 requestStatus = "error",
-                requestInfo = "unknown username",
-                responseBody = UserTestResponseBody(userName),
+                requestInfo = "unknown username: $userName",
+                responseBody = null,
             )
         }
 
-        fun invalidTokenError(userName: String): UserTestResponse {
+        fun invalidTokenError(uuid: UUID): UserTestResponse {
             return UserTestResponse(
                 requestStatus = "error",
-                requestInfo = "invalid token",
-                responseBody = UserTestResponseBody(userName),
+                requestInfo = "invalid token: $uuid",
+                responseBody = null,
             )
         }
     }

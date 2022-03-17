@@ -15,46 +15,36 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import online.ruin_of_future.informative_mc_core.auth.TokenManager
-import online.ruin_of_future.informative_mc_core.data.ImcUser
-import online.ruin_of_future.informative_mc_core.data.ModData
+import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponse
 import java.io.OutputStream
-import java.util.*
 
 val UserRegisterApiId = ApiID("imc-manage", "register")
 
 class UserRegisterHandler(
-    private val tokenManager: TokenManager,
-    private val modData: ModData,
+    private val modDataManager: ModDataManager,
 ) : ParamPostHandler() {
     override val id: ApiID = UserRegisterApiId
 
     override fun handleRequest(formParams: Map<String, List<String>>, outputStream: OutputStream) {
         try {
             val req = parseUserRequest(formParams)
-            if (tokenManager.verify(req.token)) {
-                if (!modData.hasUserName(req.userName)) {
-                    val user = ImcUser(
-                        req.userName,
-                        req.token
-                    )
-                    modData.addUser(user)
+            if (modDataManager.tmpAuthManager.verifyToken(req.token)) {
+                if (!modDataManager.userManager.hasUserName(req.userName)) {
+                    val user = modDataManager.userManager.addUser(req.userName)
                     UserRegisterResponse.success(
                         userName = req.userName,
-                        key = tokenManager.addForeverToken().uuid,
+                        uuid = user.userToken.uuid,
                     ).writeToStream(outputStream)
                 } else {
                     UserRegisterResponse.usedUsernameError(
                         userName = req.userName,
-                        key = UUID.randomUUID(), // useless
                     ).writeToStream(outputStream)
                 }
             } else {
                 UserRegisterResponse.invalidTokenError(
-                    userName = req.userName,
-                    key = UUID.randomUUID(), // useless
+                    uuid = req.token,
                 ).writeToStream(outputStream)
             }
         } catch (e: MissingParameterException) {
