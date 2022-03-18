@@ -20,6 +20,7 @@ fun parseUserRequest(
     }
     return UserRequest(
         userName = formParamMap["username"]?.get(0)
+            ?.let { Base64.getDecoder().decode(it).toString() }
             ?: throw MissingParameterException("Need user name for register"),
         token = uuid,
     )
