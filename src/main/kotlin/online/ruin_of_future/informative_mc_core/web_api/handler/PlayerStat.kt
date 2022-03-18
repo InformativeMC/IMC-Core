@@ -26,7 +26,6 @@ import online.ruin_of_future.informative_mc_core.web_api.response.PlayerStatResp
 import online.ruin_of_future.informative_mc_core.web_api.response.PlayerStatResponseBody
 import online.ruin_of_future.informative_mc_core.web_api.response.SinglePlayerStat
 import java.io.OutputStream
-import java.util.*
 
 val PlayerInfoApiId = ApiID("mc-manage", "player-stat")
 
@@ -37,8 +36,6 @@ class PlayerStatHandler(
 
     private val server: MinecraftServer
         get() = ImcCore.server
-
-    private val base64Decoder = Base64.getDecoder()
 
     private inline fun <reified T : Number> Array<String>.parseKthNum(k: Int, defaultValue: T): T {
         return if (this.size < k) {
@@ -75,7 +72,6 @@ class PlayerStatHandler(
             PlayerStatResponse.invalidTokenError(req.token)
         } else {
             val target = formParams["target"]?.get(0)
-                ?.let { base64Decoder.decode(it).toString() }
                 ?.let { Json.decodeFromString<Array<String>>(it) }
                 ?.toSet()
                 ?: setOf()
@@ -83,7 +79,6 @@ class PlayerStatHandler(
                 ?.let { Json.decodeFromString<String>(it) }
                 ?.let { opMap[it] }
             val args = formParams["arg"]?.get(0)
-                ?.let { base64Decoder.decode(it).toString() }
                 ?.let { Json.decodeFromString<Array<String>>(it) }
                 ?: arrayOf()
             if (op == null) {
