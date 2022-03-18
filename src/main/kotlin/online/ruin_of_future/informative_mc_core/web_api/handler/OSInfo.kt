@@ -34,7 +34,7 @@ class OSInfoHandler(
         val req = parseUserRequest(formParams)
         val res = if (!modDataManager.userManager.hasUserName(req.userName)) {
             OSInfoResponse.usernameError(req.userName)
-        } else if (!modDataManager.tmpAuthManager.verifyToken(req.token)) {
+        } else if (!modDataManager.userManager.verifyUserToken(req.userName, req.token)) {
             OSInfoResponse.invalidTokenError(req.token)
         } else {
             OSInfoResponse.success(OSInfoResponseBody.getCurrent())

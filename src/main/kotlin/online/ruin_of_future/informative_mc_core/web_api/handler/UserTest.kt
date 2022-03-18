@@ -17,7 +17,7 @@ class UserTestHandler(
         val req = parseUserRequest(formParams)
         val res = if (!modDataManager.userManager.hasUserName(req.userName)) {
             UserTestResponse.usernameError(req.userName)
-        } else if (!modDataManager.tmpAuthManager.verifyToken(req.token)) {
+        } else if (!modDataManager.userManager.verifyUserToken(req.userName, req.token)) {
             UserTestResponse.invalidTokenError(req.token)
         } else {
             UserTestResponse.success(UserTestResponseBody(req.userName))

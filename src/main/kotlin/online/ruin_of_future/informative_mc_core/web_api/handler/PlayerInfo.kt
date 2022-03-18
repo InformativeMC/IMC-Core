@@ -42,7 +42,7 @@ class PlayerInfoHandler(
         val req = parseUserRequest(formParams)
         val res = if (!modDataManager.userManager.hasUserName(req.userName)) {
             PlayerInfoResponse.usernameError(req.userName)
-        } else if (!modDataManager.tmpAuthManager.verifyToken(req.token)) {
+        } else if (!modDataManager.userManager.verifyUserToken(req.userName, req.token)) {
             PlayerInfoResponse.invalidTokenError(req.token)
         } else {
             val filteredPlayers = server.playerManager.playerList

@@ -16,7 +16,6 @@
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
-import online.ruin_of_future.informative_mc_core.web_api.response.ApiResponse
 import online.ruin_of_future.informative_mc_core.web_api.response.HeartbeatResponse
 import java.io.OutputStream
 
