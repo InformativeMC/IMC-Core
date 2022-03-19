@@ -155,6 +155,8 @@ sealed class ImcCoreImpl : ModInitializer {
         } else {
             this.server = server
         }
+        // Restful api server
+        setupApiServer()
         LOGGER.info("Minecraft server started.")
     }
 
@@ -171,8 +173,6 @@ sealed class ImcCoreImpl : ModInitializer {
         loadData()
         // MC command
         setupImcCommand()
-        // Restful api server
-        setupApiServer()
         // Miscellaneous
         registerMcServerCallback()
     }
