@@ -16,7 +16,7 @@
 package online.ruin_of_future.informative_mc_core.config
 
 import kotlinx.serialization.Serializable
-import online.ruin_of_future.informative_mc_core.modConfigDirPath
+import online.ruin_of_future.informative_mc_core.core.modConfigDirPath
 import online.ruin_of_future.informative_mc_core.util.generateRandomString
 import java.io.File
 

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core
+package online.ruin_of_future.informative_mc_core.core
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -46,10 +46,10 @@ val tmpDirPath: Path = cwd.resolve("tmp").resolve("InformativeMC").toAbsolutePat
 
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
-object ImcCore : ModInitializer {
-    private val LOGGER = LogManager.getLogger("IMC-Core")
-    private const val MOD_ID = "informative_mc_api_core"
-    private val modTimer = Timer("IMC Timer")
+sealed class ImcCoreImpl : ModInitializer {
+    protected val LOGGER = LogManager.getLogger("IMC-Core")
+    protected val MOD_ID = "informative_mc_api_core"
+    protected val modTimer = Timer("IMC Timer")
     lateinit var server: MinecraftServer
     private lateinit var config: ModConfig
     lateinit var modDataManager: ModDataManager
@@ -67,7 +67,7 @@ object ImcCore : ModInitializer {
         }
     }
 
-    private inline fun <reified T> safeLoadFile(
+    protected inline fun <reified T> safeLoadFile(
         path: String,
         default: T,
         createAndWriteIfAbsent: Boolean = true
@@ -110,6 +110,7 @@ object ImcCore : ModInitializer {
     }
 
     private fun loadConfig() {
+        LOGGER.info("Loading IMC config...")
         config = safeLoadFile(modConfigFilePath, ModConfig.DEFAULT)
         // TODO: Write on demand
 //        modTimer.schedule(
@@ -118,9 +119,11 @@ object ImcCore : ModInitializer {
 //        ) {
 //            saveToFileLocked(data, modConfigFilePath)
 //        }
+        LOGGER.info("IMC config loaded.")
     }
 
     private fun loadData() {
+        LOGGER.info("Loading IMC data...")
         modDataManager = safeLoadFile(modDataFilePath, ModDataManager.DEFAULT)
         // TODO: Write on demand
         // TODO: Replace it with a Database
@@ -130,24 +133,34 @@ object ImcCore : ModInitializer {
 //        ) {
 //            saveToFileLocked(data, modDataFilePath)
 //        }
+        LOGGER.info("IMC data loaded.")
     }
 
     private fun setupApiServer() {
+        LOGGER.info("Starting IMC API server...")
         apiServer = ApiServer(config, modDataManager)
+        LOGGER.info("IMC API server started.")
     }
 
     private fun setupImcCommand() {
+        LOGGER.info("Setting up IMC commands...")
         imcCommand = ImcCommand(modDataManager.tmpAuthManager)
         imcCommand.setup()
+        LOGGER.info("IMC commands set up.")
+    }
+
+    protected open fun mcServerCallback(server: MinecraftServer?) {
+        if (server == null) {
+            throw NullPointerException("Cannot access current server!")
+        } else {
+            this.server = server
+        }
+        LOGGER.info("Minecraft server started.")
     }
 
     private fun registerMcServerCallback() {
         ServerLifecycleEvents.SERVER_STARTED.register { server ->
-            if (server == null) {
-                throw NullPointerException("Cannot access current server!")
-            } else {
-                this.server = server
-            }
+            mcServerCallback(server)
         }
     }
 

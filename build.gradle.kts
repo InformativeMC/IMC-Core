@@ -30,6 +30,13 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
+
+    // define a BOM and its version
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.9.3"))
+
+    // define any required OkHttp artifacts without version
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:logging-interceptor")
 }
 
 tasks {

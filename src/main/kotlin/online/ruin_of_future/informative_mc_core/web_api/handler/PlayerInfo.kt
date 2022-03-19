@@ -17,7 +17,7 @@ package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import online.ruin_of_future.informative_mc_core.ImcCore
+import online.ruin_of_future.informative_mc_core.core.ImcCore
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
 import online.ruin_of_future.informative_mc_core.web_api.response.PlayerInfoResponse
