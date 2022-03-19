@@ -16,6 +16,7 @@
 package online.ruin_of_future.informative_mc_core.auth
 
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.schedule
 
@@ -23,7 +24,7 @@ import kotlin.concurrent.schedule
 class TokenManager {
     class AddExistingTokenException(msg: String) : Exception(msg)
 
-    private val tokenBin = HashMap<UUID, Token>()
+    private val tokenBin = ConcurrentHashMap<UUID, Token>()
     private val timer = Timer("TokenSystem", true)
 
     fun addTimedToken(expiredAfterMillis: Long = TimeUnit.SECONDS.toMillis(60 * 5)): TimedToken {
