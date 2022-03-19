@@ -14,10 +14,10 @@ abstract class ApiTest {
     protected open val client = OkHttpClient
         .Builder()
         .ignoreAllSSLErrors()
-        .connectTimeout(1, TimeUnit.SECONDS)
-        .readTimeout(1, TimeUnit.SECONDS)
-        .writeTimeout(1, TimeUnit.SECONDS)
-        .callTimeout(1, TimeUnit.SECONDS)
+        .connectTimeout(2, TimeUnit.SECONDS)
+        .readTimeout(2, TimeUnit.SECONDS)
+        .writeTimeout(2, TimeUnit.SECONDS)
+        .callTimeout(2, TimeUnit.SECONDS)
         .build()
 
     open val serverAddress = "https://localhost:3030/"

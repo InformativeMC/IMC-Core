@@ -56,6 +56,8 @@ sealed class ImcCoreImpl : ModInitializer {
     private lateinit var apiServer: ApiServer
     private lateinit var imcCommand: ImcCommand
 
+    open val isTestImpl: Boolean = false
+
     private fun createDirsIfNeeded() {
         arrayOf(modConfigDirPath, modDataDirPath).forEach {
             val file = File(it.toString())
@@ -67,7 +69,7 @@ sealed class ImcCoreImpl : ModInitializer {
         }
     }
 
-    protected inline fun <reified T> safeLoadFile(
+    private inline fun <reified T> safeLoadFile(
         path: String,
         default: T,
         createAndWriteIfAbsent: Boolean = true
@@ -144,7 +146,7 @@ sealed class ImcCoreImpl : ModInitializer {
 
     private fun setupImcCommand() {
         LOGGER.info("Setting up IMC commands...")
-        imcCommand = ImcCommand(modDataManager.tmpAuthManager)
+        imcCommand = ImcCommand(modDataManager.tmpAuthManager, this.isTestImpl)
         imcCommand.setup()
         LOGGER.info("IMC commands set up.")
     }

@@ -32,7 +32,11 @@ class ApiTestBatch(
     }
 }
 
-object ApiTests {
+/**
+ * Make it a class instead of an object.
+ * Because the tests might be called multiple times.
+ */
+class ApiTests {
     private val LOGGER = LogManager.getLogger("IMC API Test")
     private val tests = listOf(
         ApiTestBatch(listOf(HeartbeatTest()), true)
@@ -43,7 +47,7 @@ object ApiTests {
     val testNum: Int
         get() = passedTestNum + failedTestNum
 
-    fun runAll() {
+    fun runAll(): Boolean {
         LOGGER.warn("Starting all tests...")
         tests.forEach {
             it.runAll()
@@ -52,5 +56,6 @@ object ApiTests {
         }
         val ratio = passedTestNum.toDouble() * 100.0 / testNum
         LOGGER.warn("Finished $testNum test(s). $passedTestNum passed, $failedTestNum failed. (${"%.2f".format(ratio)}%)")
+        return passedTestNum == testNum
     }
 }

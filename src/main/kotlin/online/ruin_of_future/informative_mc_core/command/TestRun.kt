@@ -16,38 +16,22 @@
 package online.ruin_of_future.informative_mc_core.command
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
-import online.ruin_of_future.informative_mc_core.auth.TokenManager
+import online.ruin_of_future.informative_mc_core.web_api.test.ApiTests
 
-// TODO: fancy display in ChatHUD
-
-class ImcCommand(
-    tmpAuthManager: TokenManager,
-    private val isTestImpl: Boolean
-) {
-    private val mainCmd = CommandManager.literal("imc")
-    private val authCommand = ImcAuthCommand(tmpAuthManager)
-    private val testCommand = TestRun()
-
-    private fun buildAuth(): LiteralArgumentBuilder<ServerCommandSource>? {
-        mainCmd.then(authCommand.build())
-        return mainCmd
-    }
-
-    private fun buildTest(): LiteralArgumentBuilder<ServerCommandSource>? {
-        mainCmd.then(testCommand.build())
-        return mainCmd
-    }
-
-    fun setup() {
-        CommandRegistrationCallback.EVENT.register { dispatcher, dedicated ->
-            buildAuth()
-            if (isTestImpl) {
-                buildTest()
+class TestRun {
+    fun build(): LiteralArgumentBuilder<ServerCommandSource> {
+        return CommandManager.literal("test")
+            .executes {
+                runBlocking {
+                    launch {
+                        ApiTests().runAll()
+                    }
+                }
+                return@executes 0
             }
-            dispatcher.register(mainCmd)
-        }
     }
 }

@@ -15,12 +15,16 @@
  */
 package online.ruin_of_future.informative_mc_core.core
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.minecraft.server.MinecraftServer
 import online.ruin_of_future.informative_mc_core.auth.TimedOnceToken
 import online.ruin_of_future.informative_mc_core.web_api.test.ApiTests
 import java.util.concurrent.TimeUnit
 
 sealed class ImcCoreTestImpl : ImcCoreImpl() {
+    override val isTestImpl: Boolean = true
     private lateinit var tmpAuthTokens: List<TimedOnceToken>
 
     private fun setupTmpAuth(num: Int = 5) {
@@ -37,7 +41,12 @@ sealed class ImcCoreTestImpl : ImcCoreImpl() {
     }
 
     private fun runAllTest() {
-        ApiTests.runAll()
+        runBlocking {
+            delay(TimeUnit.SECONDS.toMillis(2))
+            launch {
+                ApiTests().runAll()
+            }
+        }
     }
 
     override fun mcServerCallback(server: MinecraftServer?) {
