@@ -20,15 +20,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
+import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.test.ApiTests
 
-class TestRun {
+class TestRun(
+    private val modDataManager: ModDataManager
+) {
     fun build(): LiteralArgumentBuilder<ServerCommandSource> {
         return CommandManager.literal("test")
             .executes {
                 runBlocking {
                     launch {
-                        ApiTests().runAll()
+                        ApiTests(modDataManager).runAll()
                     }
                 }
                 return@executes 0

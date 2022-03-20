@@ -44,7 +44,7 @@ sealed class ImcCoreTestImpl : ImcCoreImpl() {
         runBlocking {
             delay(TimeUnit.SECONDS.toMillis(2))
             launch {
-                ApiTests().runAll()
+                ApiTests(modDataManager).runAll()
             }
         }
     }

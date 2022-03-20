@@ -19,17 +19,17 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
-import online.ruin_of_future.informative_mc_core.auth.TokenManager
+import online.ruin_of_future.informative_mc_core.data.ModDataManager
 
 // TODO: fancy display in ChatHUD
 
 class ImcCommand(
-    tmpAuthManager: TokenManager,
+    modDataManager: ModDataManager,
     private val isTestImpl: Boolean
 ) {
     private val mainCmd = CommandManager.literal("imc")
-    private val authCommand = ImcAuthCommand(tmpAuthManager)
-    private val testCommand = TestRun()
+    private val authCommand = ImcAuthCommand(modDataManager.tmpAuthManager)
+    private val testCommand = TestRun(modDataManager)
 
     private fun buildAuth(): LiteralArgumentBuilder<ServerCommandSource>? {
         mainCmd.then(authCommand.build())

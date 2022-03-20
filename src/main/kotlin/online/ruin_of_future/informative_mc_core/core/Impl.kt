@@ -146,7 +146,7 @@ sealed class ImcCoreImpl : ModInitializer {
 
     private fun setupImcCommand() {
         LOGGER.info("Setting up IMC commands...")
-        imcCommand = ImcCommand(modDataManager.tmpAuthManager, this.isTestImpl)
+        imcCommand = ImcCommand(modDataManager, this.isTestImpl)
         imcCommand.setup()
         LOGGER.info("IMC commands set up.")
     }

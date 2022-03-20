@@ -1,5 +1,6 @@
 package online.ruin_of_future.informative_mc_core.web_api.test
 
+import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import org.apache.logging.log4j.LogManager
 
 class ApiTestBatch(
@@ -36,10 +37,13 @@ class ApiTestBatch(
  * Make it a class instead of an object.
  * Because the tests might be called multiple times.
  */
-class ApiTests {
+class ApiTests(
+    private val modDataManager: ModDataManager
+) {
     private val LOGGER = LogManager.getLogger("IMC API Test")
     private val tests = listOf(
-        ApiTestBatch(listOf(HeartbeatTest()), true)
+        ApiTestBatch(listOf(HeartbeatTest()), true),
+        ApiTestBatch(listOf(UserRegisterTest(modDataManager.tmpAuthManager)), true),
     )
 
     var passedTestNum: Int = 0

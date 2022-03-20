@@ -35,7 +35,6 @@ class UserRegisterHandler(
                     val user = modDataManager.userManager.addUser(req.userName)
                     UserRegisterResponse
                         .success(UserRegisterResponseBody(user.userName, user.userToken.uuid))
-
                 } else {
                     UserRegisterResponse.usernameError(
                         userName = req.userName,
@@ -48,7 +47,7 @@ class UserRegisterHandler(
             }
             res.writeToStream(outputStream)
         } catch (e: MissingParameterException) {
-            UserRegisterResponse.unknownError().writeToStream(outputStream)
+            UserRegisterResponse.error(e.message ?: "").writeToStream(outputStream)
         }
     }
 }
