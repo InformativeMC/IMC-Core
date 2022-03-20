@@ -13,30 +13,21 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.command
+package online.ruin_of_future.informative_mc_core.data
 
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
-import net.minecraft.server.command.CommandManager
-import net.minecraft.server.command.ServerCommandSource
 import online.ruin_of_future.informative_mc_core.auth.TokenManager
+import org.apache.logging.log4j.LogManager
 
-// TODO: fancy display in ChatHUD
-
-class ImcCommand(
-    tmpAuthManager: TokenManager
+class ModDataManager(
+    val userManager: UserManager,
+    val tmpAuthManager: TokenManager
 ) {
-    private val authCommand = ImcAuthCommand(tmpAuthManager)
+    private val LOGGER = LogManager.getLogger("IMC Data")
 
-    private fun build(): LiteralArgumentBuilder<ServerCommandSource>? {
-        val mainCmd = CommandManager.literal("imc")
-        mainCmd.then(authCommand.build())
-        return mainCmd
-    }
-
-    fun setup() {
-        CommandRegistrationCallback.EVENT.register { dispatcher, dedicated ->
-            dispatcher.register(build())
-        }
+    companion object {
+        val DEFAULT = ModDataManager(
+            userManager = UserManager(),
+            tmpAuthManager = TokenManager(),
+        )
     }
 }

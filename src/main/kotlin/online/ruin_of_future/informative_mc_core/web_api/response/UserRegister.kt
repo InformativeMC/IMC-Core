@@ -13,11 +13,27 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.data
+package online.ruin_of_future.informative_mc_core.web_api.response
 
-import online.ruin_of_future.informative_mc_core.auth.ForeverToken
+import kotlinx.serialization.Serializable
+import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
+import java.util.*
 
-class ImcUser(
+@Serializable
+class UserRegisterResponseBody(
     val userName: String,
-    val userToken: ForeverToken,
+    @Serializable(with = UUIDSerializer::class)
+    val uuid: UUID?,
 )
+
+@Serializable
+class UserRegisterResponse(
+    override val requestStatus: String,
+    override val requestInfo: String,
+    override val responseBody: UserRegisterResponseBody?
+) : ApiResponse<UserRegisterResponseBody>() {
+
+    companion object CommonResponses : ApiAuthCommonResponses<UserRegisterResponseBody>(
+        responseBuilder = { status, info, body -> UserRegisterResponse(status, info, body) }
+    )
+}

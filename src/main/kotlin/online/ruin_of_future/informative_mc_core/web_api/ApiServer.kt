@@ -19,12 +19,12 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import online.ruin_of_future.informative_mc_core.config.ModConfig
-import online.ruin_of_future.informative_mc_core.data.ModData
+import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.tmpDirPath
-import online.ruin_of_future.informative_mc_core.auth.TokenManager
 import online.ruin_of_future.informative_mc_core.util.generateCertificate
 import online.ruin_of_future.informative_mc_core.util.generateKeyPair
 import online.ruin_of_future.informative_mc_core.web_api.handler.*
+import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import org.apache.logging.log4j.LogManager
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.ServerConnector
@@ -40,11 +40,11 @@ import java.security.spec.X509EncodedKeySpec
 /**
  * Server which expose web api and potential web pages.
  * */
+@Suppress("UnUsed")
 @OptIn(ExperimentalSerializationApi::class)
 class ApiServer(
     private val modConfig: ModConfig,
-    private val modData: ModData,
-    private val tokenManager: TokenManager,
+    private val modDataManager: ModDataManager,
 ) {
     private val LOGGER = LogManager.getLogger("IMC-Core")
 
@@ -59,29 +59,29 @@ class ApiServer(
 
     private var app: Javalin
 
-    private val paramFreeHandlers = mutableMapOf<ApiID, ParamFreeHandler>()
-    private val paramGetHandlers = mutableMapOf<ApiID, ParamGetHandler>()
-    private val paramPostHandlers = mutableMapOf<ApiID, ParamPostHandler>()
+    private val paramFreeHandlers = mutableMapOf<ApiId, ParamFreeHandler>()
+    private val paramGetHandlers = mutableMapOf<ApiId, ParamGetHandler>()
+    private val paramPostHandlers = mutableMapOf<ApiId, ParamPostHandler>()
 
-    fun registerApiHandler(apiHandler: ParamFreeHandler) {
+    private fun registerApiHandler(apiHandler: ParamFreeHandler) {
         paramFreeHandlers.putIfAbsent(apiHandler.id, apiHandler)
     }
 
-    fun registerApiHandler(apiHandler: ParamGetHandler) {
+    private fun registerApiHandler(apiHandler: ParamGetHandler) {
         paramGetHandlers.putIfAbsent(apiHandler.id, apiHandler)
     }
 
-    fun registerApiHandler(apiHandler: ParamPostHandler) {
+    private fun registerApiHandler(apiHandler: ParamPostHandler) {
         paramPostHandlers.putIfAbsent(apiHandler.id, apiHandler)
     }
 
     private fun setupAllApi() {
-        registerApiHandler(Heartbeat())
-        registerApiHandler(JvmInfoHandler(tokenManager, modData))
-        registerApiHandler(OSInfoHandler(tokenManager, modData))
-        registerApiHandler(PlayerInfoHandler(tokenManager, modData))
-        registerApiHandler(UserRegisterHandler(tokenManager, modData))
-        registerApiHandler(UserTestHandler(tokenManager, modData))
+        registerApiHandler(HeartbeatHandler())
+        registerApiHandler(JvmInfoHandler(modDataManager))
+        registerApiHandler(OSInfoHandler(modDataManager))
+        registerApiHandler(PlayerInfoHandler(modDataManager))
+        registerApiHandler(UserRegisterHandler(modDataManager))
+        registerApiHandler(UserTestHandler(modDataManager))
 
         // Late init
         paramFreeHandlers.forEach { (_, handler) ->
@@ -102,7 +102,6 @@ class ApiServer(
         return factory
     }
 
-    // TODO: use a temporary KeyStore if cert and key files are provided in config.
     private fun ensureKeyStore() {
         var flag = false
         var certFile: File? = null

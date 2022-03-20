@@ -23,8 +23,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.server.MinecraftServer
 import online.ruin_of_future.informative_mc_core.command.ImcCommand
 import online.ruin_of_future.informative_mc_core.config.ModConfig
-import online.ruin_of_future.informative_mc_core.data.ModData
-import online.ruin_of_future.informative_mc_core.auth.TokenManager
+import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.util.configDir
 import online.ruin_of_future.informative_mc_core.util.gameDir
 import online.ruin_of_future.informative_mc_core.util.getFile
@@ -53,8 +52,7 @@ object ImcCore : ModInitializer {
     private val modTimer = Timer("IMC Timer")
     lateinit var server: MinecraftServer
     private lateinit var config: ModConfig
-    lateinit var data: ModData
-    private val tokenManager = TokenManager()
+    lateinit var modDataManager: ModDataManager
     private lateinit var apiServer: ApiServer
     private lateinit var imcCommand: ImcCommand
 
@@ -123,7 +121,7 @@ object ImcCore : ModInitializer {
     }
 
     private fun loadData() {
-        data = safeLoadFile(modDataFilePath, ModData.DEFAULT)
+        modDataManager = safeLoadFile(modDataFilePath, ModDataManager.DEFAULT)
         // TODO: Write on demand
         // TODO: Replace it with a Database
 //        modTimer.schedule(
@@ -135,11 +133,11 @@ object ImcCore : ModInitializer {
     }
 
     private fun setupApiServer() {
-        apiServer = ApiServer(config, data, tokenManager)
+        apiServer = ApiServer(config, modDataManager)
     }
 
     private fun setupImcCommand() {
-        imcCommand = ImcCommand(tokenManager)
+        imcCommand = ImcCommand(modDataManager.tmpAuthManager)
         imcCommand.setup()
     }
 
