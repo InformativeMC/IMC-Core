@@ -31,13 +31,13 @@ class UserRegisterHandler(
         try {
             val req = parseUserRequest(formParams)
             val res = if (modDataManager.tmpAuthManager.verifyToken(req.token)) {
-                if (!modDataManager.userManager.hasUserName(req.userName)) {
-                    val user = modDataManager.userManager.addUser(req.userName)
+                if (!modDataManager.userManager.hasUserName(req.username)) {
+                    val user = modDataManager.userManager.addUser(req.username)
                     UserRegisterResponse
                         .success(UserRegisterResponseDetail(user.userName, user.userToken.uuid))
                 } else {
                     UserRegisterResponse.usernameError(
-                        userName = req.userName,
+                        userName = req.username,
                     )
                 }
             } else {

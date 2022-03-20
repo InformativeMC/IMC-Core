@@ -19,7 +19,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class UserTestResponseDetail(
-    val userName: String,
+    val username: String,
 )
 
 @Serializable

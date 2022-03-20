@@ -5,38 +5,8 @@ import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.util.VirtualConsoleOption
 import online.ruin_of_future.informative_mc_core.util.boxedConsoleString
 import online.ruin_of_future.informative_mc_core.util.inConsole
-import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import org.apache.logging.log4j.LogManager
 import java.util.concurrent.atomic.AtomicInteger
-
-/**
- * Tests in the same `ApiTestBatch` are executed in order.
- * */
-class ApiTestBatch(
-    val name: String,
-    private val tests: List<ApiTest>,
-) {
-    private val passedTest = mutableListOf<ApiId>()
-    private val failedTest = mutableMapOf<ApiId, Throwable>()
-    suspend fun runWithCallback(
-        onSuccess: (passedTest: Set<ApiId>) -> Unit,
-        onFailure: (failedTest: Map<ApiId, Throwable>) -> Unit,
-    ) {
-        // DO NOT print during concurrent running. It would be unreadable.
-        tests.forEach {
-            it.runWithCallback(
-                onSuccess = {
-                    passedTest.add(it.apiId)
-                },
-                onFailure = { cause ->
-                    failedTest[it.apiId] = cause
-                }
-            )
-        }
-        onSuccess(passedTest.toSet())
-        onFailure(failedTest.toMap())
-    }
-}
 
 /**
  * Make it a class instead of an object.
@@ -47,15 +17,9 @@ class ApiTests(
     modDataManager: ModDataManager
 ) {
     private val LOGGER = LogManager.getLogger("IMC API Test")
-    private val tests = listOf(
-        ApiTestBatch(
-            "Heartbeat",
-            listOf(HeartbeatTest())
-        ),
-        ApiTestBatch(
-            "IMC User",
-            listOf(UserRegisterTest(modDataManager.tmpAuthManager))
-        ),
+    private val tests = listOf<ApiTestBatch>(
+        HeartbeatTestBatch(),
+        UserTestBatch(modDataManager.tmpAuthManager.addTimedOnceToken().uuid),
     )
 
     private val passTestNum = AtomicInteger(0)
@@ -72,7 +36,7 @@ class ApiTests(
                         if (it.isNotEmpty()) {
                             val lines = mutableListOf<String>()
                             lines.add("[Passed]")
-                            it.forEach { id ->
+                            it.forEach { (id, _) ->
                                 lines.add("    ${id.toURIString()}")
                             }
                             lines.forEach { line ->
