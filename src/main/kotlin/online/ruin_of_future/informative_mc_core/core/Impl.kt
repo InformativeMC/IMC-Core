@@ -151,7 +151,7 @@ sealed class ImcCoreImpl : ModInitializer {
         LOGGER.info("IMC commands set up.")
     }
 
-    protected open fun mcServerCallback(server: MinecraftServer?) {
+    private fun mcServerCallback(server: MinecraftServer?) {
         if (server == null) {
             throw NullPointerException("Cannot access current server!")
         } else {

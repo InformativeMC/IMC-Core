@@ -16,7 +16,10 @@ class UserRegisterTest(
 ) : ApiTest() {
     override val apiId: ApiId = UserRegisterApiId
 
-    override fun run() {
+    override suspend fun runWithCallback(
+        onSuccess: () -> Unit,
+        onFailure: (cause: Throwable) -> Unit,
+    ) {
         val username = "TEST_${generateRandomString(5)}"
         val token = tmpAuthManager.addTimedOnceToken(TimeUnit.MINUTES.toMillis(10))
         val formBody = FormBody
@@ -29,14 +32,18 @@ class UserRegisterTest(
             .url(apiAddress)
             .post(formBody)
             .build()
-        val response = client.newCall(request).execute()
-        if (response.code != 200) {
-            assert(false)
-        } else {
-            // Exceptions will be thrown out. Do worry them here.
-            val body = Json.decodeFromString<UserRegisterResponse>(response.body!!.string())
-            assert(body.requestStatus == "success")
-            assert(body.responseDetail?.userName == username)
+        try {
+            val response = client.newCall(request).execute()
+            if (response.code != 200) {
+                assert(false)
+            } else {
+                val body = Json.decodeFromString<UserRegisterResponse>(response.body!!.string())
+                assert(body.requestStatus == "success")
+                assert(body.responseDetail?.userName == username)
+            }
+            onSuccess()
+        } catch (e: Exception) {
+            onFailure(e)
         }
     }
 }

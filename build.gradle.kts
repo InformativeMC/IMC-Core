@@ -37,6 +37,9 @@ dependencies {
     // define any required OkHttp artifacts without version
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:logging-interceptor")
+
+    // Google guava
+    implementation("com.google.guava:guava:31.1-jre")
 }
 
 tasks {

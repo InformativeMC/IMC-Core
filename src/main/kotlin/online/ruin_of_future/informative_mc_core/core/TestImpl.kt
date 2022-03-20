@@ -15,10 +15,7 @@
  */
 package online.ruin_of_future.informative_mc_core.core
 
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import net.minecraft.server.MinecraftServer
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import online.ruin_of_future.informative_mc_core.auth.TimedOnceToken
 import online.ruin_of_future.informative_mc_core.web_api.test.ApiTests
 import java.util.concurrent.TimeUnit
@@ -41,22 +38,19 @@ sealed class ImcCoreTestImpl : ImcCoreImpl() {
     }
 
     private fun runAllTest() {
-        runBlocking {
-            delay(TimeUnit.SECONDS.toMillis(2))
-            launch {
-                ApiTests(modDataManager).runAll()
-            }
+        ApiTests(modDataManager).run()
+    }
+
+    private fun registerServerStartedCallback() {
+        ServerLifecycleEvents.SERVER_STARTED.register { _ ->
+            setupTmpAuth()
+            runAllTest()
         }
     }
 
-    override fun mcServerCallback(server: MinecraftServer?) {
-        super.mcServerCallback(server)
-        setupTmpAuth()
-        runAllTest()
-    }
-
     override fun onInitialize() {
-        LOGGER.warn("Using a test implementation of IMC-Core!")
         super.onInitialize()
+        LOGGER.warn("Using a test implementation of IMC-Core!")
+        registerServerStartedCallback()
     }
 }

@@ -16,8 +16,6 @@
 package online.ruin_of_future.informative_mc_core.command
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
@@ -29,11 +27,7 @@ class TestRun(
     fun build(): LiteralArgumentBuilder<ServerCommandSource> {
         return CommandManager.literal("test")
             .executes {
-                runBlocking {
-                    launch {
-                        ApiTests(modDataManager).runAll()
-                    }
-                }
+                ApiTests(modDataManager).run()
                 return@executes 0
             }
     }
