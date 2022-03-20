@@ -17,11 +17,10 @@ package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.web_api.ids.OSInfoApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponse
 import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponseBody
 import java.io.OutputStream
-
-val OSInfoApiId = ApiID("system-info", "os-info")
 
 class OSInfoHandler(
     private val modDataManager: ModDataManager,

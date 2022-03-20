@@ -17,11 +17,10 @@ package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.web_api.ids.UserRegisterApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponse
 import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponseBody
 import java.io.OutputStream
-
-val UserRegisterApiId = ApiID("imc-manage", "register")
 
 class UserRegisterHandler(
     private val modDataManager: ModDataManager,

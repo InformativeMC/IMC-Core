@@ -17,11 +17,10 @@ package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.web_api.ids.JvmInfoApiID
 import online.ruin_of_future.informative_mc_core.web_api.response.JvmInfoResponse
 import online.ruin_of_future.informative_mc_core.web_api.response.JvmInfoResponseBody
 import java.io.OutputStream
-
-val JvmInfoApiID = ApiID("system-info", "jvm-info")
 
 class JvmInfoHandler(
     private val modDataManager: ModDataManager,
