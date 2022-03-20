@@ -27,6 +27,13 @@ import online.ruin_of_future.informative_mc_core.web_api.response.ApiResponse
 import java.util.*
 import java.util.concurrent.TimeUnit
 
+/**
+ * [ApiTest] is an interface of Api uni test.
+ * And it has some default implementations.
+ * In most cases default implementations are enough.
+ * Non-default implementations are preferred when some
+ * special operations are needed.
+ * */
 interface ApiTest<ResponseT : ApiResponse<*>> {
     val client: OkHttpClient
         get() = OkHttpClient
@@ -56,10 +63,7 @@ interface ApiTest<ResponseT : ApiResponse<*>> {
 }
 
 /**
- * [ApiTest] is an interface and has a default implementation.
- * In most cases default implementation is enough.
- * Non-default implementation is used when some
- * special operations are needed.
+ * Default implementation of [ApiTest] for **post** methods.
  * */
 class PostApiTestImpl<ResponseT : ApiResponse<*>>(
     override val apiId: ApiId,
@@ -67,7 +71,6 @@ class PostApiTestImpl<ResponseT : ApiResponse<*>>(
     private val tokenUUID: UUID,
     private val responseSerializer: KSerializer<ResponseT>
 ) : ApiTest<ResponseT> {
-
     override suspend fun runWithCallback(
         onSuccess: (response: ResponseT) -> Unit,
         onFailure: (cause: Throwable) -> Unit
@@ -98,7 +101,38 @@ class PostApiTestImpl<ResponseT : ApiResponse<*>>(
 }
 
 /**
+ * Default implementation of [ApiTest] for **GET** methods.
+ * */
+class GetApiTestImpl<ResponseT : ApiResponse<*>>(
+    override val apiId: ApiId,
+    private val responseSerializer: KSerializer<ResponseT>
+) : ApiTest<ResponseT> {
+    override suspend fun runWithCallback(
+        onSuccess: (response: ResponseT) -> Unit,
+        onFailure: (cause: Throwable) -> Unit
+    ) {
+        val request = Request
+            .Builder()
+            .url(apiAddress)
+            .build()
+        try {
+            val response = client.newCall(request).execute()
+            if (response.code != 200) {
+                assert(false)
+            } else {
+                val body = Json.decodeFromString(responseSerializer, response.body!!.string())
+                checkResponse(body)
+                onSuccess(body)
+            }
+        } catch (e: Exception) {
+            onFailure(e)
+        }
+    }
+}
+
+/**
  * Execution order of tests in the same batch is not guaranteed.
+ * The implementation determines it.
  * */
 interface ApiTestBatch {
     val passedTest: MutableMap<ApiId, ApiResponse<*>>

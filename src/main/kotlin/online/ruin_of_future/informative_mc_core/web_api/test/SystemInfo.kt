@@ -15,9 +15,6 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.test
 
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import okhttp3.Request
 import online.ruin_of_future.informative_mc_core.web_api.id.HeartbeatApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.JvmInfoApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.OSInfoApiId
@@ -26,31 +23,14 @@ import online.ruin_of_future.informative_mc_core.web_api.response.JvmInfoRespons
 import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponse
 import java.util.*
 
-private class HeartbeatTest : ApiTest<HeartbeatResponse> {
-    override val apiId = HeartbeatApiId
-
-    override suspend fun runWithCallback(
-        onSuccess: (response: HeartbeatResponse) -> Unit,
-        onFailure: (cause: Throwable) -> Unit,
-    ) {
-        val request = Request
-            .Builder()
-            .url(apiAddress)
-            .build()
-
-        try {
-            val response = client.newCall(request).execute()
-            if (response.code != 200) {
-                assert(false)
-            } else {
-                val body = Json.decodeFromString<HeartbeatResponse>(response.body!!.string())
-                assert(body.requestStatus == "success")
-                assert(body.responseDetail?.status == "healthy")
-                onSuccess(body)
-            }
-        } catch (e: Exception) {
-            onFailure(e)
-        }
+private class HeartbeatTest
+    : ApiTest<HeartbeatResponse> by GetApiTestImpl(
+    HeartbeatApiId,
+    HeartbeatResponse.serializer(),
+) {
+    override fun checkResponse(response: HeartbeatResponse) {
+        super.checkResponse(response)
+        assert(response.responseDetail?.status == "healthy")
     }
 }
 
