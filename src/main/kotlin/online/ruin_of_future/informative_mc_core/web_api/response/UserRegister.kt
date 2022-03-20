@@ -33,7 +33,7 @@ class UserRegisterResponse(
     override val responseDetail: UserRegisterResponseDetail?
 ) : ApiResponse<UserRegisterResponseDetail>() {
 
-    companion object CommonResponses : ApiAuthCommonResponses<UserRegisterResponseDetail, UserRegisterResponse>(
+    companion object CommonResponse : ApiAuthCommonResponse<UserRegisterResponseDetail, UserRegisterResponse>(
         responseBuilder = { status, info, detail -> UserRegisterResponse(status, info, detail) }
     )
 }

@@ -29,8 +29,7 @@ class UserTestResponse(
     override val responseDetail: UserTestResponseDetail?
 ) : ApiResponse<UserTestResponseDetail>() {
 
-    companion object CommonResponses
-        : ApiAuthCommonResponses<UserTestResponseDetail, UserTestResponse>(
+    companion object CommonResponse : ApiAuthCommonResponse<UserTestResponseDetail, UserTestResponse>(
         responseBuilder = { status, info, detail -> UserTestResponse(status, info, detail) }
     )
 }

@@ -47,7 +47,7 @@ class OSInfoResponse(
     override val responseDetail: OSInfoResponseDetail?
 ) : ApiResponse<OSInfoResponseDetail>() {
 
-    companion object CommonResponses : ApiAuthCommonResponses<OSInfoResponseDetail, OSInfoResponse>(
+    companion object CommonResponses : ApiAuthCommonResponse<OSInfoResponseDetail, OSInfoResponse>(
         responseBuilder = { status, info, detail -> OSInfoResponse(status, info, detail) }
     )
 }
