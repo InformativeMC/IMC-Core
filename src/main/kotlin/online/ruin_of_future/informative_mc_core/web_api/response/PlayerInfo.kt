@@ -42,7 +42,7 @@ class SinglePlayerInfo private constructor(
 }
 
 @Serializable
-class PlayerInfoResponseBody(
+class PlayerInfoResponseDetail(
     val players: List<SinglePlayerInfo>,
 )
 
@@ -51,10 +51,10 @@ class PlayerInfoResponseBody(
 class PlayerInfoResponse(
     override val requestStatus: String,
     override val requestInfo: String,
-    override val responseBody: PlayerInfoResponseBody?
-) : ApiResponse<PlayerInfoResponseBody>() {
+    override val responseDetail: PlayerInfoResponseDetail?
+) : ApiResponse<PlayerInfoResponseDetail>() {
 
-    companion object CommonResponses : ApiAuthCommonResponses<PlayerInfoResponseBody, PlayerInfoResponse>(
-        responseBuilder = { status, info, body -> PlayerInfoResponse(status, info, body) }
+    companion object CommonResponses : ApiAuthCommonResponses<PlayerInfoResponseDetail, PlayerInfoResponse>(
+        responseBuilder = { status, info, detail -> PlayerInfoResponse(status, info, detail) }
     )
 }

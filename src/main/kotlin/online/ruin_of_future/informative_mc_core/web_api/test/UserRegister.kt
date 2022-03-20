@@ -35,7 +35,7 @@ class UserRegisterTest(
         } else {
             // Exceptions will be thrown out. Do worry them here.
             val body = Json.decodeFromString<UserRegisterResponse>(response.body!!.string())
-            body.requestStatus == "success" && body.responseBody?.userName == username
+            body.requestStatus == "success" && body.responseDetail?.userName == username
         }
     }
 }

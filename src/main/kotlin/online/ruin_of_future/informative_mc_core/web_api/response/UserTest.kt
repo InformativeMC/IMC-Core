@@ -18,7 +18,7 @@ package online.ruin_of_future.informative_mc_core.web_api.response
 import kotlinx.serialization.Serializable
 
 @Serializable
-class UserTestResponseBody(
+class UserTestResponseDetail(
     val userName: String,
 )
 
@@ -26,11 +26,11 @@ class UserTestResponseBody(
 class UserTestResponse(
     override val requestStatus: String,
     override val requestInfo: String,
-    override val responseBody: UserTestResponseBody?
-) : ApiResponse<UserTestResponseBody>() {
+    override val responseDetail: UserTestResponseDetail?
+) : ApiResponse<UserTestResponseDetail>() {
 
     companion object CommonResponses
-        : ApiAuthCommonResponses<UserTestResponseBody, UserTestResponse>(
-        responseBuilder = { status, info, body -> UserTestResponse(status, info, body) }
+        : ApiAuthCommonResponses<UserTestResponseDetail, UserTestResponse>(
+        responseBuilder = { status, info, detail -> UserTestResponse(status, info, detail) }
     )
 }

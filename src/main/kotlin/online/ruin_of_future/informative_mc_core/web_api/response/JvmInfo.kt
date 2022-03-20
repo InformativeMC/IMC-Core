@@ -19,7 +19,7 @@ import kotlinx.serialization.Serializable
 
 @Suppress("UnUsed")
 @Serializable
-class JvmInfoResponseBody(
+class JvmInfoResponseDetail(
     // Jvm Info
     val jvmName: String,
     val jvmVendor: String,
@@ -30,8 +30,8 @@ class JvmInfoResponseBody(
     val kotlinVersion: String,
 ) {
     companion object {
-        fun getCurrent(): JvmInfoResponseBody {
-            return JvmInfoResponseBody(
+        fun getCurrent(): JvmInfoResponseDetail {
+            return JvmInfoResponseDetail(
                 jvmName = System.getProperty("java.vm.name") ?: "unknown",
                 jvmVendor = System.getProperty("java.vm.vendor") ?: "unknown",
                 jvmVersion = System.getProperty("java.vm.version") ?: "unknown",
@@ -49,9 +49,9 @@ class JvmInfoResponseBody(
 class JvmInfoResponse(
     override val requestStatus: String,
     override val requestInfo: String,
-    override val responseBody: JvmInfoResponseBody?
-) : ApiResponse<JvmInfoResponseBody>() {
-    companion object CommonResponses : ApiAuthCommonResponses<JvmInfoResponseBody, JvmInfoResponse>(
-        responseBuilder = { status, info, body -> JvmInfoResponse(status, info, body) }
+    override val responseDetail: JvmInfoResponseDetail?
+) : ApiResponse<JvmInfoResponseDetail>() {
+    companion object CommonResponses : ApiAuthCommonResponses<JvmInfoResponseDetail, JvmInfoResponse>(
+        responseBuilder = { status, info, detail -> JvmInfoResponse(status, info, detail) }
     )
 }

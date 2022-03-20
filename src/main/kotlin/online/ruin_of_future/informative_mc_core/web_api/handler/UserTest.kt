@@ -19,7 +19,7 @@ import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.UserTestApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.UserTestResponse
-import online.ruin_of_future.informative_mc_core.web_api.response.UserTestResponseBody
+import online.ruin_of_future.informative_mc_core.web_api.response.UserTestResponseDetail
 import java.io.OutputStream
 
 class UserTestHandler(
@@ -34,7 +34,7 @@ class UserTestHandler(
         } else if (!modDataManager.userManager.verifyUserToken(req.userName, req.token)) {
             UserTestResponse.invalidTokenError(req.token)
         } else {
-            UserTestResponse.success(UserTestResponseBody(req.userName))
+            UserTestResponse.success(UserTestResponseDetail(req.userName))
         }
         res.writeToStream(outputStream)
     }

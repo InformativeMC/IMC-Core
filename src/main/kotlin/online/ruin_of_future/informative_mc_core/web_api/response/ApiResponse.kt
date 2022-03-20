@@ -22,7 +22,7 @@ import java.util.*
 sealed class ApiResponse<T : Any> {
     abstract val requestStatus: String
     abstract val requestInfo: String
-    abstract val responseBody: T?
+    abstract val responseDetail: T?
 }
 
 /**

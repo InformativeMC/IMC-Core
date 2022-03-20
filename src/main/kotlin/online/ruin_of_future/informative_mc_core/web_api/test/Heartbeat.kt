@@ -20,7 +20,7 @@ class HeartbeatTest : ApiTest() {
             false
         } else {
             val body = Json.decodeFromString<HeartbeatResponse>(response.body!!.string())
-            body.requestStatus == "success" && body.responseBody?.status == "healthy"
+            body.requestStatus == "success" && body.responseDetail?.status == "healthy"
         }
     }
 }

@@ -19,7 +19,7 @@ import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.UserRegisterApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponse
-import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponseBody
+import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponseDetail
 import java.io.OutputStream
 
 class UserRegisterHandler(
@@ -34,7 +34,7 @@ class UserRegisterHandler(
                 if (!modDataManager.userManager.hasUserName(req.userName)) {
                     val user = modDataManager.userManager.addUser(req.userName)
                     UserRegisterResponse
-                        .success(UserRegisterResponseBody(user.userName, user.userToken.uuid))
+                        .success(UserRegisterResponseDetail(user.userName, user.userToken.uuid))
                 } else {
                     UserRegisterResponse.usernameError(
                         userName = req.userName,

@@ -20,7 +20,7 @@ import online.ruin_of_future.informative_mc_core.util.humanReadableSize
 
 @Suppress("UnUsed")
 @Serializable
-class OSInfoResponseBody(
+class OSInfoResponseDetail(
     // OS Info
     val osName: String,
     val maxMemory: String,
@@ -28,8 +28,8 @@ class OSInfoResponseBody(
     val freeMemory: String,
 ) {
     companion object {
-        fun getCurrent(): OSInfoResponseBody {
-            return OSInfoResponseBody(
+        fun getCurrent(): OSInfoResponseDetail {
+            return OSInfoResponseDetail(
                 osName = System.getProperty("os.name") ?: "unknown",
                 maxMemory = Runtime.getRuntime().maxMemory().humanReadableSize(),
                 allocatedMemory = Runtime.getRuntime().totalMemory().humanReadableSize(),
@@ -44,10 +44,10 @@ class OSInfoResponseBody(
 class OSInfoResponse(
     override val requestStatus: String,
     override val requestInfo: String,
-    override val responseBody: OSInfoResponseBody?
-) : ApiResponse<OSInfoResponseBody>() {
+    override val responseDetail: OSInfoResponseDetail?
+) : ApiResponse<OSInfoResponseDetail>() {
 
-    companion object CommonResponses : ApiAuthCommonResponses<OSInfoResponseBody, OSInfoResponse>(
-        responseBuilder = { status, info, body -> OSInfoResponse(status, info, body) }
+    companion object CommonResponses : ApiAuthCommonResponses<OSInfoResponseDetail, OSInfoResponse>(
+        responseBuilder = { status, info, detail -> OSInfoResponse(status, info, detail) }
     )
 }

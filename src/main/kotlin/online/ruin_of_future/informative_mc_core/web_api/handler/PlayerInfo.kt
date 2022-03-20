@@ -22,7 +22,7 @@ import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.PlayerInfoApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.PlayerInfoResponse
-import online.ruin_of_future.informative_mc_core.web_api.response.PlayerInfoResponseBody
+import online.ruin_of_future.informative_mc_core.web_api.response.PlayerInfoResponseDetail
 import online.ruin_of_future.informative_mc_core.web_api.response.SinglePlayerInfo
 import java.io.OutputStream
 
@@ -59,7 +59,7 @@ class PlayerInfoHandler(
                         else -> SinglePlayerInfo(playerEntity)
                     }
                 }
-            PlayerInfoResponse.success(PlayerInfoResponseBody(filteredPlayers))
+            PlayerInfoResponse.success(PlayerInfoResponseDetail(filteredPlayers))
         }
         res.writeToStream(outputStream)
     }

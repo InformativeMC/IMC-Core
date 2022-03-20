@@ -19,7 +19,7 @@ import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.OSInfoApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponse
-import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponseBody
+import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponseDetail
 import java.io.OutputStream
 
 class OSInfoHandler(
@@ -36,7 +36,7 @@ class OSInfoHandler(
         } else if (!modDataManager.userManager.verifyUserToken(req.userName, req.token)) {
             OSInfoResponse.invalidTokenError(req.token)
         } else {
-            OSInfoResponse.success(OSInfoResponseBody.getCurrent())
+            OSInfoResponse.success(OSInfoResponseDetail.getCurrent())
         }
         res.writeToStream(outputStream)
     }

@@ -26,13 +26,13 @@ class HeartbeatResponseBody(
 class HeartbeatResponse(
     override val requestStatus: String,
     override val requestInfo: String,
-    override val responseBody: HeartbeatResponseBody?
+    override val responseDetail: HeartbeatResponseBody?
 ) : ApiResponse<HeartbeatResponseBody>() {
     companion object {
         val HEALTHY = HeartbeatResponse(
             requestStatus = "success",
             requestInfo = "",
-            responseBody = HeartbeatResponseBody("healthy"),
+            responseDetail = HeartbeatResponseBody("healthy"),
         )
     }
 }
