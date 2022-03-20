@@ -16,7 +16,7 @@ class UserRegisterTest(
 ) : ApiTest() {
     override val apiId: ApiId = UserRegisterApiId
 
-    override fun run(): Boolean {
+    override fun run() {
         val username = "TEST_${generateRandomString(5)}"
         val token = tmpAuthManager.addTimedOnceToken(TimeUnit.MINUTES.toMillis(10))
         val formBody = FormBody
@@ -30,12 +30,13 @@ class UserRegisterTest(
             .post(formBody)
             .build()
         val response = client.newCall(request).execute()
-        return if (response.code != 200) {
-            false
+        if (response.code != 200) {
+            assert(false)
         } else {
             // Exceptions will be thrown out. Do worry them here.
             val body = Json.decodeFromString<UserRegisterResponse>(response.body!!.string())
-            body.requestStatus == "success" && body.responseDetail?.userName == username
+            assert(body.requestStatus == "success")
+            assert(body.responseDetail?.userName == username)
         }
     }
 }

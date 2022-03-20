@@ -9,18 +9,19 @@ import online.ruin_of_future.informative_mc_core.web_api.response.HeartbeatRespo
 class HeartbeatTest : ApiTest() {
     override val apiId = HeartbeatApiId
 
-    override fun run(): Boolean {
+    override fun run() {
         val request = Request
             .Builder()
             .url(apiAddress)
             .build()
 
         val response = client.newCall(request).execute()
-        return if (response.code != 200) {
-            false
+        if (response.code != 200) {
+            assert(false)
         } else {
             val body = Json.decodeFromString<HeartbeatResponse>(response.body!!.string())
-            body.requestStatus == "success" && body.responseDetail?.status == "healthy"
+            assert(body.requestStatus == "success")
+            assert(body.responseDetail?.status == "healthy")
         }
     }
 }

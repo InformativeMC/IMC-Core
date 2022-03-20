@@ -25,5 +25,5 @@ abstract class ApiTest {
     val apiAddress: String
         get() = serverAddress.smartAppendApiAddress(apiId.toURIString())
 
-    abstract fun run(): Boolean
+    abstract fun run()
 }

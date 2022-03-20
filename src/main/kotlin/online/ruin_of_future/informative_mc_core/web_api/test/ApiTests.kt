@@ -17,13 +17,9 @@ class ApiTestBatch(
         tests.forEach {
             LOGGER.info("Testing ${it.apiId.toURIString()}")
             try {
-                if (it.run()) {
-                    LOGGER.info("Passed ${it.apiId.toURIString()}")
-                    passedTestNum++
-                } else {
-                    LOGGER.error("Failed at ${it.apiId.toURIString()}")
-                    failedTestNum++
-                }
+                it.run()
+                LOGGER.info("Passed ${it.apiId.toURIString()}")
+                passedTestNum++
             } catch (e: Exception) {
                 LOGGER.error(e)
                 LOGGER.error("Failed at ${it.apiId.toURIString()}")
