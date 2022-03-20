@@ -35,7 +35,7 @@ private class UserRegisterTest(
 ) {
     override fun checkResponse(response: UserRegisterResponse) {
         super.checkResponse(response)
-        assert(response.responseDetail?.userName == username)
+        assert(response.responseDetail?.userName == username) { "not a valid username" }
     }
 }
 
@@ -50,7 +50,7 @@ private class UserTestTest(
 ) {
     override fun checkResponse(response: UserTestResponse) {
         super.checkResponse(response)
-        assert(response.responseDetail?.username == username)
+        assert(response.responseDetail?.username == username) { "not a valid username" }
     }
 }
 

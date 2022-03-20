@@ -15,6 +15,7 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.test
 
+import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.HeartbeatApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.JvmInfoApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.OSInfoApiId
@@ -33,6 +34,12 @@ private class HeartbeatTest
         assert(response.responseDetail?.status == "healthy")
     }
 }
+
+private class IntendedErrorTest
+    : ApiTest<HeartbeatResponse> by GetApiTestImpl(
+    ApiId("intended", "error"),
+    HeartbeatResponse.serializer(),
+)
 
 private class JvmInfoTest(
     username: String,
@@ -62,6 +69,7 @@ class SystemInfoTestBatch(
     listOf<ApiTest<*>>(
         HeartbeatTest(),
         JvmInfoTest(username, tokenUUID),
-        OSInfoTest(username, tokenUUID)
+        OSInfoTest(username, tokenUUID),
+        IntendedErrorTest(),
     )
 )

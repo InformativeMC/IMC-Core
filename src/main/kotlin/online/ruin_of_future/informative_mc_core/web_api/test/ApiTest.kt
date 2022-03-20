@@ -25,6 +25,7 @@ import okhttp3.Request
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.ApiResponse
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 /**
@@ -32,7 +33,8 @@ import java.util.concurrent.TimeUnit
  * And it has some default implementations.
  * In most cases default implementations are enough.
  * Non-default implementations are preferred when some
- * special operations are needed.
+ * special operations are needed. Make sure to enable `-ea`
+ * option for JVM. Otherwise, all assertions have no effect.
  * */
 interface ApiTest<ResponseT : ApiResponse<*>> {
     val client: OkHttpClient
@@ -52,8 +54,8 @@ interface ApiTest<ResponseT : ApiResponse<*>> {
         get() = serverAddress.smartAppendApiAddress(apiId.toURIString())
 
     fun checkResponse(response: ResponseT) {
-        assert(response.requestStatus == "success")
-        assert(response.responseDetail != null)
+        assert(response.requestStatus == "success") { "request not success" }
+        assert(response.responseDetail != null) { "no valid response detail" }
     }
 
     suspend fun runWithCallback(
@@ -88,13 +90,13 @@ class PostApiTestImpl<ResponseT : ApiResponse<*>>(
         try {
             val response = client.newCall(request).execute()
             if (response.code != 200) {
-                assert(false)
+                assert(false) { "connection issue: ${response.code}" }
             } else {
                 val body = Json.decodeFromString(responseSerializer, response.body!!.string())
                 checkResponse(body)
                 onSuccess(body)
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             onFailure(e)
         }
     }
@@ -118,13 +120,13 @@ class GetApiTestImpl<ResponseT : ApiResponse<*>>(
         try {
             val response = client.newCall(request).execute()
             if (response.code != 200) {
-                assert(false)
+                assert(false) { "connection issue: ${response.code}" }
             } else {
                 val body = Json.decodeFromString(responseSerializer, response.body!!.string())
                 checkResponse(body)
                 onSuccess(body)
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             onFailure(e)
         }
     }
@@ -135,8 +137,8 @@ class GetApiTestImpl<ResponseT : ApiResponse<*>>(
  * The implementation determines it.
  * */
 interface ApiTestBatch {
-    val passedTest: MutableMap<ApiId, ApiResponse<*>>
-    val failedTest: MutableMap<ApiId, Throwable>
+    val passedTest: Map<ApiId, ApiResponse<*>>
+    val failedTest: Map<ApiId, Throwable>
     val name: String
     suspend fun runWithCallback(
         onSuccess: (passedTest: Map<ApiId, ApiResponse<*>>) -> Unit,
@@ -151,8 +153,8 @@ class ApiTestBatchAsync(
     override val name: String,
     private val tests: List<ApiTest<*>>
 ) : ApiTestBatch {
-    override val passedTest = mutableMapOf<ApiId, ApiResponse<*>>()
-    override val failedTest = mutableMapOf<ApiId, Throwable>()
+    override val passedTest = ConcurrentHashMap<ApiId, ApiResponse<*>>()
+    override val failedTest = ConcurrentHashMap<ApiId, Throwable>()
 
     override suspend fun runWithCallback(
         onSuccess: (passedTest: Map<ApiId, ApiResponse<*>>) -> Unit,

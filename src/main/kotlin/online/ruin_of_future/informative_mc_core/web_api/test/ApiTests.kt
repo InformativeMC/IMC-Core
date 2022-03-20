@@ -68,7 +68,7 @@ class ApiTests(
                             val lines = mutableListOf<String>()
                             lines.add("[Failed]")
                             it.forEach { (k, v) ->
-                                lines.add("\t${k.toURIString()} <- ${v.message}")
+                                lines.add("    ${k.toURIString()} <- ${v.message}")
                             }
                             lines.forEach { line ->
                                 batchResultLines.add(line)
