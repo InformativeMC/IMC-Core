@@ -18,7 +18,7 @@ package online.ruin_of_future.informative_mc_core.web_api.handler
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import java.io.OutputStream
 
 class MissingParameterException(msg: String) : Exception(msg)
@@ -26,7 +26,7 @@ class MissingParameterException(msg: String) : Exception(msg)
 
 @OptIn(ExperimentalSerializationApi::class)
 sealed class ApiHandler {
-    abstract val id: ApiID
+    abstract val id: ApiId
 
     // If you need to init something after mod loaded, override setup().
     fun setup() {}

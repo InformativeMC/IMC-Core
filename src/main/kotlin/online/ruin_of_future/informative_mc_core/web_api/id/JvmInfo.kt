@@ -13,19 +13,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
-import online.ruin_of_future.informative_mc_core.web_api.id.HeartbeatApiId
-import online.ruin_of_future.informative_mc_core.web_api.response.HeartbeatResponse
-import java.io.OutputStream
+package online.ruin_of_future.informative_mc_core.web_api.id
 
-
-@Suppress("UnUsed")
-class HeartbeatHandler : ParamFreeHandler() {
-    override val id: ApiId = HeartbeatApiId
-
-    override fun handleRequest(outputStream: OutputStream) {
-        HeartbeatResponse.HEALTHY.writeToStream(outputStream)
-    }
-}
+val JvmInfoApiId = ApiId("system-info", "jvm-info")
