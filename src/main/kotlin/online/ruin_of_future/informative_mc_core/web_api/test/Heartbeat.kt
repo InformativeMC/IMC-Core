@@ -3,7 +3,7 @@ package online.ruin_of_future.informative_mc_core.web_api.test
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.Request
-import online.ruin_of_future.informative_mc_core.web_api.handler.HeartbeatApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.HeartbeatApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.HeartbeatResponse
 
 class HeartbeatTest : ApiTest() {

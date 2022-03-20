@@ -1,7 +1,7 @@
 package online.ruin_of_future.informative_mc_core.web_api.test
 
 import okhttp3.OkHttpClient
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import org.apache.logging.log4j.LogManager
 import java.util.concurrent.TimeUnit
 
@@ -21,7 +21,7 @@ abstract class ApiTest {
         .build()
 
     open val serverAddress = "https://localhost:3030/"
-    abstract val apiId: ApiID
+    abstract val apiId: ApiId
     val apiAddress: String
         get() = serverAddress.smartAppendApiAddress(apiId.toURIString())
 
