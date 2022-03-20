@@ -51,7 +51,7 @@ class JvmInfoResponse(
     override val requestInfo: String,
     override val responseBody: JvmInfoResponseBody?
 ) : ApiResponse<JvmInfoResponseBody>() {
-    companion object CommonResponses : ApiAuthCommonResponses<JvmInfoResponseBody>(
+    companion object CommonResponses : ApiAuthCommonResponses<JvmInfoResponseBody, JvmInfoResponse>(
         responseBuilder = { status, info, body -> JvmInfoResponse(status, info, body) }
     )
 }

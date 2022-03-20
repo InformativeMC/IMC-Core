@@ -54,7 +54,7 @@ class PlayerInfoResponse(
     override val responseBody: PlayerInfoResponseBody?
 ) : ApiResponse<PlayerInfoResponseBody>() {
 
-    companion object CommonResponses : ApiAuthCommonResponses<PlayerInfoResponseBody>(
+    companion object CommonResponses : ApiAuthCommonResponses<PlayerInfoResponseBody, PlayerInfoResponse>(
         responseBuilder = { status, info, body -> PlayerInfoResponse(status, info, body) }
     )
 }

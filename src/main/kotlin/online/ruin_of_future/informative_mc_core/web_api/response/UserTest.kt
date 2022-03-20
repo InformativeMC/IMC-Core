@@ -30,7 +30,7 @@ class UserTestResponse(
 ) : ApiResponse<UserTestResponseBody>() {
 
     companion object CommonResponses
-        : ApiAuthCommonResponses<UserTestResponseBody>(
+        : ApiAuthCommonResponses<UserTestResponseBody, UserTestResponse>(
         responseBuilder = { status, info, body -> UserTestResponse(status, info, body) }
     )
 }

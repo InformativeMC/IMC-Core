@@ -25,22 +25,32 @@ sealed class ApiResponse<T : Any> {
     abstract val responseBody: T?
 }
 
-sealed class ApiAuthCommonResponses<T : Any>(
-    private val responseBuilder: (String, String, T?) -> ApiResponse<T>
+/**
+ * Common responses for APIs that need auth.
+ * The reason of using generic parameter R as return type
+ * instead of `ApiResponse<T>` is that polymorphic deserializer
+ * can only recognize concrete types.
+ * */
+sealed class ApiAuthCommonResponses<T : Any, R>(
+    private val responseBuilder: (String, String, T?) -> R
 ) {
-    fun success(body: T): ApiResponse<T> {
+    fun success(body: T): R {
         return responseBuilder("success", "", body)
     }
 
-    fun invalidTokenError(uuid: UUID): ApiResponse<T> {
+    fun invalidTokenError(uuid: UUID): R {
         return responseBuilder("error", "invalid token: $uuid", null)
     }
 
-    fun usernameError(userName: String): ApiResponse<T> {
+    fun usernameError(userName: String): R {
         return responseBuilder("error", "wrong or unknown username: $userName", null)
     }
 
-    fun unknownError(): ApiResponse<T> {
+    fun error(info: String): R {
+        return responseBuilder("error", info, null)
+    }
+
+    fun unknownError(): R {
         return responseBuilder("error", "unknown error", null)
     }
 }
