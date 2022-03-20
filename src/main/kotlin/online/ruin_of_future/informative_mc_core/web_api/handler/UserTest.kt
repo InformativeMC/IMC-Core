@@ -16,8 +16,8 @@
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
-import online.ruin_of_future.informative_mc_core.web_api.ids.UserTestApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.UserTestApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.UserTestResponse
 import online.ruin_of_future.informative_mc_core.web_api.response.UserTestResponseBody
 import java.io.OutputStream
@@ -25,7 +25,7 @@ import java.io.OutputStream
 class UserTestHandler(
     private val modDataManager: ModDataManager,
 ) : ParamPostHandler() {
-    override val id: ApiID = UserTestApiId
+    override val id: ApiId = UserTestApiId
 
     override fun handleRequest(formParams: Map<String, List<String>>, outputStream: OutputStream) {
         val req = parseUserRequest(formParams)

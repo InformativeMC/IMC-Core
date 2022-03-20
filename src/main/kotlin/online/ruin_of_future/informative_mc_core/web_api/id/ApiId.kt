@@ -13,8 +13,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.web_api.ids
+package online.ruin_of_future.informative_mc_core.web_api.id
 
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import kotlinx.serialization.Serializable
 
-val UserRegisterApiId = ApiID("imc-manage", "register")
+@Serializable
+data class ApiId(val namespace: String, val path: String) {
+    fun toURIString(): String {
+        return "$namespace/$path"
+    }
+}

@@ -13,9 +13,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
+package online.ruin_of_future.informative_mc_core.web_api.id
 
-package online.ruin_of_future.informative_mc_core.web_api.ids
-
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
-
-val JvmInfoApiID = ApiID("system-info", "jvm-info")
+val OSInfoApiId = ApiId("system-info", "os-info")

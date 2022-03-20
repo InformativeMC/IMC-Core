@@ -16,8 +16,8 @@
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
-import online.ruin_of_future.informative_mc_core.web_api.ids.UserRegisterApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.UserRegisterApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponse
 import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponseBody
 import java.io.OutputStream
@@ -25,7 +25,7 @@ import java.io.OutputStream
 class UserRegisterHandler(
     private val modDataManager: ModDataManager,
 ) : ParamPostHandler() {
-    override val id: ApiID = UserRegisterApiId
+    override val id: ApiId = UserRegisterApiId
 
     override fun handleRequest(formParams: Map<String, List<String>>, outputStream: OutputStream) {
         try {

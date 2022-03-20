@@ -16,8 +16,8 @@
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
-import online.ruin_of_future.informative_mc_core.web_api.ids.OSInfoApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.OSInfoApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponse
 import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponseBody
 import java.io.OutputStream
@@ -25,7 +25,7 @@ import java.io.OutputStream
 class OSInfoHandler(
     private val modDataManager: ModDataManager,
 ) : ParamPostHandler() {
-    override val id: ApiID = OSInfoApiId
+    override val id: ApiId = OSInfoApiId
     override fun handleRequest(
         formParams: Map<String, List<String>>,
         outputStream: OutputStream

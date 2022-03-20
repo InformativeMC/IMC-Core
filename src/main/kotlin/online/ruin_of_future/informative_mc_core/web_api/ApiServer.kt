@@ -24,6 +24,7 @@ import online.ruin_of_future.informative_mc_core.tmpDirPath
 import online.ruin_of_future.informative_mc_core.util.generateCertificate
 import online.ruin_of_future.informative_mc_core.util.generateKeyPair
 import online.ruin_of_future.informative_mc_core.web_api.handler.*
+import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import org.apache.logging.log4j.LogManager
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.ServerConnector
@@ -58,9 +59,9 @@ class ApiServer(
 
     private var app: Javalin
 
-    private val paramFreeHandlers = mutableMapOf<ApiID, ParamFreeHandler>()
-    private val paramGetHandlers = mutableMapOf<ApiID, ParamGetHandler>()
-    private val paramPostHandlers = mutableMapOf<ApiID, ParamPostHandler>()
+    private val paramFreeHandlers = mutableMapOf<ApiId, ParamFreeHandler>()
+    private val paramGetHandlers = mutableMapOf<ApiId, ParamGetHandler>()
+    private val paramPostHandlers = mutableMapOf<ApiId, ParamPostHandler>()
 
     private fun registerApiHandler(apiHandler: ParamFreeHandler) {
         paramFreeHandlers.putIfAbsent(apiHandler.id, apiHandler)
