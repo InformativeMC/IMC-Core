@@ -21,14 +21,14 @@ import net.minecraft.server.command.ServerCommandSource
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.test.ApiTests
 
-class TestRun(
-    private val modDataManager: ModDataManager
-) {
-    fun build(): LiteralArgumentBuilder<ServerCommandSource> {
-        return CommandManager.literal("test")
-            .executes {
-                ApiTests(modDataManager).run()
-                return@executes 0
-            }
-    }
-}
+//class TestRun(
+//    private val modDataManager: ModDataManager
+//) {
+//    fun build(): LiteralArgumentBuilder<ServerCommandSource> {
+//        return CommandManager.literal("test")
+//            .executes {
+//                ApiTests(modDataManager).run()
+//                return@executes 0
+//            }
+//    }
+//}

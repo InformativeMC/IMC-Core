@@ -16,34 +16,25 @@
 package online.ruin_of_future.informative_mc_core.core
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
-import online.ruin_of_future.informative_mc_core.auth.TimedOnceToken
+import online.ruin_of_future.informative_mc_core.data.ImcUser
+import online.ruin_of_future.informative_mc_core.util.generateRandomString
 import online.ruin_of_future.informative_mc_core.web_api.test.ApiTests
-import java.util.concurrent.TimeUnit
 
 sealed class ImcCoreTestImpl : ImcCoreImpl() {
     override val isTestImpl: Boolean = true
-    private lateinit var tmpAuthTokens: List<TimedOnceToken>
-
-    private fun setupTmpAuth(num: Int = 5) {
+    lateinit var testUser: ImcUser
+    private fun setupTestUser() {
         LOGGER.info("Setting temporary tokens for tests...")
-        val tokens = mutableListOf<TimedOnceToken>()
-        for (i in 0 until num) {
-            tokens.add(
-                modDataManager.tmpAuthManager.addTimedOnceToken(
-                    expiredAfterMillis = TimeUnit.MINUTES.toMillis(10)
-                )
-            )
-        }
-        tmpAuthTokens = tokens.toList()
+        testUser = modDataManager.userManager.addUser("TEST_${generateRandomString(5)}")
     }
 
     private fun runAllTest() {
-        ApiTests(modDataManager).run()
+        ApiTests(modDataManager, testUser).run()
     }
 
     private fun registerServerStartedCallback() {
         ServerLifecycleEvents.SERVER_STARTED.register { _ ->
-            setupTmpAuth()
+            setupTestUser()
             runAllTest()
         }
     }

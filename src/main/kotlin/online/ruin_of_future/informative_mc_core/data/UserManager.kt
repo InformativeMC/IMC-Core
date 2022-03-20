@@ -32,7 +32,7 @@ class UserManager {
     }
 
     fun hasUser(userName: String, imcUser: ImcUser): Boolean {
-        return users[userName]?.userName == imcUser.userName &&
+        return users[userName]?.username == imcUser.username &&
                 users[userName]?.userToken == imcUser.userToken
     }
 
@@ -42,8 +42,8 @@ class UserManager {
 
     fun addUser(userName: String): ImcUser {
         val newUser = ImcUser(userName, userTokenManager.addForeverToken())
-        LOGGER.info("A new user added: ${newUser.userName}")
-        users[newUser.userName] = newUser
+        LOGGER.info("A new user added: ${newUser.username}")
+        users[newUser.username] = newUser
         return newUser
     }
 

@@ -3,12 +3,15 @@ package online.ruin_of_future.informative_mc_core.web_api.test
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.Request
-import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.HeartbeatApiId
-import online.ruin_of_future.informative_mc_core.web_api.response.ApiResponse
+import online.ruin_of_future.informative_mc_core.web_api.id.JvmInfoApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.OSInfoApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.HeartbeatResponse
+import online.ruin_of_future.informative_mc_core.web_api.response.JvmInfoResponse
+import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponse
+import java.util.*
 
-private class HeartbeatTest : ApiTest<HeartbeatResponse>() {
+private class HeartbeatTest : ApiTest<HeartbeatResponse> {
     override val apiId = HeartbeatApiId
 
     override suspend fun runWithCallback(
@@ -36,26 +39,34 @@ private class HeartbeatTest : ApiTest<HeartbeatResponse>() {
     }
 }
 
-class HeartbeatTestBatch : ApiTestBatch {
-    override val name = "Heartbeat"
+private class JvmInfoTest(
+    username: String,
+    tokenUUID: UUID,
+) : ApiTest<JvmInfoResponse> by PostApiTestImpl(
+    JvmInfoApiId,
+    username,
+    tokenUUID,
+    JvmInfoResponse.serializer()
+)
 
-    private val test = HeartbeatTest()
-    override val passedTest = mutableMapOf<ApiId, ApiResponse<*>>()
-    override val failedTest = mutableMapOf<ApiId, Throwable>()
+private class OSInfoTest(
+    private val username: String,
+    private val tokenUUID: UUID,
+) : ApiTest<OSInfoResponse> by PostApiTestImpl(
+    OSInfoApiId,
+    username,
+    tokenUUID,
+    OSInfoResponse.serializer()
+)
 
-    override suspend fun runWithCallback(
-        onSuccess: (passedTest: Map<ApiId, ApiResponse<*>>) -> Unit,
-        onFailure: (failedTest: Map<ApiId, Throwable>) -> Unit
-    ) {
-        test.runWithCallback(
-            onSuccess = {
-                passedTest[test.apiId] = it
-            },
-            onFailure = {
-                failedTest[test.apiId] = it
-            }
-        )
-        onSuccess(passedTest.toMap())
-        onFailure(failedTest.toMap())
-    }
-}
+class SystemInfoTestBatch(
+    private val username: String,
+    private val tokenUUID: UUID,
+) : ApiTestBatch by ApiTestBatchAsync(
+    "System Info",
+    listOf<ApiTest<*>>(
+        HeartbeatTest(),
+        JvmInfoTest(username, tokenUUID),
+        OSInfoTest(username, tokenUUID)
+    )
+)

@@ -1,6 +1,7 @@
 package online.ruin_of_future.informative_mc_core.web_api.test
 
 import kotlinx.coroutines.*
+import online.ruin_of_future.informative_mc_core.data.ImcUser
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.util.VirtualConsoleOption
 import online.ruin_of_future.informative_mc_core.util.boxedConsoleString
@@ -9,17 +10,19 @@ import org.apache.logging.log4j.LogManager
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Make it a class instead of an object.
- * Because the tests might be called multiple times.
- * Tests in different `ApiTestBatch` are executed in parallel.
+ * Test class of all unit tests.
+ * It is a class instead of an object
+ * because the tests might be called multiple times.
+ * Tests in different batches are executed in parallel.
  */
 class ApiTests(
-    modDataManager: ModDataManager
+    modDataManager: ModDataManager,
+    testUser: ImcUser,
 ) {
     private val LOGGER = LogManager.getLogger("IMC API Test")
     private val tests = listOf<ApiTestBatch>(
-        HeartbeatTestBatch(),
-        UserTestBatch(modDataManager.tmpAuthManager.addTimedOnceToken().uuid),
+        SystemInfoTestBatch(testUser.username, testUser.userToken.uuid),
+        ImcManageTestBatch(modDataManager.tmpAuthManager.addTimedOnceToken().uuid),
     )
 
     private val passTestNum = AtomicInteger(0)

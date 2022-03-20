@@ -34,7 +34,7 @@ class UserRegisterHandler(
                 if (!modDataManager.userManager.hasUserName(req.username)) {
                     val user = modDataManager.userManager.addUser(req.username)
                     UserRegisterResponse
-                        .success(UserRegisterResponseDetail(user.userName, user.userToken.uuid))
+                        .success(UserRegisterResponseDetail(user.username, user.userToken.uuid))
                 } else {
                     UserRegisterResponse.usernameError(
                         userName = req.username,
