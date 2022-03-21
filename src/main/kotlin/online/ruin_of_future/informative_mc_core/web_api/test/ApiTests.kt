@@ -18,9 +18,10 @@ package online.ruin_of_future.informative_mc_core.web_api.test
 import kotlinx.coroutines.*
 import online.ruin_of_future.informative_mc_core.data.ImcUser
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.util.ConsoleLine
+import online.ruin_of_future.informative_mc_core.util.ConsoleLineSegment
 import online.ruin_of_future.informative_mc_core.util.VirtualConsoleOption
 import online.ruin_of_future.informative_mc_core.util.boxedConsoleString
-import online.ruin_of_future.informative_mc_core.util.inConsole
 import org.apache.logging.log4j.LogManager
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -47,16 +48,31 @@ class ApiTests(
     private suspend fun runImpl(): Boolean = coroutineScope {
         tests.map {
             async {
-                val batchResultLines = mutableListOf<String>()
-                batchResultLines.add("[${it.name}]".inConsole(VirtualConsoleOption.Centered))
+                val batchResultLines = mutableListOf<ConsoleLine>()
+                batchResultLines.add(
+                    ConsoleLineSegment(
+                        "[${it.name}]",
+                        VirtualConsoleOption.Magenta,
+                    ).asSingleLine(true)
+                )
                 it.runWithCallback(
                     onSuccess = {
                         passTestNum.addAndGet(it.size)
                         if (it.isNotEmpty()) {
-                            val lines = mutableListOf<String>()
-                            lines.add("[Passed]")
+                            val lines = mutableListOf<ConsoleLine>()
+                            lines.add(
+                                ConsoleLineSegment(
+                                    "[Passed]",
+                                    VirtualConsoleOption.Green,
+                                ).asSingleLine()
+                            )
                             it.forEach { (id, _) ->
-                                lines.add("    ${id.toURIString()}")
+                                lines.add(
+                                    ConsoleLineSegment(
+                                        id.toURIString(),
+                                        VirtualConsoleOption.Cyan,
+                                    ).asSingleLine()
+                                )
                             }
                             lines.forEach { line ->
                                 batchResultLines.add(line)
@@ -66,10 +82,28 @@ class ApiTests(
                     onFailure = {
                         failedTestNum.addAndGet(it.size)
                         if (it.isNotEmpty()) {
-                            val lines = mutableListOf<String>()
-                            lines.add("[Failed]")
+                            val lines = mutableListOf<ConsoleLine>()
+                            lines.add(
+                                ConsoleLineSegment(
+                                    "[Failed]",
+                                    VirtualConsoleOption.Red,
+                                ).asSingleLine()
+                            )
                             it.forEach { (k, v) ->
-                                lines.add("    ${k.toURIString()} <- ${v.message}")
+                                val line = ConsoleLine()
+                                line.add(
+                                    ConsoleLineSegment(
+                                        k.toURIString(),
+                                        VirtualConsoleOption.Yellow,
+                                    )
+                                )
+                                line.add(
+                                    ConsoleLineSegment(
+                                        " <- ${v.message}",
+                                        VirtualConsoleOption.BrightYellow,
+                                    )
+                                )
+                                lines.add(line)
                             }
                             lines.forEach { line ->
                                 batchResultLines.add(line)

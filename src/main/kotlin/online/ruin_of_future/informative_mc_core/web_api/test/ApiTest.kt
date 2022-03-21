@@ -22,6 +22,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import online.ruin_of_future.informative_mc_core.util.generateRandomString
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.ApiResponse
 import java.util.*
