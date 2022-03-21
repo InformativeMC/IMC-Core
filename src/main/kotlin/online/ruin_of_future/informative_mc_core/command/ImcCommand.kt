@@ -29,24 +29,24 @@ class ImcCommand(
 ) {
     private val mainCmd = CommandManager.literal("imc")
     private val authCommand = ImcAuthCommand(modDataManager.tmpAuthManager)
-//    private val testCommand = TestRun(modDataManager)
+    private val testCommand = TestRun(modDataManager)
 
     private fun buildAuth(): LiteralArgumentBuilder<ServerCommandSource>? {
         mainCmd.then(authCommand.build())
         return mainCmd
     }
 
-//    private fun buildTest(): LiteralArgumentBuilder<ServerCommandSource>? {
-//        mainCmd.then(testCommand.build())
-//        return mainCmd
-//    }
+    private fun buildTest(): LiteralArgumentBuilder<ServerCommandSource>? {
+        mainCmd.then(testCommand.build())
+        return mainCmd
+    }
 
     fun setup() {
         CommandRegistrationCallback.EVENT.register { dispatcher, dedicated ->
             buildAuth()
-//            if (isTestImpl) {
-//                buildTest()
-//            }
+            if (isTestImpl) {
+                buildTest()
+            }
             dispatcher.register(mainCmd)
         }
     }

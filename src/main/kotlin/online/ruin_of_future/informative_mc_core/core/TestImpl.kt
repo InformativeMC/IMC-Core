@@ -22,26 +22,25 @@ import online.ruin_of_future.informative_mc_core.web_api.test.ApiTests
 
 sealed class ImcCoreTestImpl : ImcCoreImpl() {
     override val isTestImpl: Boolean = true
-    lateinit var testUser: ImcUser
-    private fun setupTestUser() {
+    private fun setupTestUser(): ImcUser {
         LOGGER.info("Setting temporary tokens for tests...")
-        testUser = modDataManager.userManager.addUser("TEST_${generateRandomString(5)}")
+        return modDataManager.userManager.addUser("TEST_${generateRandomString(5)}")
     }
 
-    private fun runAllTest() {
+    private fun runAllTest(testUser: ImcUser) {
         ApiTests(modDataManager, testUser).run()
     }
 
     private fun registerServerStartedCallback() {
         ServerLifecycleEvents.SERVER_STARTED.register { _ ->
-            setupTestUser()
-            runAllTest()
+            val testUser = setupTestUser()
+            runAllTest(testUser)
         }
     }
 
     override fun onInitialize() {
-        super.onInitialize()
         LOGGER.warn("Using a test implementation of IMC-Core!")
+        super.onInitialize()
         registerServerStartedCallback()
     }
 }

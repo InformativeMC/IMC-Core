@@ -22,6 +22,7 @@ import online.ruin_of_future.informative_mc_core.util.VirtualConsoleOption
 import online.ruin_of_future.informative_mc_core.util.boxedConsoleString
 import online.ruin_of_future.informative_mc_core.util.inConsole
 import org.apache.logging.log4j.LogManager
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -92,8 +93,10 @@ class ApiTests(
     }
 
     @OptIn(ObsoleteCoroutinesApi::class, DelicateCoroutinesApi::class)
-    fun run() = runBlocking {
+    fun run() {
         GlobalScope.launch(newFixedThreadPoolContext(5, "IMC-API-Test")) {
+            // wait until API server started
+            delay(TimeUnit.SECONDS.toMillis(3))
             runImpl()
         }
     }

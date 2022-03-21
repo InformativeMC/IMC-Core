@@ -15,14 +15,22 @@
  */
 package online.ruin_of_future.informative_mc_core.command
 
-//class TestRun(
-//    private val modDataManager: ModDataManager
-//) {
-//    fun build(): LiteralArgumentBuilder<ServerCommandSource> {
-//        return CommandManager.literal("test")
-//            .executes {
-//                ApiTests(modDataManager).run()
-//                return@executes 0
-//            }
-//    }
-//}
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import net.minecraft.server.command.CommandManager
+import net.minecraft.server.command.ServerCommandSource
+import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.util.generateRandomString
+import online.ruin_of_future.informative_mc_core.web_api.test.ApiTests
+
+class TestRun(
+    private val modDataManager: ModDataManager,
+) {
+    fun build(): LiteralArgumentBuilder<ServerCommandSource> {
+        return CommandManager.literal("test")
+            .executes {
+                val testUser = modDataManager.userManager.addUser("TEST_${generateRandomString(5)}")
+                ApiTests(modDataManager, testUser).run()
+                return@executes 0
+            }
+    }
+}

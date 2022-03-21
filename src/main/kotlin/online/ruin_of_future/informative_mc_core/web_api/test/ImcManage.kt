@@ -62,7 +62,7 @@ class ImcManageTestBatch(
     override val failedTest = mutableMapOf<ApiId, Throwable>()
 
     private val username = "TEST_${generateRandomString(5)}"
-    private lateinit var tokenUUID: UUID
+    private var tokenUUID: UUID? = null
     override suspend fun runWithCallback(
         onSuccess: (passedTest: Map<ApiId, ApiResponse<*>>) -> Unit,
         onFailure: (failedTest: Map<ApiId, Throwable>) -> Unit
@@ -76,14 +76,16 @@ class ImcManageTestBatch(
                 failedTest[UserRegisterApiId] = it
             },
         )
-        UserTestTest(username, tokenUUID).runWithCallback(
-            onSuccess = {
-                passedTest[UserTestApiId] = it
-            },
-            onFailure = {
-                failedTest[UserTestApiId] = it
-            },
-        )
+        if (tokenUUID != null) {
+            UserTestTest(username, tokenUUID!!).runWithCallback(
+                onSuccess = {
+                    passedTest[UserTestApiId] = it
+                },
+                onFailure = {
+                    failedTest[UserTestApiId] = it
+                },
+            )
+        }
         onSuccess(passedTest)
         onFailure(failedTest)
     }
