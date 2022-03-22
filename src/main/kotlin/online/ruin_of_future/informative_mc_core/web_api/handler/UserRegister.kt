@@ -19,7 +19,7 @@ import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.UserRegisterApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponse
-import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponseBody
+import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponseDetail
 import java.io.OutputStream
 
 class UserRegisterHandler(
@@ -31,14 +31,13 @@ class UserRegisterHandler(
         try {
             val req = parseUserRequest(formParams)
             val res = if (modDataManager.tmpAuthManager.verifyToken(req.token)) {
-                if (!modDataManager.userManager.hasUserName(req.userName)) {
-                    val user = modDataManager.userManager.addUser(req.userName)
+                if (!modDataManager.userManager.hasUserName(req.username)) {
+                    val user = modDataManager.userManager.addUser(req.username)
                     UserRegisterResponse
-                        .success(UserRegisterResponseBody(user.userName, user.userToken.uuid))
-
+                        .success(UserRegisterResponseDetail(user.username, user.userToken.uuid))
                 } else {
                     UserRegisterResponse.usernameError(
-                        userName = req.userName,
+                        userName = req.username,
                     )
                 }
             } else {
@@ -48,7 +47,7 @@ class UserRegisterHandler(
             }
             res.writeToStream(outputStream)
         } catch (e: MissingParameterException) {
-            UserRegisterResponse.unknownError().writeToStream(outputStream)
+            UserRegisterResponse.error(e.message ?: "").writeToStream(outputStream)
         }
     }
 }

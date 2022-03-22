@@ -26,7 +26,7 @@ fun generateKeyPair(keySize: Int): KeyPair {
 
 /**
  * Modified from
- * `https://github.com/misterpki/selfsignedcert/blob/master/src/main/java/com/misterpki/SelfSignedCertGenerator.java`
+ * [](https://github.com/misterpki/selfsignedcert/blob/master/src/main/java/com/misterpki/SelfSignedCertGenerator.java)
  * */
 fun createSubjectKeyId(publicKey: PublicKey): SubjectKeyIdentifier {
     val publicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.encoded)
@@ -36,7 +36,7 @@ fun createSubjectKeyId(publicKey: PublicKey): SubjectKeyIdentifier {
 
 /**
  * Modified from
- * `https://github.com/misterpki/selfsignedcert/blob/master/src/main/java/com/misterpki/SelfSignedCertGenerator.java`
+ * [](https://github.com/misterpki/selfsignedcert/blob/master/src/main/java/com/misterpki/SelfSignedCertGenerator.java)
  * */
 fun createAuthorityKeyId(publicKey: PublicKey): AuthorityKeyIdentifier {
     val publicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.encoded)
@@ -47,7 +47,7 @@ fun createAuthorityKeyId(publicKey: PublicKey): AuthorityKeyIdentifier {
 
 /**
  * Modified from
- * `https://github.com/misterpki/selfsignedcert/blob/master/src/main/java/com/misterpki/SelfSignedCertGenerator.java`
+ * [](https://github.com/misterpki/selfsignedcert/blob/master/src/main/java/com/misterpki/SelfSignedCertGenerator.java)
  * */
 fun generateCertificate(
     distinguishedName: String,

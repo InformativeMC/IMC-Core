@@ -18,29 +18,40 @@ package online.ruin_of_future.informative_mc_core.web_api.response
 import kotlinx.serialization.Serializable
 import java.util.*
 
-@Serializable
-sealed class ApiResponse<T : Any> {
-    abstract val requestStatus: String
-    abstract val requestInfo: String
-    abstract val responseBody: T?
-}
 
-sealed class ApiAuthCommonResponses<T : Any>(
-    private val responseBuilder: (String, String, T?) -> ApiResponse<T>
+/**
+ * Common responses for APIs that need auth.
+ * The reason of using generic parameter R as return type
+ * instead of `ApiResponse<T>` is that polymorphic deserializer
+ * can only recognize concrete types.
+ * */
+sealed class ApiAuthCommonResponse<DetailT : Any, ResponseT>(
+    private val responseBuilder: (String, String, DetailT?) -> ResponseT
 ) {
-    fun success(body: T): ApiResponse<T> {
-        return responseBuilder("success", "", body)
+    fun success(detail: DetailT): ResponseT {
+        return responseBuilder("success", "", detail)
     }
 
-    fun invalidTokenError(uuid: UUID): ApiResponse<T> {
+    fun invalidTokenError(uuid: UUID): ResponseT {
         return responseBuilder("error", "invalid token: $uuid", null)
     }
 
-    fun usernameError(userName: String): ApiResponse<T> {
+    fun usernameError(userName: String): ResponseT {
         return responseBuilder("error", "wrong or unknown username: $userName", null)
     }
 
-    fun unknownError(): ApiResponse<T> {
+    fun error(info: String): ResponseT {
+        return responseBuilder("error", info, null)
+    }
+
+    fun unknownError(): ResponseT {
         return responseBuilder("error", "unknown error", null)
     }
+}
+
+@Serializable
+sealed class ApiResponse<DetailT : Any> {
+    abstract val requestStatus: String
+    abstract val requestInfo: String
+    abstract val responseDetail: DetailT?
 }

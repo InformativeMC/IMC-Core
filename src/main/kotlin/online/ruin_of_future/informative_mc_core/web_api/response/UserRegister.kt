@@ -20,7 +20,7 @@ import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
 import java.util.*
 
 @Serializable
-class UserRegisterResponseBody(
+class UserRegisterResponseDetail(
     val userName: String,
     @Serializable(with = UUIDSerializer::class)
     val uuid: UUID?,
@@ -30,10 +30,10 @@ class UserRegisterResponseBody(
 class UserRegisterResponse(
     override val requestStatus: String,
     override val requestInfo: String,
-    override val responseBody: UserRegisterResponseBody?
-) : ApiResponse<UserRegisterResponseBody>() {
+    override val responseDetail: UserRegisterResponseDetail?
+) : ApiResponse<UserRegisterResponseDetail>() {
 
-    companion object CommonResponses : ApiAuthCommonResponses<UserRegisterResponseBody>(
-        responseBuilder = { status, info, body -> UserRegisterResponse(status, info, body) }
+    companion object CommonResponse : ApiAuthCommonResponse<UserRegisterResponseDetail, UserRegisterResponse>(
+        responseBuilder = { status, info, detail -> UserRegisterResponse(status, info, detail) }
     )
 }

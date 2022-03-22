@@ -18,6 +18,6 @@ package online.ruin_of_future.informative_mc_core.data
 import online.ruin_of_future.informative_mc_core.auth.ForeverToken
 
 class ImcUser(
-    val userName: String,
+    val username: String,
     val userToken: ForeverToken,
 )
