@@ -15,15 +15,15 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.HeartbeatApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.HeartbeatResponse
 import java.io.OutputStream
 
-val HeartbeatApiId = ApiID("system-info", "heartbeat")
 
 @Suppress("UnUsed")
 class HeartbeatHandler : ParamFreeHandler() {
-    override val id: ApiID = HeartbeatApiId
+    override val id: ApiId = HeartbeatApiId
 
     override fun handleRequest(outputStream: OutputStream) {
         HeartbeatResponse.HEALTHY.writeToStream(outputStream)

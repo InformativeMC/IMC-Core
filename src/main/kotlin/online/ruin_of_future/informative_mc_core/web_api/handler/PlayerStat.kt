@@ -19,20 +19,20 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import online.ruin_of_future.informative_mc_core.ImcCore
+import online.ruin_of_future.informative_mc_core.core.ImcCore
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.PlayerStatResponse
-import online.ruin_of_future.informative_mc_core.web_api.response.PlayerStatResponseBody
+import online.ruin_of_future.informative_mc_core.web_api.response.PlayerStatResponseDetail
 import online.ruin_of_future.informative_mc_core.web_api.response.SinglePlayerStat
 import java.io.OutputStream
 
-val PlayerInfoApiId = ApiID("mc-manage", "player-stat")
+val PlayerInfoApiId = ApiId("mc-manage", "player-stat")
 
 class PlayerStatHandler(
     private val modDataManager: ModDataManager,
 ) : ParamPostHandler() {
-    override val id: ApiID = PlayerInfoApiId
+    override val id: ApiId = PlayerInfoApiId
 
     private val server: MinecraftServer
         get() = ImcCore.server
@@ -66,9 +66,9 @@ class PlayerStatHandler(
         outputStream: OutputStream
     ) {
         val req = parseUserRequest(formParams)
-        val res = if (!modDataManager.userManager.hasUserName(req.userName)) {
-            PlayerStatResponse.usernameError(req.userName)
-        } else if (!modDataManager.userManager.verifyUserToken(req.userName, req.token)) {
+        val res = if (!modDataManager.userManager.hasUserName(req.username)) {
+            PlayerStatResponse.usernameError(req.username)
+        } else if (!modDataManager.userManager.verifyUserToken(req.username, req.token)) {
             PlayerStatResponse.invalidTokenError(req.token)
         } else {
             val target = formParams["target"]?.get(0)
@@ -96,7 +96,7 @@ class PlayerStatHandler(
                         op(playerEntity, args)
                         SinglePlayerStat(playerEntity)
                     }
-                PlayerStatResponse.success(PlayerStatResponseBody(filteredPlayers))
+                PlayerStatResponse.success(PlayerStatResponseDetail(filteredPlayers))
             }
         }
         res.writeToStream(outputStream)

@@ -13,26 +13,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.web_api.response
+package online.ruin_of_future.informative_mc_core.core
 
-import kotlinx.serialization.Serializable
+// TODO: Can we separate unit test out? And integrate with Junit?
+// TODO: Can we automatically switch normal build and debug build by external options?
 
-@Serializable
-class HeartbeatResponseBody(
-    val status: String,
-)
+// For tests.
+object ImcCore : ImcCoreTestImpl()
 
-@Serializable
-class HeartbeatResponse(
-    override val requestStatus: String,
-    override val requestInfo: String,
-    override val responseDetail: HeartbeatResponseBody?
-) : ApiResponse<HeartbeatResponseBody>() {
-    companion object {
-        val HEALTHY = HeartbeatResponse(
-            requestStatus = "success",
-            requestInfo = "",
-            responseDetail = HeartbeatResponseBody("healthy"),
-        )
-    }
-}
+// For usual build.
+//object ImcCore : ImcCoreImpl()

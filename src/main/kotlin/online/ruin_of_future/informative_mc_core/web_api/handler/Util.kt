@@ -3,7 +3,7 @@ package online.ruin_of_future.informative_mc_core.web_api.handler
 import java.util.*
 
 data class UserRequest(
-    val userName: String,
+    val username: String,
     val token: UUID,
 )
 
@@ -19,7 +19,7 @@ fun parseUserRequest(
         UUID.randomUUID() // useless
     }
     return UserRequest(
-        userName = formParamMap["username"]?.get(0)
+        username = formParamMap["username"]?.get(0)
             ?: throw MissingParameterException("Need user name for register"),
         token = uuid,
     )

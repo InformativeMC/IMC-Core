@@ -13,26 +13,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.web_api.response
 
-import kotlinx.serialization.Serializable
+package online.ruin_of_future.informative_mc_core.web_api.id
 
-@Serializable
-class HeartbeatResponseBody(
-    val status: String,
-)
-
-@Serializable
-class HeartbeatResponse(
-    override val requestStatus: String,
-    override val requestInfo: String,
-    override val responseDetail: HeartbeatResponseBody?
-) : ApiResponse<HeartbeatResponseBody>() {
-    companion object {
-        val HEALTHY = HeartbeatResponse(
-            requestStatus = "success",
-            requestInfo = "",
-            responseDetail = HeartbeatResponseBody("healthy"),
-        )
-    }
-}
+val JvmInfoApiId = ApiId("system-info", "jvm-info")

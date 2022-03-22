@@ -16,30 +16,28 @@
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.UserRegisterApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponse
-import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponseBody
+import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponseDetail
 import java.io.OutputStream
-
-val UserRegisterApiId = ApiID("imc-manage", "register")
 
 class UserRegisterHandler(
     private val modDataManager: ModDataManager,
 ) : ParamPostHandler() {
-    override val id: ApiID = UserRegisterApiId
+    override val id: ApiId = UserRegisterApiId
 
     override fun handleRequest(formParams: Map<String, List<String>>, outputStream: OutputStream) {
         try {
             val req = parseUserRequest(formParams)
             val res = if (modDataManager.tmpAuthManager.verifyToken(req.token)) {
-                if (!modDataManager.userManager.hasUserName(req.userName)) {
-                    val user = modDataManager.userManager.addUser(req.userName)
+                if (!modDataManager.userManager.hasUserName(req.username)) {
+                    val user = modDataManager.userManager.addUser(req.username)
                     UserRegisterResponse
-                        .success(UserRegisterResponseBody(user.userName, user.userToken.uuid))
-
+                        .success(UserRegisterResponseDetail(user.username, user.userToken.uuid))
                 } else {
                     UserRegisterResponse.usernameError(
-                        userName = req.userName,
+                        userName = req.username,
                     )
                 }
             } else {
@@ -49,7 +47,7 @@ class UserRegisterHandler(
             }
             res.writeToStream(outputStream)
         } catch (e: MissingParameterException) {
-            UserRegisterResponse.unknownError().writeToStream(outputStream)
+            UserRegisterResponse.error(e.message ?: "").writeToStream(outputStream)
         }
     }
 }

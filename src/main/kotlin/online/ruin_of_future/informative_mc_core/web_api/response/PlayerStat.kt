@@ -42,7 +42,7 @@ class SinglePlayerStat private constructor(
 }
 
 @Serializable
-class PlayerStatResponseBody(
+class PlayerStatResponseDetail(
     val players: List<SinglePlayerStat>,
 )
 
@@ -51,17 +51,17 @@ class PlayerStatResponseBody(
 class PlayerStatResponse(
     override val requestStatus: String,
     override val requestInfo: String,
-    override val responseBody: PlayerStatResponseBody?
-) : ApiResponse<PlayerStatResponseBody>() {
+    override val responseDetail: PlayerStatResponseDetail?
+) : ApiResponse<PlayerStatResponseDetail>() {
 
-    companion object CommonResponses : ApiAuthCommonResponses<PlayerStatResponseBody>(
+    companion object CommonResponses : ApiAuthCommonResponse<PlayerStatResponseDetail, PlayerStatResponse>(
         responseBuilder = { status, info, body -> PlayerStatResponse(status, info, body) }
     ) {
         fun invalidOpError(opName: String?): PlayerStatResponse {
             return PlayerStatResponse(
                 requestStatus = "error",
                 requestInfo = "Currently provided operation $opName is not valid.",
-                responseBody = null,
+                responseDetail = null,
             )
         }
     }
