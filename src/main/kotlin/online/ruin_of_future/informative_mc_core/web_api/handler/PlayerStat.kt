@@ -17,47 +17,66 @@ package online.ruin_of_future.informative_mc_core.web_api.handler
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import net.minecraft.entity.damage.DamageSource
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.text.LiteralText
 import online.ruin_of_future.informative_mc_core.core.ImcCore
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.PlayerStatApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.PlayerStatResponse
 import online.ruin_of_future.informative_mc_core.web_api.response.PlayerStatResponseDetail
 import online.ruin_of_future.informative_mc_core.web_api.response.SinglePlayerStat
 import java.io.OutputStream
 
-val PlayerInfoApiId = ApiId("mc-manage", "player-stat")
-
 class PlayerStatHandler(
     private val modDataManager: ModDataManager,
 ) : ParamPostHandler() {
-    override val id: ApiId = PlayerInfoApiId
+    override val id: ApiId = PlayerStatApiId
 
     private val server: MinecraftServer
         get() = ImcCore.server
 
-    private inline fun <reified T : Number> Array<String>.parseKthNum(k: Int, defaultValue: T): T {
+    private inline fun <reified T> Array<String>.parseKthNum(k: Int): T {
         return if (this.size < k) {
-            defaultValue
+            throw IndexOutOfBoundsException("API argument number mismatches!!!")
         } else {
-            this[k].toDouble() as T
+            val v = this[k]
+            when (T::class) {
+                Short::class -> v.toShort() as T
+                Int::class -> v.toInt() as T
+                Long::class -> v.toLong() as T
+                Float::class -> v.toFloat() as T
+                Double::class -> v.toDouble() as T
+                else -> v.toDouble() as T
+            }
         }
     }
 
     private val opMap = mapOf<String, (ServerPlayerEntity, Array<String>) -> Unit>(
         "watch" to { _, _ -> },
-        "heal" to { playerEntity, args ->
-            playerEntity.heal(args.parseKthNum(0, 0f))
+        "damage" to { playerEntity, arg ->
+            playerEntity.sendMessage(LiteralText("IMC is damaging you!"), true)
+            playerEntity.damage(DamageSource.LIGHTNING_BOLT, arg.parseKthNum(0))
         },
-        "feed" to { playerEntity, args ->
-            val food = args.parseKthNum(0, 0)
-            val saturationModifier = args.parseKthNum(1, 0f)
-            playerEntity.hungerManager.add(food, saturationModifier)
+        "heal" to { playerEntity, arg ->
+            playerEntity.sendMessage(LiteralText("IMC is healing you!"), true)
+            playerEntity.heal(arg.parseKthNum(0))
         },
-        "give" to { playerEntity, args ->
-            // TODO:
-            // playerEntity.giveItemStack()
+        "feed" to { playerEntity, arg ->
+            playerEntity.sendMessage(LiteralText("IMC is feeding you!"), true)
+            playerEntity.hungerManager.add(arg.parseKthNum(0), arg.parseKthNum(1))
+        },
+        "give" to { playerEntity, arg ->
+            if (arg.size < 2) {
+                throw IllegalArgumentException("Specify [item, count] to give.")
+            }
+            val server = playerEntity.server
+            server.commandManager.execute(
+                server.commandSource,
+                "/give ${playerEntity.name} ${arg[0]} ${arg[1]}",
+            )
         }
     )
 
@@ -76,27 +95,31 @@ class PlayerStatHandler(
                 ?.toSet()
                 ?: setOf()
             val op = formParams["operation"]?.get(0)
-                ?.let { Json.decodeFromString<String>(it) }
                 ?.let { opMap[it] }
-            val args = formParams["arg"]?.get(0)
+            val arg = formParams["arg"]?.get(0)
                 ?.let { Json.decodeFromString<Array<String>>(it) }
                 ?: arrayOf()
             if (op == null) {
                 PlayerStatResponse.invalidOpError(formParams["operation"]?.get(0))
             } else {
-                val filteredPlayers = server.playerManager.playerList
-                    .filterNotNull()
-                    .filter { playerEntity: ServerPlayerEntity ->
-                        if (target.isEmpty()) {
-                            true
-                        } else {
-                            playerEntity.name.asString() in target
+                try {
+                    val filteredPlayers = server.playerManager.playerList
+                        .filterNotNull()
+                        .filter { playerEntity: ServerPlayerEntity ->
+                            if (target.isEmpty()) {
+                                true
+                            } else {
+                                playerEntity.name.asString() in target
+                            }
+                        }.map { playerEntity: ServerPlayerEntity ->
+                            op(playerEntity, arg)
+                            SinglePlayerStat(playerEntity)
                         }
-                    }.map { playerEntity: ServerPlayerEntity ->
-                        op(playerEntity, args)
-                        SinglePlayerStat(playerEntity)
-                    }
-                PlayerStatResponse.success(PlayerStatResponseDetail(filteredPlayers))
+                    PlayerStatResponse.success(PlayerStatResponseDetail(filteredPlayers))
+                } catch (e: Throwable) {
+                    e.printStackTrace()
+                    PlayerStatResponse.error(e.message ?: "internal error while executing operation.")
+                }
             }
         }
         res.writeToStream(outputStream)

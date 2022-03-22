@@ -53,8 +53,14 @@ interface ApiTest<ResponseT : ApiResponse<*>> {
     val apiAddress: String
         get() = serverAddress.smartAppendApiAddress(apiId.toURIString())
 
+    val formBody: Map<String, String>
+        get() = mapOf()
+
+    val getParams: Map<String, String>
+        get() = mapOf()
+
     fun checkResponse(response: ResponseT) {
-        assert(response.requestStatus == "success") { "request not success" }
+        assert(response.requestStatus == "success") { "failed request : ${response.requestInfo}" }
         assert(response.responseDetail != null) { "no valid response detail" }
     }
 
@@ -67,20 +73,34 @@ interface ApiTest<ResponseT : ApiResponse<*>> {
 /**
  * Default implementation of [ApiTest] for **post** methods.
  * */
-class PostApiTestImpl<ResponseT : ApiResponse<*>>(
+open class PostApiTestImpl<ResponseT : ApiResponse<*>>(
     override val apiId: ApiId,
-    private val username: String,
-    private val tokenUUID: UUID,
-    private val responseSerializer: KSerializer<ResponseT>
+    username: String,
+    tokenUUID: UUID,
+    private val responseSerializer: KSerializer<ResponseT>,
+    private val extraPostParam: Map<String, String> = mapOf(),
 ) : ApiTest<ResponseT> {
+
+    override val formBody = mutableMapOf(
+        "username" to username,
+        "token" to tokenUUID.toString(),
+    ).let {
+        extraPostParam.forEach { (k, v) -> it[k] = v }
+        it.toMap()
+    }
+
     override suspend fun runWithCallback(
         onSuccess: (response: ResponseT) -> Unit,
         onFailure: (cause: Throwable) -> Unit
     ) {
         val formBody = FormBody
             .Builder()
-            .add("username", username)
-            .add("token", tokenUUID.toString())
+            .let {
+                formBody.forEach { (k, v) ->
+                    it.add(k, v)
+                }
+                it
+            }
             .build()
         val request = Request
             .Builder()

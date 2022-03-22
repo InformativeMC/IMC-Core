@@ -40,6 +40,7 @@ class ApiTests(
     private val tests = listOf<ApiTestBatch>(
         SystemInfoTestBatch(testUser.username, testUser.userToken.uuid),
         ImcManageTestBatch(modDataManager.tmpAuthManager.addTimedOnceToken().uuid),
+        McManageTestBatch(testUser.username, testUser.userToken.uuid),
     )
 
     private val passTestNum = AtomicInteger(0)

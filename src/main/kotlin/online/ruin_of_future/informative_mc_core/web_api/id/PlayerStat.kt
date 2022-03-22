@@ -15,4 +15,4 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.id
 
-val PlayerInfoApiId = ApiId("mc-info", "player-info")
+val PlayerStatApiId = ApiId("mc-manage", "player-stat")
