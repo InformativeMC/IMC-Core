@@ -49,7 +49,7 @@ class PlayerStatHandler(
                 Long::class -> v.toLong() as T
                 Float::class -> v.toFloat() as T
                 Double::class -> v.toDouble() as T
-                else -> v.toDouble() as T
+                else -> throw TypeCastException("Cannot parse $v as type ${T::class.simpleName}")
             }
         }
     }
