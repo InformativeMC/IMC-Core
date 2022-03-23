@@ -97,7 +97,7 @@ class McManageTestBatch(
 ) : ApiTestBatch {
     override val passedTest = mutableMapOf<ApiId, ApiResponse<*>>()
     override val failedTest = mutableMapOf<ApiId, Throwable>()
-    override val name = "MC Info"
+    override val name = "MC Manage"
 
     override suspend fun runWithCallback(
         onSuccess: (passedTest: Map<ApiId, ApiResponse<*>>) -> Unit,

@@ -68,16 +68,6 @@ class PlayerStatHandler(
             playerEntity.sendMessage(LiteralText("IMC is feeding you!"), true)
             playerEntity.hungerManager.add(arg.parseKthNum(0), arg.parseKthNum(1))
         },
-        "give" to { playerEntity, arg ->
-            if (arg.size < 2) {
-                throw IllegalArgumentException("Specify [item, count] to give.")
-            }
-            val server = playerEntity.server
-            server.commandManager.execute(
-                server.commandSource,
-                "/give ${playerEntity.name} ${arg[0]} ${arg[1]}",
-            )
-        }
     )
 
     override fun handleRequest(
