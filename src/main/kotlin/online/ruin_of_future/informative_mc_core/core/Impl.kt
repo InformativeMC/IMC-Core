@@ -140,7 +140,7 @@ sealed class ImcCoreImpl : ModInitializer {
 
     private fun setupApiServer() {
         LOGGER.info("Starting IMC API server...")
-        apiServer = ApiServer(config, modDataManager)
+        apiServer = ApiServer(server, config.port, config, modDataManager)
         LOGGER.info("IMC API server started.")
     }
 

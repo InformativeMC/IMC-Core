@@ -27,7 +27,7 @@ class UserManager {
     private val users = mutableMapOf<String, ImcUser>()
     private val userTokenManager = TokenManager()
 
-    fun hasUserName(userName: String): Boolean {
+    fun hasUsername(userName: String): Boolean {
         return users.containsKey(userName)
     }
 
