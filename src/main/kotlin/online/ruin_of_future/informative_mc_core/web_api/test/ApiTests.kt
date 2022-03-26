@@ -23,6 +23,7 @@ import online.ruin_of_future.informative_mc_core.util.ConsoleLineSegment
 import online.ruin_of_future.informative_mc_core.util.VirtualConsoleOption
 import online.ruin_of_future.informative_mc_core.util.boxedConsoleString
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -36,8 +37,13 @@ class ApiTests(
     modDataManager: ModDataManager,
     testUser: ImcUser,
 ) {
-    private val LOGGER = LogManager.getLogger("IMC API Test")
-    private val tests = listOf<ApiTestBatch>(
+
+    companion object {
+        @JvmStatic
+        private val LOGGER: Logger = LogManager.getLogger("IMC API Test")
+    }
+
+    private val tests = listOf(
         SystemInfoTestBatch(testUser.username, testUser.userToken.uuid),
         ImcManageTestBatch(modDataManager.tmpAuthManager.addTimedOnceToken().uuid),
         McManageTestBatch(testUser.username, testUser.userToken.uuid),

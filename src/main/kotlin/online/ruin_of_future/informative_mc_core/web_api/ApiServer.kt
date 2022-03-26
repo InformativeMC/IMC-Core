@@ -26,6 +26,7 @@ import online.ruin_of_future.informative_mc_core.util.generateKeyPair
 import online.ruin_of_future.informative_mc_core.web_api.handler.*
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.util.ssl.SslContextFactory
@@ -46,7 +47,11 @@ class ApiServer(
     private val modConfig: ModConfig,
     private val modDataManager: ModDataManager,
 ) {
-    private val LOGGER = LogManager.getLogger("IMC-Core")
+
+    companion object {
+        @JvmStatic
+        private val LOGGER: Logger = LogManager.getLogger("IMC-Core")
+    }
 
     private val serverPort: Int = modConfig.port
 
