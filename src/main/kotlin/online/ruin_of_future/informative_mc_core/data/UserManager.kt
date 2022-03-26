@@ -18,10 +18,15 @@ package online.ruin_of_future.informative_mc_core.data
 import online.ruin_of_future.informative_mc_core.auth.Token
 import online.ruin_of_future.informative_mc_core.auth.TokenManager
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.util.*
 
 class UserManager {
-    private val LOGGER = LogManager.getLogger("IMC User")
+
+    companion object {
+        @JvmStatic
+        private val LOGGER: Logger = LogManager.getLogger("IMC User")
+    }
 
     // TODO: persistent storage
     private val users = mutableMapOf<String, ImcUser>()

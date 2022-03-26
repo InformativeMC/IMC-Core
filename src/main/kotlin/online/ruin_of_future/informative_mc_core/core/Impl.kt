@@ -30,6 +30,7 @@ import online.ruin_of_future.informative_mc_core.util.getFile
 import online.ruin_of_future.informative_mc_core.util.saveToFile
 import online.ruin_of_future.informative_mc_core.web_api.ApiServer
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.io.File
 import java.nio.file.Path
 import java.util.*
@@ -47,8 +48,13 @@ val tmpDirPath: Path = cwd.resolve("tmp").resolve("InformativeMC").toAbsolutePat
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
 sealed class ImcCoreImpl : ModInitializer {
-    protected val LOGGER = LogManager.getLogger("IMC-Core")
-    protected val MOD_ID = "informative_mc_api_core"
+
+    companion object {
+        @JvmStatic
+        protected val LOGGER: Logger = LogManager.getLogger("IMC-Core")
+        protected const val MOD_ID = "informative_mc_api_core"
+    }
+
     protected val modTimer = Timer("IMC Timer")
     lateinit var server: MinecraftServer
     private lateinit var config: ModConfig
