@@ -22,7 +22,7 @@ import java.util.*
 
 @Suppress("UnUsed")
 @Serializable
-class SinglePlayerInfo private constructor(
+class SinglePlayerStat private constructor(
     val name: String,
     val entityName: String,
     @Serializable(with = UUIDSerializer::class)
@@ -42,19 +42,27 @@ class SinglePlayerInfo private constructor(
 }
 
 @Serializable
-class PlayerInfoResponseDetail(
-    val players: List<SinglePlayerInfo>,
+class PlayerStatResponseDetail(
+    val players: List<SinglePlayerStat>,
 )
 
 @Suppress("UnUsed")
 @Serializable
-class PlayerInfoResponse(
+class PlayerStatResponse(
     override val requestStatus: String,
     override val requestInfo: String,
-    override val responseDetail: PlayerInfoResponseDetail?
-) : ApiResponse<PlayerInfoResponseDetail>() {
+    override val responseDetail: PlayerStatResponseDetail?
+) : ApiResponse<PlayerStatResponseDetail>() {
 
-    companion object CommonResponse : ApiAuthCommonResponse<PlayerInfoResponseDetail, PlayerInfoResponse>(
-        responseBuilder = { status, info, detail -> PlayerInfoResponse(status, info, detail) }
-    )
+    companion object CommonResponses : ApiAuthCommonResponse<PlayerStatResponseDetail, PlayerStatResponse>(
+        responseBuilder = { status, info, body -> PlayerStatResponse(status, info, body) }
+    ) {
+        fun invalidOpError(opName: String?): PlayerStatResponse {
+            return PlayerStatResponse(
+                requestStatus = "error",
+                requestInfo = "Currently provided operation $opName is not valid.",
+                responseDetail = null,
+            )
+        }
+    }
 }

@@ -79,7 +79,7 @@ class ApiServer(
         registerApiHandler(HeartbeatHandler())
         registerApiHandler(JvmInfoHandler(modDataManager))
         registerApiHandler(OSInfoHandler(modDataManager))
-        registerApiHandler(PlayerInfoHandler(modDataManager))
+        registerApiHandler(PlayerStatHandler(modDataManager))
         registerApiHandler(UserRegisterHandler(modDataManager))
         registerApiHandler(UserTestHandler(modDataManager))
 

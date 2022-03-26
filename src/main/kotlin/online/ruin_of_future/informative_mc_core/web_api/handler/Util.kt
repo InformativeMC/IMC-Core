@@ -7,6 +7,7 @@ data class UserRequest(
     val token: UUID,
 )
 
+// TODO: Do not throw exception directly. Handle empty fields in handlers.
 fun parseUserRequest(
     formParamMap: Map<String, List<String>>
 ): UserRequest {
