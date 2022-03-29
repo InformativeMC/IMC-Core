@@ -16,14 +16,11 @@
 package online.ruin_of_future.informative_mc_core.data
 
 import online.ruin_of_future.informative_mc_core.auth.TokenManager
-import org.apache.logging.log4j.LogManager
 
 class ModDataManager(
     val userManager: UserManager,
     val tmpAuthManager: TokenManager
 ) {
-    private val LOGGER = LogManager.getLogger("IMC Data")
-
     companion object {
         val DEFAULT = ModDataManager(
             userManager = UserManager(),
