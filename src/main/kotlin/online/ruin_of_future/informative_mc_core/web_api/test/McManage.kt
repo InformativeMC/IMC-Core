@@ -4,8 +4,10 @@ import kotlinx.coroutines.delay
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.GameMessageApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.PlayerStatApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.ApiResponse
+import online.ruin_of_future.informative_mc_core.web_api.response.GameMessageResponse
 import online.ruin_of_future.informative_mc_core.web_api.response.PlayerStatResponse
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -91,6 +93,24 @@ private class PlayerStatHealTest(
     }
 }
 
+private class GameMessageTest(
+    private val username: String,
+    private val tokenUUID: UUID,
+    target: Array<String> = arrayOf(), // Empty array capture all targets,
+    message: String,
+    actionBar: Boolean,
+) : ApiTest<GameMessageResponse> by PostApiTestImpl(
+    GameMessageApiId,
+    username,
+    tokenUUID,
+    GameMessageResponse.serializer(),
+    mapOf(
+        "target" to Json.encodeToString(target),
+        "message" to message,
+        "actionBar" to Json.encodeToString(actionBar),
+    )
+)
+
 class McManageTestBatch(
     private val username: String,
     private val tokenUUID: UUID,
@@ -141,6 +161,42 @@ class McManageTestBatch(
                     failedTest[PlayerStatApiId] = it
                 }
             )
+        }
+        if (flag) {
+            delay(TimeUnit.SECONDS.toMillis(3))
+            GameMessageTest(
+                username,
+                tokenUUID,
+                arrayOf(),
+                "Hello %[username]%! It's %[date]% %[time]%",
+                false
+            )
+                .runWithCallback(
+                    onSuccess = {
+                        passedTest[GameMessageApiId] = it
+                    },
+                    onFailure = {
+                        failedTest[GameMessageApiId] = it
+                    }
+                )
+        }
+        if (flag) {
+            delay(TimeUnit.SECONDS.toMillis(3))
+            GameMessageTest(
+                username,
+                tokenUUID,
+                arrayOf(),
+                "Hello %[username]%! It's %[date]% %[time]%",
+                true
+            )
+                .runWithCallback(
+                    onSuccess = {
+                        passedTest[GameMessageApiId] = it
+                    },
+                    onFailure = {
+                        failedTest[GameMessageApiId] = it
+                    }
+                )
         }
         onSuccess(passedTest)
         onFailure(failedTest)

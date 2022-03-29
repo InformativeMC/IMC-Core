@@ -20,6 +20,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 class GameMessageResponseDetail()
 
+@Serializable
 class GameMessageResponse(
     override val requestStatus: String,
     override val requestInfo: String,
