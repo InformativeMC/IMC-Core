@@ -72,6 +72,7 @@ class ApiServer(
         registerApiHandler(UserRegisterHandler(modDataManager))
         registerApiHandler(UserTestHandler(modDataManager))
         registerApiHandler(GameMessageHandler(mcServer, modDataManager))
+        registerApiHandler(GiveInventoryHandler(mcServer, modDataManager))
 
         // Late init
         paramFreeHandlers.forEach { (_, handler) ->

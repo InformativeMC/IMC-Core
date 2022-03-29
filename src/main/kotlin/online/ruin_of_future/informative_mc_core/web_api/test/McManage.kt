@@ -5,9 +5,11 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.GameMessageApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.GiveInventoryApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.PlayerStatApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.ApiResponse
 import online.ruin_of_future.informative_mc_core.web_api.response.GameMessageResponse
+import online.ruin_of_future.informative_mc_core.web_api.response.GiveInventoryResponse
 import online.ruin_of_future.informative_mc_core.web_api.response.PlayerStatResponse
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -111,6 +113,24 @@ private class GameMessageTest(
     )
 )
 
+private class GiveInventoryTest(
+    private val username: String,
+    private val tokenUUID: UUID,
+    target: Array<String> = arrayOf(), // Empty array capture all targets,
+    itemId: String,
+    count: Int,
+) : ApiTest<GiveInventoryResponse> by PostApiTestImpl(
+    GiveInventoryApiId,
+    username,
+    tokenUUID,
+    GiveInventoryResponse.serializer(),
+    mapOf(
+        "target" to Json.encodeToString(target),
+        "itemId" to itemId,
+        "count" to Json.encodeToString(count),
+    ),
+)
+
 class McManageTestBatch(
     private val username: String,
     private val tokenUUID: UUID,
@@ -188,15 +208,31 @@ class McManageTestBatch(
                 arrayOf(),
                 "Hello %[username]%! It's %[date]% %[time]%",
                 true
+            ).runWithCallback(
+                onSuccess = {
+                    passedTest[GameMessageApiId] = it
+                },
+                onFailure = {
+                    failedTest[GameMessageApiId] = it
+                }
             )
-                .runWithCallback(
-                    onSuccess = {
-                        passedTest[GameMessageApiId] = it
-                    },
-                    onFailure = {
-                        failedTest[GameMessageApiId] = it
-                    }
-                )
+        }
+        if (flag) {
+            delay(TimeUnit.SECONDS.toMillis(3))
+            GiveInventoryTest(
+                username,
+                tokenUUID,
+                arrayOf(),
+                "minecraft:cobblestone",
+                32,
+            ).runWithCallback(
+                onSuccess = {
+                    passedTest[GiveInventoryApiId] = it
+                },
+                onFailure = {
+                    failedTest[GiveInventoryApiId] = it
+                }
+            )
         }
         onSuccess(passedTest)
         onFailure(failedTest)
