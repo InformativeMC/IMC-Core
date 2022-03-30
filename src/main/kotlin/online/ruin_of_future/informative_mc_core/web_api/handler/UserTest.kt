@@ -29,7 +29,7 @@ class UserTestHandler(
 
     override fun handleRequest(formParams: Map<String, List<String>>, outputStream: OutputStream) {
         val req = parseUserRequest(formParams)
-        val res = if (!modData.userManager.hasUserName(req.username)) {
+        val res = if (!modData.userManager.hasUser(req.username)) {
             UserTestResponse.usernameError(req.username)
         } else if (!modData.userManager.verifyUserToken(req.username, req.token)) {
             UserTestResponse.invalidTokenError(req.token)

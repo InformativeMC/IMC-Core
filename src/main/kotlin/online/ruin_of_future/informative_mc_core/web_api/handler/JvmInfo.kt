@@ -32,7 +32,7 @@ class JvmInfoHandler(
         outputStream: OutputStream
     ) {
         val req = parseUserRequest(formParams)
-        val res = if (!modData.userManager.hasUserName(req.username)) {
+        val res = if (!modData.userManager.hasUser(req.username)) {
             JvmInfoResponse.usernameError(req.username)
         } else if (!modData.userManager.verifyUserToken(req.username, req.token)) {
             JvmInfoResponse.invalidTokenError(req.token)

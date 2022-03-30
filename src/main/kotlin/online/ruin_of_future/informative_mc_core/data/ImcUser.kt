@@ -15,9 +15,22 @@
  */
 package online.ruin_of_future.informative_mc_core.data
 
-import online.ruin_of_future.informative_mc_core.auth.ForeverToken
+import online.ruin_of_future.informative_mc_core.database.SqlTableRow
+import java.util.*
 
-class ImcUser(
+class ImcUser private constructor(
+    // Primary key
+    private val id: Int,
     val username: String,
-    val userToken: ForeverToken,
-)
+    val userToken: UUID,
+) : SqlTableRow {
+    override fun toSqlString(): String {
+        return "($id, '$username', '$userToken')"
+    }
+
+    companion object {
+        fun create(username: String, userToken: UUID): ImcUser {
+            return ImcUser(-1, username, userToken)
+        }
+    }
+}

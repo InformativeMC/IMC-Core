@@ -75,7 +75,7 @@ class PlayerStatHandler(
         outputStream: OutputStream
     ) {
         val req = parseUserRequest(formParams)
-        val res = if (!modData.userManager.hasUserName(req.username)) {
+        val res = if (!modData.userManager.hasUser(req.username)) {
             PlayerStatResponse.usernameError(req.username)
         } else if (!modData.userManager.verifyUserToken(req.username, req.token)) {
             PlayerStatResponse.invalidTokenError(req.token)

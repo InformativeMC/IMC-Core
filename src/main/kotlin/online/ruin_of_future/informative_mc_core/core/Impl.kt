@@ -41,6 +41,8 @@ val modDataFilePath: Path = modDataDirPath.resolve("IMC-Core.data").toAbsolutePa
 
 val tmpDirPath: Path = cwd.resolve("tmp").resolve("InformativeMC").toAbsolutePath()
 
+val dbFilePath: Path = modDataDirPath.resolve("IMC.db").toAbsolutePath()
+
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
 sealed class ImcCoreImpl : ModInitializer {

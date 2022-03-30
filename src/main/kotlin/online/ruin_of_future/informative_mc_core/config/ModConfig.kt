@@ -19,7 +19,6 @@ import kotlinx.serialization.Serializable
 import online.ruin_of_future.informative_mc_core.core.modConfigFilePath
 import online.ruin_of_future.informative_mc_core.util.FileHandler
 import online.ruin_of_future.informative_mc_core.util.generateRandomString
-import kotlin.reflect.full.memberProperties
 
 @Serializable
 class ModConfig private constructor(
