@@ -15,7 +15,7 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.JvmInfoApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.JvmInfoResponse
@@ -23,7 +23,7 @@ import online.ruin_of_future.informative_mc_core.web_api.response.JvmInfoRespons
 import java.io.OutputStream
 
 class JvmInfoHandler(
-    private val modDataManager: ModDataManager,
+    private val modData: ModData,
 ) : ParamPostHandler() {
     override val id: ApiId = JvmInfoApiId
 
@@ -32,9 +32,9 @@ class JvmInfoHandler(
         outputStream: OutputStream
     ) {
         val req = parseUserRequest(formParams)
-        val res = if (!modDataManager.userManager.hasUsername(req.username)) {
+        val res = if (!modData.userManager.hasUser(req.username)) {
             JvmInfoResponse.usernameError(req.username)
-        } else if (!modDataManager.userManager.verifyUserToken(req.username, req.token)) {
+        } else if (!modData.userManager.verifyUserToken(req.username, req.token)) {
             JvmInfoResponse.invalidTokenError(req.token)
         } else {
             JvmInfoResponse.success(JvmInfoResponseDetail.getCurrent())

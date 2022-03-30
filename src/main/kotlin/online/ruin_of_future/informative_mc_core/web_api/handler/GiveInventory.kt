@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
-import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.GiveInventoryApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.GiveInventoryResponse
@@ -15,15 +15,15 @@ import java.io.OutputStream
 
 class GiveInventoryHandler(
     private val server: MinecraftServer,
-    private val modDataManager: ModDataManager,
+    private val modData: ModData,
 ) : ParamPostHandler() {
     override val id: ApiId = GiveInventoryApiId
 
     override fun handleRequest(formParams: Map<String, List<String>>, outputStream: OutputStream) {
         val req = parseUserRequest(formParams)
-        val response = if (!modDataManager.userManager.hasUsername(req.username)) {
+        val response = if (!modData.userManager.hasUser(req.username)) {
             GiveInventoryResponse.usernameError(req.username)
-        } else if (!modDataManager.userManager.verifyUserToken(req.username, req.token)) {
+        } else if (!modData.userManager.verifyUserToken(req.username, req.token)) {
             GiveInventoryResponse.invalidTokenError(req.token)
         } else {
             try {

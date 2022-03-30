@@ -16,18 +16,14 @@
 package online.ruin_of_future.informative_mc_core.core
 
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.server.MinecraftServer
 import online.ruin_of_future.informative_mc_core.command.ImcCommand
 import online.ruin_of_future.informative_mc_core.config.ModConfig
-import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.util.configDir
 import online.ruin_of_future.informative_mc_core.util.gameDir
-import online.ruin_of_future.informative_mc_core.util.getFile
-import online.ruin_of_future.informative_mc_core.util.saveToFile
 import online.ruin_of_future.informative_mc_core.web_api.ApiServer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -45,6 +41,8 @@ val modDataFilePath: Path = modDataDirPath.resolve("IMC-Core.data").toAbsolutePa
 
 val tmpDirPath: Path = cwd.resolve("tmp").resolve("InformativeMC").toAbsolutePath()
 
+val dbFilePath: Path = modDataDirPath.resolve("IMC.db").toAbsolutePath()
+
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
 sealed class ImcCoreImpl : ModInitializer {
@@ -58,7 +56,7 @@ sealed class ImcCoreImpl : ModInitializer {
     protected val modTimer = Timer("IMC Timer")
     lateinit var server: MinecraftServer
     private lateinit var config: ModConfig
-    lateinit var modDataManager: ModDataManager
+    lateinit var modData: ModData
     private lateinit var apiServer: ApiServer
     private lateinit var imcCommand: ImcCommand
 
@@ -75,84 +73,29 @@ sealed class ImcCoreImpl : ModInitializer {
         }
     }
 
-    private inline fun <reified T> safeLoadFile(
-        path: String,
-        default: T,
-        createAndWriteIfAbsent: Boolean = true
-    ): T {
-        val file = getFile(path)
-        val obj = if (file.exists()) {
-            try {
-                Json.decodeFromStream(file.inputStream())
-            } catch (e: Exception) {
-                val cpyFile = File("${file.absoluteFile.parent}${File.separatorChar}OLD-${file.name}")
-                cpyFile.writeBytes(file.readBytes())
-                LOGGER.warn("Error occurs when reading file. Creating a default config instead.")
-                LOGGER.warn("Old config file would be renamed:")
-                LOGGER.warn("\t${file.absolutePath}")
-                LOGGER.warn("\t\t||")
-                LOGGER.warn("\t\t\\/")
-                LOGGER.warn("\t${cpyFile.absolutePath}")
-                default
-            }
-        } else {
-            if (createAndWriteIfAbsent) {
-                LOGGER.info("Load $path failed. Creating a default one...")
-                if (file.createNewFile()) {
-                    saveToFile(default, file)
-                } else {
-                    LOGGER.error("Creating default file failed.")
-                }
-            }
-            default
-        }
-        return obj
-    }
-
-    private inline fun <reified T> safeLoadFile(
-        path: Path,
-        default: T,
-        createAndWriteIfAbsent: Boolean = true
-    ): T {
-        return safeLoadFile(path.toString(), default, createAndWriteIfAbsent)
-    }
 
     private fun loadConfig() {
         LOGGER.info("Loading IMC config...")
-        config = safeLoadFile(modConfigFilePath, ModConfig.DEFAULT)
+        config = ModConfig.load()
         // TODO: Write on demand
-//        modTimer.schedule(
-//            delay = TimeUnit.SECONDS.toMillis(1),
-//            period = TimeUnit.MINUTES.toMillis(5),
-//        ) {
-//            saveToFileLocked(data, modConfigFilePath)
-//        }
         LOGGER.info("IMC config loaded.")
     }
 
     private fun loadData() {
         LOGGER.info("Loading IMC data...")
-        modDataManager = safeLoadFile(modDataFilePath, ModDataManager.DEFAULT)
-        // TODO: Write on demand
-        // TODO: Replace it with a Database
-//        modTimer.schedule(
-//            delay = TimeUnit.SECONDS.toMillis(1),
-//            period = TimeUnit.MINUTES.toMillis(5),
-//        ) {
-//            saveToFileLocked(data, modDataFilePath)
-//        }
+        modData = ModData.load()
         LOGGER.info("IMC data loaded.")
     }
 
     private fun setupApiServer() {
         LOGGER.info("Starting IMC API server...")
-        apiServer = ApiServer(server, config.port, config, modDataManager)
+        apiServer = ApiServer(server, config, modData)
         LOGGER.info("IMC API server started.")
     }
 
     private fun setupImcCommand() {
         LOGGER.info("Setting up IMC commands...")
-        imcCommand = ImcCommand(modDataManager, this.isTestImpl)
+        imcCommand = ImcCommand(modData, this.isTestImpl)
         imcCommand.setup()
         LOGGER.info("IMC commands set up.")
     }

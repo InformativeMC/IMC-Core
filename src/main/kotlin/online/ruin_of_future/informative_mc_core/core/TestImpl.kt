@@ -17,18 +17,21 @@ package online.ruin_of_future.informative_mc_core.core
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import online.ruin_of_future.informative_mc_core.data.ImcUser
-import online.ruin_of_future.informative_mc_core.util.generateRandomString
 import online.ruin_of_future.informative_mc_core.web_api.test.ApiTests
 
 sealed class ImcCoreTestImpl : ImcCoreImpl() {
     override val isTestImpl: Boolean = true
     private fun setupTestUser(): ImcUser {
-        LOGGER.info("Setting temporary tokens for tests...")
-        return modDataManager.userManager.addUser("TEST_${generateRandomString(5)}")
+        return if (!modData.userManager.hasUser("IMC_TEST")) {
+            LOGGER.info("Setting temporary tokens for tests...")
+            modData.userManager.addUser("IMC_TEST")
+        } else {
+            modData.userManager.getUser("IMC_TEST")!!
+        }
     }
 
     private fun runAllTest(testUser: ImcUser) {
-        ApiTests(modDataManager, testUser).run()
+        ApiTests(modData, testUser).run()
     }
 
     private fun registerServerStartedCallback() {

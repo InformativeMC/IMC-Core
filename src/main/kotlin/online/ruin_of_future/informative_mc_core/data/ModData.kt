@@ -17,14 +17,20 @@ package online.ruin_of_future.informative_mc_core.data
 
 import online.ruin_of_future.informative_mc_core.auth.TokenManager
 
-class ModDataManager(
+class ModData(
+    // userManager is mapped to a database
     val userManager: UserManager,
+    // tmpAuthManager will not be persistent
     val tmpAuthManager: TokenManager
 ) {
     companion object {
-        val DEFAULT = ModDataManager(
-            userManager = UserManager(),
+        private val CURRENT = ModData(
+            userManager = UserManager("IMC_USERS"),
             tmpAuthManager = TokenManager(),
         )
+
+        fun load(): ModData {
+            return CURRENT
+        }
     }
 }

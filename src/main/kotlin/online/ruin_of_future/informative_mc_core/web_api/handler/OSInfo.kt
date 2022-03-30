@@ -15,7 +15,7 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.OSInfoApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponse
@@ -23,7 +23,7 @@ import online.ruin_of_future.informative_mc_core.web_api.response.OSInfoResponse
 import java.io.OutputStream
 
 class OSInfoHandler(
-    private val modDataManager: ModDataManager,
+    private val modData: ModData,
 ) : ParamPostHandler() {
     override val id: ApiId = OSInfoApiId
     override fun handleRequest(
@@ -31,9 +31,9 @@ class OSInfoHandler(
         outputStream: OutputStream
     ) {
         val req = parseUserRequest(formParams)
-        val res = if (!modDataManager.userManager.hasUsername(req.username)) {
+        val res = if (!modData.userManager.hasUser(req.username)) {
             OSInfoResponse.usernameError(req.username)
-        } else if (!modDataManager.userManager.verifyUserToken(req.username, req.token)) {
+        } else if (!modData.userManager.verifyUserToken(req.username, req.token)) {
             OSInfoResponse.invalidTokenError(req.token)
         } else {
             OSInfoResponse.success(OSInfoResponseDetail.getCurrent())

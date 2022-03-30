@@ -20,7 +20,7 @@ import kotlinx.serialization.json.Json
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.LiteralText
-import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.GameMessageApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.GameMessageResponse
@@ -31,7 +31,7 @@ import java.util.*
 
 class GameMessageHandler(
     private val server: MinecraftServer,
-    private val modDataManager: ModDataManager,
+    private val modData: ModData,
 ) : ParamPostHandler() {
     override val id: ApiId = GameMessageApiId
 
@@ -67,9 +67,9 @@ class GameMessageHandler(
 
     override fun handleRequest(formParams: Map<String, List<String>>, outputStream: OutputStream) {
         val req = parseUserRequest(formParams)
-        val res = if (!modDataManager.userManager.hasUsername(req.username)) {
+        val res = if (!modData.userManager.hasUser(req.username)) {
             GameMessageResponse.usernameError(req.username)
-        } else if (!modDataManager.userManager.verifyUserToken(req.username, req.token)) {
+        } else if (!modData.userManager.verifyUserToken(req.username, req.token)) {
             GameMessageResponse.invalidTokenError(req.token)
         } else {
             try {

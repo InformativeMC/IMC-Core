@@ -21,7 +21,7 @@ import net.minecraft.entity.damage.DamageSource
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.LiteralText
-import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.PlayerStatApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.PlayerStatResponse
@@ -31,7 +31,7 @@ import java.io.OutputStream
 
 class PlayerStatHandler(
     private val server: MinecraftServer,
-    private val modDataManager: ModDataManager,
+    private val modData: ModData,
 ) : ParamPostHandler() {
     override val id: ApiId = PlayerStatApiId
 
@@ -72,9 +72,9 @@ class PlayerStatHandler(
         outputStream: OutputStream
     ) {
         val req = parseUserRequest(formParams)
-        val res = if (!modDataManager.userManager.hasUsername(req.username)) {
+        val res = if (!modData.userManager.hasUser(req.username)) {
             PlayerStatResponse.usernameError(req.username)
-        } else if (!modDataManager.userManager.verifyUserToken(req.username, req.token)) {
+        } else if (!modData.userManager.verifyUserToken(req.username, req.token)) {
             PlayerStatResponse.invalidTokenError(req.token)
         } else {
             val target = formParams["target"]?.get(0)

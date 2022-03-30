@@ -15,52 +15,72 @@
  */
 package online.ruin_of_future.informative_mc_core.data
 
-import online.ruin_of_future.informative_mc_core.auth.Token
-import online.ruin_of_future.informative_mc_core.auth.TokenManager
+import online.ruin_of_future.informative_mc_core.core.dbFilePath
+import online.ruin_of_future.informative_mc_core.database.SqliteDBTable
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.sql.ResultSet
 import java.util.*
 
-class UserManager {
-
+class UserManager(
+    dbTableName: String
+) : SqliteDBTable<ImcUser>(
+    name = dbTableName,
+    sqlLiteDBPath = dbFilePath,
+    createIfAbsent = true,
+) {
     companion object {
         @JvmStatic
         private val LOGGER: Logger = LogManager.getLogger("IMC User")
     }
 
-    // TODO: persistent storage
-    private val users = mutableMapOf<String, ImcUser>()
-    private val userTokenManager = TokenManager()
-
-    fun hasUsername(userName: String): Boolean {
-        return users.containsKey(userName)
+    fun hasUser(username: String): Boolean {
+        return select("username = '$username'").isNotEmpty()
     }
 
-    fun hasUser(userName: String, imcUser: ImcUser): Boolean {
-        return users[userName]?.username == imcUser.username &&
-                users[userName]?.userToken == imcUser.userToken
-    }
-
-    fun hasUser(userName: String, userToken: Token): Boolean {
-        return users.containsKey(userName) && users[userName]?.userToken == userToken
+    fun getUser(username: String): ImcUser? {
+        return select("username = '$username'").getOrNull(0)
     }
 
     fun addUser(userName: String): ImcUser {
-        val newUser = ImcUser(userName, userTokenManager.addForeverToken())
+        val newUser = ImcUser.create(userName, UUID.randomUUID())
+        insert(newUser)
         LOGGER.info("A new user added: ${newUser.username}")
-        users[newUser.username] = newUser
         return newUser
     }
 
-    fun removeUser(userName: String): Boolean {
-        return if (users.containsKey(userName)) {
-            users.remove(userName, users[userName])
-        } else {
-            false
-        }
+    fun verifyUserToken(username: String, userToken: UUID): Boolean {
+        return select("username = '$username' AND userToken='$userToken'").isNotEmpty()
     }
 
-    fun verifyUserToken(userName: String, token: UUID): Boolean {
-        return userTokenManager.verifyToken(token) && users[userName]?.userToken?.uuid == token
+    override val tableSchema: String
+        get() {
+            val columns = listOf(
+                "id INTEGER PRIMARY KEY AUTOINCREMENT",
+                "username TEXT NOT NULL",
+                "userToken TEXT NOT NULL",
+            )
+            val sb = StringBuilder()
+            sb.append('(')
+            columns.forEachIndexed { idx, entry ->
+                sb.append(entry)
+                if (idx < columns.size - 1) {
+                    sb.append(',')
+                }
+            }
+            sb.append(')')
+            return sb.toString()
+        }
+
+    override fun resultSetParser(rs: ResultSet): List<ImcUser> {
+        val result = mutableListOf<ImcUser>()
+        while (rs.next()) {
+            val username = rs.getString("username")
+            val token = UUID.fromString(rs.getString("userToken"))
+            result.add(ImcUser.create(username, token))
+        }
+        return result
     }
+
+    override val rowSchema: String = "(username, userToken)"
 }

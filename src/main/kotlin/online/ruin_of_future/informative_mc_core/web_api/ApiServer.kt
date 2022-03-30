@@ -20,7 +20,7 @@ import io.javalin.apibuilder.ApiBuilder.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import net.minecraft.server.MinecraftServer
 import online.ruin_of_future.informative_mc_core.config.ModConfig
-import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.web_api.handler.*
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import org.apache.logging.log4j.LogManager
@@ -37,15 +37,15 @@ import java.io.ByteArrayOutputStream
 @OptIn(ExperimentalSerializationApi::class)
 class ApiServer(
     private val mcServer: MinecraftServer,
-    private val serverPort: Int,
     modConfig: ModConfig,
-    private val modDataManager: ModDataManager,
+    private val modData: ModData,
 ) : KeyStoreManager(modConfig) {
     companion object {
         @JvmStatic
         private val LOGGER: Logger = LogManager.getLogger("IMC-Core")
     }
 
+    private val serverPort: Int = modConfig.port
     private var app: Javalin
 
     private val paramFreeHandlers = mutableMapOf<ApiId, ParamFreeHandler>()
@@ -66,13 +66,13 @@ class ApiServer(
 
     private fun setupAllApi() {
         registerApiHandler(HeartbeatHandler())
-        registerApiHandler(JvmInfoHandler(modDataManager))
-        registerApiHandler(OSInfoHandler(modDataManager))
-        registerApiHandler(PlayerStatHandler(mcServer, modDataManager))
-        registerApiHandler(UserRegisterHandler(modDataManager))
-        registerApiHandler(UserTestHandler(modDataManager))
-        registerApiHandler(GameMessageHandler(mcServer, modDataManager))
-        registerApiHandler(GiveInventoryHandler(mcServer, modDataManager))
+        registerApiHandler(JvmInfoHandler(modData))
+        registerApiHandler(OSInfoHandler(modData))
+        registerApiHandler(PlayerStatHandler(mcServer, modData))
+        registerApiHandler(UserRegisterHandler(modData))
+        registerApiHandler(UserTestHandler(modData))
+        registerApiHandler(GameMessageHandler(mcServer, modData))
+        registerApiHandler(GiveInventoryHandler(mcServer, modData))
 
         // Late init
         paramFreeHandlers.forEach { (_, handler) ->

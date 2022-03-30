@@ -40,6 +40,9 @@ dependencies {
 
     // Google guava
     implementation("com.google.guava:guava:31.1-jre")
+
+    // SQLite
+    implementation("org.xerial:sqlite-jdbc:3.36.0.3")
 }
 
 tasks {
