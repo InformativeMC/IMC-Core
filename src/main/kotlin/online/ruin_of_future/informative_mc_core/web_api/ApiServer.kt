@@ -18,24 +18,16 @@ package online.ruin_of_future.informative_mc_core.web_api
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import kotlinx.serialization.ExperimentalSerializationApi
+import net.minecraft.server.MinecraftServer
 import online.ruin_of_future.informative_mc_core.config.ModConfig
-import online.ruin_of_future.informative_mc_core.core.tmpDirPath
 import online.ruin_of_future.informative_mc_core.data.ModDataManager
-import online.ruin_of_future.informative_mc_core.util.generateCertificate
-import online.ruin_of_future.informative_mc_core.util.generateKeyPair
 import online.ruin_of_future.informative_mc_core.web_api.handler.*
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.ServerConnector
-import org.eclipse.jetty.util.ssl.SslContextFactory
 import java.io.ByteArrayOutputStream
-import java.io.File
-import java.security.KeyFactory
-import java.security.KeyStore
-import java.security.cert.CertificateFactory
-import java.security.spec.X509EncodedKeySpec
 
 
 /**
@@ -44,23 +36,15 @@ import java.security.spec.X509EncodedKeySpec
 @Suppress("UnUsed")
 @OptIn(ExperimentalSerializationApi::class)
 class ApiServer(
-    private val modConfig: ModConfig,
+    private val mcServer: MinecraftServer,
+    private val serverPort: Int,
+    modConfig: ModConfig,
     private val modDataManager: ModDataManager,
-) {
-
+) : KeyStoreManager(modConfig) {
     companion object {
         @JvmStatic
         private val LOGGER: Logger = LogManager.getLogger("IMC-Core")
     }
-
-    private val serverPort: Int = modConfig.port
-
-    /**
-     * If the cert and key files are provided in config, a temporary path will be used.
-     * Otherwise, it would be read directly from config.
-     * */
-    private lateinit var keyStorePath: String
-    private lateinit var keyPassword: String
 
     private var app: Javalin
 
@@ -84,9 +68,11 @@ class ApiServer(
         registerApiHandler(HeartbeatHandler())
         registerApiHandler(JvmInfoHandler(modDataManager))
         registerApiHandler(OSInfoHandler(modDataManager))
-        registerApiHandler(PlayerStatHandler(modDataManager))
+        registerApiHandler(PlayerStatHandler(mcServer, modDataManager))
         registerApiHandler(UserRegisterHandler(modDataManager))
         registerApiHandler(UserTestHandler(modDataManager))
+        registerApiHandler(GameMessageHandler(mcServer, modDataManager))
+        registerApiHandler(GiveInventoryHandler(mcServer, modDataManager))
 
         // Late init
         paramFreeHandlers.forEach { (_, handler) ->
@@ -97,68 +83,6 @@ class ApiServer(
         }
         paramPostHandlers.forEach { (_, handler) ->
             handler.setup()
-        }
-    }
-
-    private fun getSslContextFactory(): SslContextFactory.Server {
-        val factory = SslContextFactory.Server()
-        factory.keyStorePath = keyStorePath
-        factory.setKeyStorePassword(keyPassword)
-        return factory
-    }
-
-    private fun ensureKeyStore() {
-        var flag = false
-        var certFile: File? = null
-        var keyFile: File? = null
-        if (modConfig.certConfig != null) {
-            certFile = File(modConfig.certConfig.certPath)
-            keyFile = File(modConfig.certConfig.keyPath)
-            flag = certFile.exists() && keyFile.exists()
-        }
-        if (flag) { // No cert and key files are provided in config
-            keyStorePath = "$tmpDirPath${File.separatorChar}ICM-TMP.jks"
-            keyPassword = modConfig.password
-            val keyStoreFile = File(keyStorePath)
-            val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
-
-            val certChain = arrayOf(
-                CertificateFactory
-                    .getInstance("RSA")
-                    .generateCertificate(
-                        certFile!!.inputStream()
-                    )
-            )
-            val privateKey = KeyFactory
-                .getInstance("RSA")
-                .generatePrivate(X509EncodedKeySpec(keyFile!!.readBytes()))
-
-            LOGGER.info("Detected cert file and key file. Using them to start server.")
-
-            keyStore.setKeyEntry("api-server-secret", privateKey, keyPassword.toCharArray(), certChain)
-            val os = keyStoreFile.outputStream()
-            keyStore.store(os, keyPassword.toCharArray())
-            os.close()
-        } else {
-            keyStorePath = modConfig.keyStoreConfig.keyStorePath
-            keyPassword = modConfig.password
-            val keyStoreFile = File(keyStorePath)
-            val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
-            if (!keyStoreFile.exists()) {
-                LOGGER.warn("No KeyStore found. Creating a new one at ${keyStoreFile.absolutePath}")
-                LOGGER.warn("The creating procedure might take a long time.")
-                keyStore.load(null, keyPassword.toCharArray())
-                keyStoreFile.createNewFile()
-                val keyPair = generateKeyPair(8192)
-                val certChain = arrayOf(generateCertificate("localhost", keyPair))
-                keyStore.setKeyEntry("api-server-secret", keyPair.private, keyPassword.toCharArray(), certChain)
-                val os = keyStoreFile.outputStream()
-                keyStore.store(os, keyPassword.toCharArray())
-                os.close()
-            } else {
-                LOGGER.info("Detected KeyStore. Loading from ${keyStoreFile.absolutePath}")
-                keyStore.load(keyStoreFile.inputStream(), keyPassword.toCharArray())
-            }
         }
     }
 

@@ -31,7 +31,7 @@ class OSInfoHandler(
         outputStream: OutputStream
     ) {
         val req = parseUserRequest(formParams)
-        val res = if (!modDataManager.userManager.hasUserName(req.username)) {
+        val res = if (!modDataManager.userManager.hasUsername(req.username)) {
             OSInfoResponse.usernameError(req.username)
         } else if (!modDataManager.userManager.verifyUserToken(req.username, req.token)) {
             OSInfoResponse.invalidTokenError(req.token)
