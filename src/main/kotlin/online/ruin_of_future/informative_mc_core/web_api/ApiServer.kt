@@ -20,7 +20,7 @@ import io.javalin.apibuilder.ApiBuilder.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import online.ruin_of_future.informative_mc_core.config.ModConfig
 import online.ruin_of_future.informative_mc_core.core.tmpDirPath
-import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.util.generateCertificate
 import online.ruin_of_future.informative_mc_core.util.generateKeyPair
 import online.ruin_of_future.informative_mc_core.web_api.handler.*
@@ -45,7 +45,7 @@ import java.security.spec.X509EncodedKeySpec
 @OptIn(ExperimentalSerializationApi::class)
 class ApiServer(
     private val modConfig: ModConfig,
-    private val modDataManager: ModDataManager,
+    private val modData: ModData,
 ) {
 
     companion object {
@@ -82,11 +82,11 @@ class ApiServer(
 
     private fun setupAllApi() {
         registerApiHandler(HeartbeatHandler())
-        registerApiHandler(JvmInfoHandler(modDataManager))
-        registerApiHandler(OSInfoHandler(modDataManager))
-        registerApiHandler(PlayerStatHandler(modDataManager))
-        registerApiHandler(UserRegisterHandler(modDataManager))
-        registerApiHandler(UserTestHandler(modDataManager))
+        registerApiHandler(JvmInfoHandler(modData))
+        registerApiHandler(OSInfoHandler(modData))
+        registerApiHandler(PlayerStatHandler(modData))
+        registerApiHandler(UserRegisterHandler(modData))
+        registerApiHandler(UserTestHandler(modData))
 
         // Late init
         paramFreeHandlers.forEach { (_, handler) ->

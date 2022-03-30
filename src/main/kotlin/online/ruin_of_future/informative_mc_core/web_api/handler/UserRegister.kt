@@ -15,7 +15,7 @@
  */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
 import online.ruin_of_future.informative_mc_core.web_api.id.UserRegisterApiId
 import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterResponse
@@ -23,16 +23,16 @@ import online.ruin_of_future.informative_mc_core.web_api.response.UserRegisterRe
 import java.io.OutputStream
 
 class UserRegisterHandler(
-    private val modDataManager: ModDataManager,
+    private val modData: ModData,
 ) : ParamPostHandler() {
     override val id: ApiId = UserRegisterApiId
 
     override fun handleRequest(formParams: Map<String, List<String>>, outputStream: OutputStream) {
         try {
             val req = parseUserRequest(formParams)
-            val res = if (modDataManager.tmpAuthManager.verifyToken(req.token)) {
-                if (!modDataManager.userManager.hasUserName(req.username)) {
-                    val user = modDataManager.userManager.addUser(req.username)
+            val res = if (modData.tmpAuthManager.verifyToken(req.token)) {
+                if (!modData.userManager.hasUserName(req.username)) {
+                    val user = modData.userManager.addUser(req.username)
                     UserRegisterResponse
                         .success(UserRegisterResponseDetail(user.username, user.userToken.uuid))
                 } else {

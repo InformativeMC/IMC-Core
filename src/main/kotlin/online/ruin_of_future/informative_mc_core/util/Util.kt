@@ -17,28 +17,6 @@
 
 package online.ruin_of_future.informative_mc_core.util
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import java.io.File
-
-fun getFile(root: String, path: String): File {
-    return File("$root${File.separatorChar}$path")
-}
-
-fun getFile(absolutePath: String): File {
-    return File(absolutePath)
-}
-
-@OptIn(ExperimentalSerializationApi::class)
-inline fun <reified T> saveToFile(content: T, file: File) {
-    file.writeText(Json.encodeToString(content))
-}
-
-inline fun <reified T> saveToFile(content: T, filePath: String) {
-    saveToFile(content, File(filePath))
-}
-
 fun Long.humanReadableSize(): String {
     val num = this
     val kb = 1L shl 10

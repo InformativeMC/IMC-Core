@@ -18,18 +18,18 @@ package online.ruin_of_future.informative_mc_core.command
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
-import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.util.generateRandomString
 import online.ruin_of_future.informative_mc_core.web_api.test.ApiTests
 
 class TestRun(
-    private val modDataManager: ModDataManager,
+    private val modData: ModData,
 ) {
     fun build(): LiteralArgumentBuilder<ServerCommandSource> {
         return CommandManager.literal("test")
             .executes {
-                val testUser = modDataManager.userManager.addUser("TEST_${generateRandomString(5)}")
-                ApiTests(modDataManager, testUser).run()
+                val testUser = modData.userManager.addUser("TEST_${generateRandomString(5)}")
+                ApiTests(modData, testUser).run()
                 return@executes 0
             }
     }

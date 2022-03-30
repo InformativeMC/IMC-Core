@@ -17,6 +17,8 @@ package online.ruin_of_future.informative_mc_core.config
 
 import kotlinx.serialization.Serializable
 import online.ruin_of_future.informative_mc_core.core.modConfigDirPath
+import online.ruin_of_future.informative_mc_core.core.modConfigFilePath
+import online.ruin_of_future.informative_mc_core.util.FileHanlder
 import online.ruin_of_future.informative_mc_core.util.generateRandomString
 import java.io.File
 
@@ -36,5 +38,9 @@ class ModConfig private constructor(
             ),
             certConfig = null,
         )
+
+        fun load(): ModConfig {
+            return FileHanlder.load(modConfigFilePath, DEFAULT)
+        }
     }
 }

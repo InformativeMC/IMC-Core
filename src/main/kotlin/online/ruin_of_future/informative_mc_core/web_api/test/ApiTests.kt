@@ -17,7 +17,7 @@ package online.ruin_of_future.informative_mc_core.web_api.test
 
 import kotlinx.coroutines.*
 import online.ruin_of_future.informative_mc_core.data.ImcUser
-import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.data.ModData
 import online.ruin_of_future.informative_mc_core.util.ConsoleLine
 import online.ruin_of_future.informative_mc_core.util.ConsoleLineSegment
 import online.ruin_of_future.informative_mc_core.util.VirtualConsoleOption
@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * Tests in different batches are executed in parallel.
  */
 class ApiTests(
-    modDataManager: ModDataManager,
+    modData: ModData,
     testUser: ImcUser,
 ) {
 
@@ -45,7 +45,7 @@ class ApiTests(
 
     private val tests = listOf(
         SystemInfoTestBatch(testUser.username, testUser.userToken.uuid),
-        ImcManageTestBatch(modDataManager.tmpAuthManager.addTimedOnceToken().uuid),
+        ImcManageTestBatch(modData.tmpAuthManager.addTimedOnceToken().uuid),
         McManageTestBatch(testUser.username, testUser.userToken.uuid),
     )
 

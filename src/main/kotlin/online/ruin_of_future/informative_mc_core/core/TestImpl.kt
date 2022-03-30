@@ -24,11 +24,11 @@ sealed class ImcCoreTestImpl : ImcCoreImpl() {
     override val isTestImpl: Boolean = true
     private fun setupTestUser(): ImcUser {
         LOGGER.info("Setting temporary tokens for tests...")
-        return modDataManager.userManager.addUser("TEST_${generateRandomString(5)}")
+        return modData.userManager.addUser("TEST_${generateRandomString(5)}")
     }
 
     private fun runAllTest(testUser: ImcUser) {
-        ApiTests(modDataManager, testUser).run()
+        ApiTests(modData, testUser).run()
     }
 
     private fun registerServerStartedCallback() {

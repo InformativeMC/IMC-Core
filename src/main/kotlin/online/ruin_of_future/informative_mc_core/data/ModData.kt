@@ -16,15 +16,21 @@
 package online.ruin_of_future.informative_mc_core.data
 
 import online.ruin_of_future.informative_mc_core.auth.TokenManager
+import online.ruin_of_future.informative_mc_core.core.modDataFilePath
+import online.ruin_of_future.informative_mc_core.util.FileHanlder
 
-class ModDataManager(
+class ModData(
     val userManager: UserManager,
     val tmpAuthManager: TokenManager
 ) {
     companion object {
-        val DEFAULT = ModDataManager(
+        val DEFAULT = ModData(
             userManager = UserManager(),
             tmpAuthManager = TokenManager(),
         )
+
+        fun load(): ModData {
+            return FileHanlder.load(modDataFilePath, DEFAULT)
+        }
     }
 }
