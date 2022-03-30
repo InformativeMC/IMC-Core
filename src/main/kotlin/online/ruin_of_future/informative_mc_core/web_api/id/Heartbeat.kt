@@ -13,13 +13,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.web_api
+package online.ruin_of_future.informative_mc_core.web_api.id
 
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class ApiID(val namespace: String, val path: String) {
-    fun toURIString(): String {
-        return "$namespace/$path"
-    }
-}
+val HeartbeatApiId = ApiId("system-info", "heartbeat")

@@ -13,11 +13,23 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.data
+package online.ruin_of_future.informative_mc_core.web_api.response
 
-import online.ruin_of_future.informative_mc_core.auth.ForeverToken
+import kotlinx.serialization.Serializable
 
-class ImcUser(
+@Serializable
+class UserTestResponseDetail(
     val username: String,
-    val userToken: ForeverToken,
 )
+
+@Serializable
+class UserTestResponse(
+    override val requestStatus: String,
+    override val requestInfo: String,
+    override val responseDetail: UserTestResponseDetail?
+) : ApiResponse<UserTestResponseDetail>() {
+
+    companion object CommonResponse : ApiAuthCommonResponse<UserTestResponseDetail, UserTestResponse>(
+        responseBuilder = { status, info, detail -> UserTestResponse(status, info, detail) }
+    )
+}

@@ -15,9 +15,16 @@
  */
 package online.ruin_of_future.informative_mc_core.data
 
-import online.ruin_of_future.informative_mc_core.auth.ForeverToken
+import online.ruin_of_future.informative_mc_core.auth.TokenManager
 
-class ImcUser(
-    val username: String,
-    val userToken: ForeverToken,
-)
+class ModDataManager(
+    val userManager: UserManager,
+    val tmpAuthManager: TokenManager
+) {
+    companion object {
+        val DEFAULT = ModDataManager(
+            userManager = UserManager(),
+            tmpAuthManager = TokenManager(),
+        )
+    }
+}

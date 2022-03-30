@@ -13,11 +13,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.data
 
-import online.ruin_of_future.informative_mc_core.auth.ForeverToken
+package online.ruin_of_future.informative_mc_core.web_api.id
 
-class ImcUser(
-    val username: String,
-    val userToken: ForeverToken,
-)
+val JvmInfoApiId = ApiId("system-info", "jvm-info")

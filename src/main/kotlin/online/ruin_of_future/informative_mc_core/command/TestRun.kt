@@ -13,28 +13,24 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.config
+package online.ruin_of_future.informative_mc_core.command
 
-import kotlinx.serialization.Serializable
-import online.ruin_of_future.informative_mc_core.core.modConfigDirPath
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import net.minecraft.server.command.CommandManager
+import net.minecraft.server.command.ServerCommandSource
+import online.ruin_of_future.informative_mc_core.data.ModDataManager
 import online.ruin_of_future.informative_mc_core.util.generateRandomString
-import java.io.File
+import online.ruin_of_future.informative_mc_core.web_api.test.ApiTests
 
-@Serializable
-class ModConfig private constructor(
-    val port: Int,
-    val password: String,
-    val keyStoreConfig: KeyStoreConfig,
-    val certConfig: CertConfig?,
+class TestRun(
+    private val modDataManager: ModDataManager,
 ) {
-    companion object {
-        val DEFAULT = ModConfig(
-            port = 3030,
-            password = generateRandomString(50),
-            keyStoreConfig = KeyStoreConfig(
-                keyStorePath = "$modConfigDirPath${File.separatorChar}IMC-Core.jks",
-            ),
-            certConfig = null,
-        )
+    fun build(): LiteralArgumentBuilder<ServerCommandSource> {
+        return CommandManager.literal("test")
+            .executes {
+                val testUser = modDataManager.userManager.addUser("TEST_${generateRandomString(5)}")
+                ApiTests(modDataManager, testUser).run()
+                return@executes 0
+            }
     }
 }

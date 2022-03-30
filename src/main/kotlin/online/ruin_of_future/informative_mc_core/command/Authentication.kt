@@ -22,7 +22,7 @@ import net.minecraft.text.LiteralText
 import online.ruin_of_future.informative_mc_core.auth.TokenManager
 
 class ImcAuthCommand(
-    private val tokenManager: TokenManager
+    private val tmpAuthManager: TokenManager
 ) {
     private fun getUnBuiltAuthCmd()
             : LiteralArgumentBuilder<ServerCommandSource> {
@@ -34,7 +34,7 @@ class ImcAuthCommand(
         cmd: LiteralArgumentBuilder<ServerCommandSource>,
     ) {
         cmd.executes { ctx ->
-            val token = tokenManager.addTimedOnceToken()
+            val token = tmpAuthManager.addTimedOnceToken()
             // TODO: I18n
             val infoText = "just created a token"
             ctx.source.sendFeedback(

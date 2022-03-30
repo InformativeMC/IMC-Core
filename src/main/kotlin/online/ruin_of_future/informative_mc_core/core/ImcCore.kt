@@ -13,11 +13,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
  */
-package online.ruin_of_future.informative_mc_core.data
+package online.ruin_of_future.informative_mc_core.core
 
-import online.ruin_of_future.informative_mc_core.auth.ForeverToken
+// TODO: Can we separate unit test out? And integrate with Junit?
+// TODO: Can we automatically switch normal build and debug build by external options?
 
-class ImcUser(
-    val username: String,
-    val userToken: ForeverToken,
-)
+// For tests.
+object ImcCore : ImcCoreTestImpl()
+
+// For usual build.
+//object ImcCore : ImcCoreImpl()

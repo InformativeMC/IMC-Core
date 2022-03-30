@@ -20,13 +20,25 @@ import online.ruin_of_future.informative_mc_core.util.UUIDSerializer
 import java.util.*
 
 @Serializable
-sealed class Token(
+sealed class Token {
     @Serializable(with = UUIDSerializer::class)
-    val uuid: UUID,
-) {
+    abstract val uuid: UUID
+
     abstract fun isValid(): Boolean
 
     abstract override fun toString(): String
+
+    override fun equals(other: Any?): Boolean {
+        return if (other is Token) {
+            uuid == other.uuid
+        } else {
+            false
+        }
+    }
+
+    override fun hashCode(): Int {
+        return uuid.hashCode()
+    }
 }
 
 interface Usable {
@@ -39,7 +51,7 @@ interface WillExpire {
     fun expiredAt(): Date
 }
 
-class UsableImpl : Usable {
+private class UsableImpl : Usable {
     private var used = false
 
     override fun isUsed(): Boolean {
@@ -51,9 +63,9 @@ class UsableImpl : Usable {
     }
 }
 
-class WillExpireImpl(
-    public val createdAtMillis: Long,
-    public val expireAfterMillis: Long,
+private class WillExpireImpl(
+    val createdAtMillis: Long,
+    val expireAfterMillis: Long,
 ) : WillExpire {
     override fun isExpired(): Boolean {
         return createdAtMillis + expireAfterMillis < Date().time
@@ -64,9 +76,11 @@ class WillExpireImpl(
     }
 }
 
+@Serializable
 class OnceToken(
-    uuid: UUID,
-) : Token(uuid), Usable by UsableImpl() {
+    @Serializable(with = UUIDSerializer::class)
+    override val uuid: UUID,
+) : Token(), Usable by UsableImpl() {
 
     override fun isValid(): Boolean {
         return isUsed()
@@ -78,11 +92,13 @@ class OnceToken(
     }
 }
 
+@Serializable
 class TimedToken(
-    uuid: UUID,
-    createdAtMillis: Long,
-    expiredAfterMillis: Long
-) : Token(uuid), WillExpire by WillExpireImpl(createdAtMillis, expiredAfterMillis) {
+    @Serializable(with = UUIDSerializer::class)
+    override val uuid: UUID,
+    private val createdAtMillis: Long,
+    private val expiredAfterMillis: Long
+) : Token(), WillExpire by WillExpireImpl(createdAtMillis, expiredAfterMillis) {
     override fun isValid(): Boolean {
         return !isExpired()
     }
@@ -93,12 +109,14 @@ class TimedToken(
     }
 }
 
+@Serializable
 class TimedOnceToken(
-    uuid: UUID,
-    createdAtMillis: Long,
-    expiredAfterMillis: Long
+    @Serializable(with = UUIDSerializer::class)
+    override val uuid: UUID,
+    private val createdAtMillis: Long,
+    private val expiredAfterMillis: Long
 ) :
-    Token(uuid),
+    Token(),
     WillExpire by WillExpireImpl(createdAtMillis, expiredAfterMillis),
     Usable by UsableImpl() {
 
@@ -112,9 +130,11 @@ class TimedOnceToken(
     }
 }
 
+@Serializable
 class ForeverToken(
-    uuid: UUID,
-) : Token(uuid) {
+    @Serializable(with = UUIDSerializer::class)
+    override val uuid: UUID,
+) : Token() {
     override fun isValid(): Boolean {
         return true
     }

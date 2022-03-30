@@ -1,62 +1,41 @@
+/*
+ * Copyright (c) 2022 InformativeMC
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/lgpl-3.0.txt>.
+ */
 package online.ruin_of_future.informative_mc_core.web_api.handler
 
-import kotlinx.serialization.Serializable
-import online.ruin_of_future.informative_mc_core.data.ModData
-import online.ruin_of_future.informative_mc_core.auth.TokenManager
-import online.ruin_of_future.informative_mc_core.web_api.ApiID
+import online.ruin_of_future.informative_mc_core.data.ModDataManager
+import online.ruin_of_future.informative_mc_core.web_api.id.ApiId
+import online.ruin_of_future.informative_mc_core.web_api.id.UserTestApiId
+import online.ruin_of_future.informative_mc_core.web_api.response.UserTestResponse
+import online.ruin_of_future.informative_mc_core.web_api.response.UserTestResponseDetail
 import java.io.OutputStream
 
-val UserTestApiId = ApiID("imc-manage", "test-user")
-
-// TODO: Lift `requestStatus` and `requestInfo` out.
-
-@Serializable
-data class UserTestResponse(
-    val requestStatus: String,
-    val requestInfo: String,
-    val userName: String,
-) {
-    companion object {
-        fun success(userName: String): UserTestResponse {
-            return UserTestResponse(
-                requestStatus = "success",
-                requestInfo = "",
-                userName = userName,
-            )
-        }
-
-        fun unknownUserName(userName: String): UserTestResponse {
-            return UserTestResponse(
-                requestStatus = "error",
-                requestInfo = "unknown username",
-                userName = userName,
-            )
-        }
-
-        fun invalidToken(userName: String): UserTestResponse {
-            return UserTestResponse(
-                requestStatus = "error",
-                requestInfo = "invalid token",
-                userName = userName,
-            )
-        }
-    }
-}
-
 class UserTestHandler(
-    private val tokenManager: TokenManager,
-    private val modData: ModData,
+    private val modDataManager: ModDataManager,
 ) : ParamPostHandler() {
-    override val id: ApiID = UserTestApiId
+    override val id: ApiId = UserTestApiId
 
     override fun handleRequest(formParams: Map<String, List<String>>, outputStream: OutputStream) {
         val req = parseUserRequest(formParams)
-        if (!modData.hasUserName(req.userName)) {
-            UserTestResponse.unknownUserName(req.userName).writeToStream(outputStream)
-        } else if (!tokenManager.verify(req.token)) {
-            UserTestResponse.invalidToken(req.userName).writeToStream(outputStream)
+        val res = if (!modDataManager.userManager.hasUserName(req.username)) {
+            UserTestResponse.usernameError(req.username)
+        } else if (!modDataManager.userManager.verifyUserToken(req.username, req.token)) {
+            UserTestResponse.invalidTokenError(req.token)
         } else {
-            UserTestResponse.success(req.userName).writeToStream(outputStream)
+            UserTestResponse.success(UserTestResponseDetail(req.username))
         }
+        res.writeToStream(outputStream)
     }
 }
