@@ -18,7 +18,7 @@ package online.ruin_of_future.informative_mc_core.config
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CertConfig(
+class CertConfig private constructor(
     val certPath: String,
     val keyPath: String,
 )

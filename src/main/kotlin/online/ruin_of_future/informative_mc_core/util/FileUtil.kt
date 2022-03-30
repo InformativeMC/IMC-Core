@@ -6,12 +6,11 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import org.apache.logging.log4j.LogManager
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
 @OptIn(ExperimentalSerializationApi::class)
-object FileHanlder {
+object FileHandler {
     val LOGGER = LogManager.getLogger("IMC Config")!!
 
     fun getFile(root: String, path: String): File {
@@ -27,12 +26,16 @@ object FileHanlder {
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    inline fun <reified T> saveToFile(content: T, file: File) {
+    inline fun <reified T> save(file: File, content: T) {
         file.writeText(Json.encodeToString(content))
     }
 
-    inline fun <reified T> saveToFile(content: T, filePath: String) {
-        saveToFile(content, File(filePath))
+    inline fun <reified T> save(filePath: String, content: T) {
+        save(File(filePath), content)
+    }
+
+    inline fun <reified T> save(path: Path, content: T) {
+        save(File(path.absolutePathString()), content)
     }
 
     inline fun <reified T> load(
@@ -59,7 +62,7 @@ object FileHanlder {
             if (createAndWriteIfAbsent) {
                 LOGGER.info("Load $path failed. Creating a default one...")
                 if (file.createNewFile()) {
-                    saveToFile(default, file)
+                    save(file, default)
                 } else {
                     LOGGER.error("Creating default file failed.")
                 }
@@ -67,11 +70,5 @@ object FileHanlder {
             default
         }
         return obj
-    }
-
-    private fun save(path: Path) {
-        Files.newBufferedWriter(path).use { writer ->
-            // TODO: save config
-        }
     }
 }

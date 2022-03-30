@@ -16,8 +16,16 @@
 package online.ruin_of_future.informative_mc_core.config
 
 import kotlinx.serialization.Serializable
+import online.ruin_of_future.informative_mc_core.core.modConfigDirPath
+import java.io.File
 
 @Serializable
-data class KeyStoreConfig(
+class KeyStoreConfig private constructor(
     val keyStorePath: String,
-)
+) {
+    companion object {
+        val DEFAULT = KeyStoreConfig(
+            keyStorePath = "$modConfigDirPath${File.separatorChar}IMC-Core.jks"
+        )
+    }
+}

@@ -17,7 +17,7 @@ package online.ruin_of_future.informative_mc_core.data
 
 import online.ruin_of_future.informative_mc_core.auth.TokenManager
 import online.ruin_of_future.informative_mc_core.core.modDataFilePath
-import online.ruin_of_future.informative_mc_core.util.FileHanlder
+import online.ruin_of_future.informative_mc_core.util.FileHandler
 
 class ModData(
     val userManager: UserManager,
@@ -30,7 +30,7 @@ class ModData(
         )
 
         fun load(): ModData {
-            return FileHanlder.load(modDataFilePath, DEFAULT)
+            return FileHandler.load(modDataFilePath, DEFAULT)
         }
     }
 }

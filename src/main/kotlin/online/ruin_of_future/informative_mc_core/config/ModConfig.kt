@@ -16,11 +16,10 @@
 package online.ruin_of_future.informative_mc_core.config
 
 import kotlinx.serialization.Serializable
-import online.ruin_of_future.informative_mc_core.core.modConfigDirPath
 import online.ruin_of_future.informative_mc_core.core.modConfigFilePath
-import online.ruin_of_future.informative_mc_core.util.FileHanlder
+import online.ruin_of_future.informative_mc_core.util.FileHandler
 import online.ruin_of_future.informative_mc_core.util.generateRandomString
-import java.io.File
+import kotlin.reflect.full.memberProperties
 
 @Serializable
 class ModConfig private constructor(
@@ -33,14 +32,12 @@ class ModConfig private constructor(
         val DEFAULT = ModConfig(
             port = 3030,
             password = generateRandomString(50),
-            keyStoreConfig = KeyStoreConfig(
-                keyStorePath = "$modConfigDirPath${File.separatorChar}IMC-Core.jks",
-            ),
+            keyStoreConfig = KeyStoreConfig.DEFAULT,
             certConfig = null,
         )
 
         fun load(): ModConfig {
-            return FileHanlder.load(modConfigFilePath, DEFAULT)
+            return FileHandler.load(modConfigFilePath, DEFAULT)
         }
     }
 }
