@@ -19,18 +19,16 @@ import online.ruin_of_future.informative_mc_core.database.SqlTableRow
 import java.util.*
 
 class ImcUser private constructor(
-    // Primary key
-    private val id: Int,
     val username: String,
     val userToken: UUID,
 ) : SqlTableRow {
     override fun toSqlString(): String {
-        return "($id, '$username', '$userToken')"
+        return "('$username', '$userToken')"
     }
 
     companion object {
         fun create(username: String, userToken: UUID): ImcUser {
-            return ImcUser(-1, username, userToken)
+            return ImcUser(username, userToken)
         }
     }
 }

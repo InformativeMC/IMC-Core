@@ -53,23 +53,24 @@ class UserManager(
         return select("username = '$username' AND userToken='$userToken'").isNotEmpty()
     }
 
-    override fun tableSchema(): String {
-        val columns = listOf(
-            "id int",
-            "username varchar(255)",
-            "userToken varchar(255)",
-        )
-        val sb = StringBuilder()
-        sb.append('(')
-        columns.forEachIndexed { idx, entry ->
-            sb.append(entry)
-            if (idx < columns.size - 1) {
-                sb.append(',')
+    override val tableSchema: String
+        get() {
+            val columns = listOf(
+                "id INTEGER PRIMARY KEY AUTOINCREMENT",
+                "username TEXT NOT NULL",
+                "userToken TEXT NOT NULL",
+            )
+            val sb = StringBuilder()
+            sb.append('(')
+            columns.forEachIndexed { idx, entry ->
+                sb.append(entry)
+                if (idx < columns.size - 1) {
+                    sb.append(',')
+                }
             }
+            sb.append(')')
+            return sb.toString()
         }
-        sb.append(')')
-        return sb.toString()
-    }
 
     override fun resultSetParser(rs: ResultSet): List<ImcUser> {
         val result = mutableListOf<ImcUser>()
@@ -80,4 +81,6 @@ class UserManager(
         }
         return result
     }
+
+    override val rowSchema: String = "(username, userToken)"
 }

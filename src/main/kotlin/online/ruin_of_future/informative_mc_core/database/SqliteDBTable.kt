@@ -11,8 +11,18 @@ abstract class SqliteDBTable<T : SqlTableRow>(
 ) : DatabaseTable<T, String> {
     // TODO: Check sql input
 
-    abstract fun tableSchema(): String
+    abstract val tableSchema: String
+
+    /**
+     * Row description without primary key.
+     * Used in SQL insert operation.
+     * For example, if the table schema is (id INTEGER PRIMARY KEY, name TEXT NOT NULL),
+     * then row Schema should be ('name').
+     * */
+    abstract val rowSchema: String
+
     abstract fun resultSetParser(rs: ResultSet): List<T>
+
     private val connection = run {
         val c = DriverManager.getConnection("jdbc:sqlite:${sqlLiteDBPath.toAbsolutePath()}")
         val statement = c.createStatement()
@@ -20,7 +30,7 @@ abstract class SqliteDBTable<T : SqlTableRow>(
             val rs = statement
                 .executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='${this.name}'")
             if (!rs.next()) {
-                statement.execute("CREATE TABLE ${this.name} ${this.tableSchema()}")
+                statement.execute("CREATE TABLE ${this.name} ${this.tableSchema}")
             }
         }
         c
@@ -28,7 +38,7 @@ abstract class SqliteDBTable<T : SqlTableRow>(
 
     override fun insert(entry: T) {
         val statement = connection.createStatement()
-        statement.executeUpdate("INSERT INTO ${this.name} VALUES ${entry.toSqlString()}")
+        statement.executeUpdate("INSERT INTO ${this.name}${this.rowSchema} VALUES ${entry.toSqlString()}")
     }
 
     override fun select(predicate: String): List<T> {
