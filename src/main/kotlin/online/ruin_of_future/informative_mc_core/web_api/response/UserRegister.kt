@@ -21,9 +21,9 @@ import java.util.*
 
 @Serializable
 class UserRegisterResponseDetail(
-    val userName: String,
+    val username: String,
     @Serializable(with = UUIDSerializer::class)
-    val uuid: UUID?,
+    val key: UUID?,
 )
 
 @Serializable

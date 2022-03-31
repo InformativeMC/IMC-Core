@@ -35,7 +35,7 @@ private class UserRegisterTest(
 ) {
     override fun checkResponse(response: UserRegisterResponse) {
         super.checkResponse(response)
-        assert(response.responseDetail?.userName == username) { "not a valid username" }
+        assert(response.responseDetail?.username == username) { "not a valid username" }
     }
 }
 
@@ -70,7 +70,7 @@ class ImcManageTestBatch(
         UserRegisterTest(tmpAuthUUID, username).runWithCallback(
             onSuccess = {
                 passedTest[UserRegisterApiId] = it
-                tokenUUID = it.responseDetail?.uuid!!
+                tokenUUID = it.responseDetail?.key!!
             },
             onFailure = {
                 failedTest[UserRegisterApiId] = it
